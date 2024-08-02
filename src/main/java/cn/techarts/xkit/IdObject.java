@@ -68,7 +68,11 @@ public class IdObject implements Serializable {
 	}
 
 	public String getText() {
-		return text;
+		if(code == 0) {
+			return "OK";
+		}else {
+			return text;
+		}
 	}
 
 	public void setText(String text) {
@@ -102,12 +106,7 @@ public class IdObject implements Serializable {
 	}
 	
 	@JsonIgnore
-	public boolean hasError() {
-		return this.code != 0;
-	}
-	
-	public<T extends IdObject> T ok(T t){
-		t.setCode(0);
-		return t;
+	public Result toResult() {
+		return new Result(code, text);
 	}
 }

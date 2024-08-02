@@ -4,18 +4,16 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class Codec {
-	private static ObjectMapper jcodec = null, ccodec = null;
+	private static ObjectMapper jcodec = null;
 	
 	static {
-		ccodec = new ObjectMapper();
 		jcodec = new ObjectMapper();
-		ccodec.setSerializationInclusion(Include.NON_DEFAULT);
+		jcodec.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 		jcodec.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-		ccodec.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 		jcodec.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		ccodec.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	}
 	
 	public static String toJson(Object src)  throws RuntimeException{
@@ -32,8 +30,9 @@ public class Codec {
 	 */
 	public static String toCompactJson(Object src)  throws RuntimeException{
 		if(src == null) return null;
+		jcodec.setSerializationInclusion(Include.NON_DEFAULT);
 		try{
-			return ccodec.writeValueAsString(src);
+			return jcodec.writeValueAsString(src);
 		}catch( Exception e){
 			throw new RuntimeException(e);
 		}

@@ -164,12 +164,12 @@
     <dependency>
     	<groupId>org.mybatis</groupId>
     	<artifactId>mybatis</artifactId>
-    	<version>3.5.8</version>
+    	<version>3.5.16</version>
 	</dependency>
 	<dependency>
     	<groupId>org.mybatis</groupId>
     	<artifactId>mybatis-spring</artifactId>
-    	<version>2.0.6</version>
+    	<version>3.0.3</version>
 	</dependency>
 	<dependency>
     	<groupId>mysql</groupId>

@@ -8,9 +8,10 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.techarts.jhelper.Codec;
 import cn.techarts.jhelper.Time;
+import cn.techarts.xkit.Codec;
 import cn.techarts.xkit.IdObject;
+import cn.techarts.xkit.Result;
 import cn.techarts.jhelper.Converter;
 import cn.techarts.jhelper.Empty;
 import cn.techarts.jhelper.Spliter;
@@ -21,26 +22,28 @@ public class WebContext {
 	
 	private HttpServletRequest request;
 	private HttpServletResponse response;
-	private String code = "0", text = "OK";
+	private Result result = Result.ok();
 	
 	public WebContext(HttpServletRequest request, HttpServletResponse response) {
 		this.request = request;
 		this.response = response;
 	}
 	
-	public void respondAsJson(Object result){
-		if(result == null) {
-			this.code = "-1"; //Failed
-			this.text = "Unknown exception";
-		}else if(result instanceof IdObject){
-			var tmp = (IdObject)result;
-			this.text = tmp.getText();
-			code = String.valueOf(tmp.getCode());
+	public void respondAsJson(Object obj){
+		if(obj == null) {
+			if(!result.mark()) {
+				result = Result.unknown();
+			}
+		}else if(obj instanceof IdObject){
+			var tmp = (IdObject)obj;
+			this.result = tmp.toResult();
+		}else if(obj instanceof Result) {
+			this.result = (Result)obj;
 		}
 		
 		response.setContentType(CT_JSON);
-		var content = Codec.toJson(result);
-		content = wrap(content, code, text);
+		var content = Codec.toJson(obj);
+		content = wrap(content, result);
 		try{
 			response.getWriter().write(content);
 			response.getWriter().flush();
@@ -50,10 +53,9 @@ public class WebContext {
 	}
 	
 	public static void respondAsJson(HttpServletResponse response, Object result, int code, String msg){
-		var errno = String.valueOf(code);
 		response.setContentType(CT_JSON);
 		var content = Codec.toJson(result);
-		content = wrap(content, errno, msg);
+		content = wrap(content, new Result(code, msg));
 		try{
 			response.getWriter().write(content);
 			response.getWriter().flush();
@@ -62,12 +64,12 @@ public class WebContext {
 		}
 	}
 	
-	protected static String wrap(String data, String code, String message) {
+	protected static String wrap(String data, Result result) {
 		return new StringBuilder(1024)
 					 .append("{\"code\":")
-			 		 .append(code)
+			 		 .append(result.getCode())
 					 .append(",\"text\":\"")
-					 .append(message)
+					 .append(result.getText())
 					 .append("\",\"data\":")
 					 .append(data)
 					 .append("}").toString();
@@ -164,8 +166,7 @@ public class WebContext {
 	}
 	
 	public void error(int code, String cause) {
-		this.text = cause;
-		this.code = String.valueOf(code);
+		this.result = new Result(code, cause);
 	}
 	
 	public static String getRemorteAddress(HttpServletRequest request) {

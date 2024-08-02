@@ -19,7 +19,6 @@ public abstract class AbstractService
 	protected RedisCacheHelper cache = null;
 	/**
 	 * ERRID means the Id is ZERO(<b>0</b>) and it's <b>invalid</b>.
-	 * In TECHARTS, ZERO(0) is reserved for system. 
 	 * */
 	public static final int ERRID = 0;
 	public static final double ZERO = 0.00001D;
