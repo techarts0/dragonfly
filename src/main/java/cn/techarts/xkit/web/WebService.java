@@ -10,5 +10,9 @@ import java.lang.annotation.Target;
 public @interface WebService {
 	public String uri();
 	public String method() default "POST";
+	/**
+	 * Default: don't use the strict RESTFUL mode.
+	 */
+	public boolean restful() default false;
 	public boolean sessionRequired() default true;
 }

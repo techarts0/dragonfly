@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.techarts.jhelper.Codec;
 import cn.techarts.jhelper.Time;
+import cn.techarts.xkit.IdObject;
 import cn.techarts.jhelper.Converter;
 import cn.techarts.jhelper.Empty;
 import cn.techarts.jhelper.Spliter;
@@ -28,10 +29,19 @@ public class WebContext {
 	}
 	
 	public void respondAsJson(Object result){
+		if(result == null) {
+			this.code = "-1"; //Failed
+			this.text = "Unknown exception";
+		}else if(result instanceof IdObject){
+			var tmp = (IdObject)result;
+			this.text = tmp.getText();
+			code = String.valueOf(tmp.getCode());
+		}
+		
+		response.setContentType(CT_JSON);
+		var content = Codec.toJson(result);
+		content = wrap(content, code, text);
 		try{
-			response.setContentType(CT_JSON);
-			var content = Codec.toJson(result);
-			content = std(content, code, text);
 			response.getWriter().write(content);
 			response.getWriter().flush();
 		}catch(IOException e){ 
@@ -40,10 +50,11 @@ public class WebContext {
 	}
 	
 	public static void respondAsJson(HttpServletResponse response, Object result, int code, String msg){
+		var errno = String.valueOf(code);
+		response.setContentType(CT_JSON);
+		var content = Codec.toJson(result);
+		content = wrap(content, errno, msg);
 		try{
-			var err = Integer.toString(code);
-			response.setContentType(CT_JSON);
-			var content = std(null, err, msg);
 			response.getWriter().write(content);
 			response.getWriter().flush();
 		}catch(IOException e){ 
@@ -51,7 +62,7 @@ public class WebContext {
 		}
 	}
 	
-	protected static String std(String data, String code, String message) {
+	protected static String wrap(String data, String code, String message) {
 		return new StringBuilder(1024)
 					 .append("{\"code\":")
 			 		 .append(code)
@@ -113,12 +124,20 @@ public class WebContext {
 		return getInt("id");
 	}
 	
+	public int xid() {
+		return getInt("xid");
+	}
+	
 	public String name() {
 		return get("name");
 	}
 	
-	public int offset() {
-		return getInt("offset");
+	public int page() {
+		return getInt("page");
+	}
+	
+	public int size() {
+		return getInt("size");
 	}
 	
 	/**Get Time Parameter: yyyy/MM/dd HH:mm:ss*/
@@ -144,9 +163,9 @@ public class WebContext {
 		return Time.parse(p);
 	}
 	
-	public void error(int code, String text) {
-		this.text = text;
-		this.code = Integer.toString(code);
+	public void error(int code, String cause) {
+		this.text = cause;
+		this.code = String.valueOf(code);
 	}
 	
 	public static String getRemorteAddress(HttpServletRequest request) {
@@ -164,15 +183,30 @@ public class WebContext {
 	}
 	
 	/**
-	 * Fill the POJO with the request parameters automatically.<br>
-	 * IMPORTANT: the property name MUST be same to the parameter name.
+	 * An alias of the method {@link toBbean}
 	 */
-	public<T> T toPojo(T pojo) {
-		if(pojo == null) return null;
-		var clz = pojo.getClass();
+	public<T> T bean(T bean) {
+		return toBean(bean);
+	}
+	
+	/**
+	 * An alias of the method {@link toBean}
+	 */
+	public<T> T fillBean(T bean) {
+		return toBean(bean);
+	}
+	
+	/**
+	 * Fills the properties of java POJO with the request parameters automatically.<br>
+	 * IMPORTANT: the property name MUST be same to the parameter name. And, <br>
+	 * only the JDK built-in types and their object wrappers (e.g. long and Long)are supported.
+	 */
+	public<T> T toBean(T bean) {
+		if(bean == null) return null;
+		var clz = bean.getClass();
 		var methods = clz.getMethods();
-		if(methods == null) return pojo;
-		if(methods.length == 0) return pojo;
+		if(methods == null) return bean;
+		if(methods.length == 0) return bean;
 		for(var m : methods) {
 			var name = m.getName();
 			if(!name.startsWith("set")) continue;
@@ -180,9 +214,9 @@ public class WebContext {
 			if(ps == null || ps.length != 1) continue;
 			var cs = name.substring(3).toCharArray();
 			cs[0] += 32; //Convert the upper to lower
-			setProperty(pojo, m, ps[0],String.valueOf(cs));
+			setProperty(bean, m, ps[0],String.valueOf(cs));
 		}
-		return pojo; //Return the POJO to support chain-calling style.
+		return bean; //Return the POJO to support chain-calling style.
 	}
 	
 	private void setProperty(Object pojo, Method m, Class<?> type, String name) {

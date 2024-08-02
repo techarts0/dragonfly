@@ -6,13 +6,14 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import cn.techarts.xkit.data.BasicDaoException;
 import cn.techarts.xkit.data.DataHelper;
 import cn.techarts.xkit.data.RedisCacheHelper;
 
 public abstract class AbstractService 
 {
 	@Autowired
-	protected DataHelper database = null;
+	protected DataHelper persister = null;
 	
 	@Autowired
 	protected RedisCacheHelper cache = null;
@@ -23,9 +24,16 @@ public abstract class AbstractService
 	public static final int ERRID = 0;
 	public static final double ZERO = 0.00001D;
 	
-	public void setDatabase(DataHelper database) {
-		this.database = database;
-	}	
+	public void setPersister(DataHelper database) {
+		this.persister = database;
+	}
+	
+	public DataHelper persister() {
+		if(persister == null) {
+			throw new BasicDaoException("persister is null.");
+		}
+		return this.persister;
+	}
 	
 	public boolean checkId( int id)
 	{
@@ -74,19 +82,9 @@ public abstract class AbstractService
 	}
 	
 	/**
-	 * Returns false if the parameter is NULL or owner equals 0
-	 */
-	protected <T extends UniqueObject> boolean validOwner(T arg){
-		return arg == null || arg.getOwner() == ERRID ? false : true;
-	}
-	
-	/**
 	 * Returns false if the parameter is NULL or id equals 0
 	 */
 	protected <T extends IdObject> boolean yes(T arg) {
 		return arg == null || arg.getId() == ERRID ? false : true;
 	}
-	
-	public static final int SUCCESS = Results.Success.getId();
-	public static final int FAILURE = Results.Failure.getId();	
 }

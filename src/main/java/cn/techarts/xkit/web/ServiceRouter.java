@@ -46,7 +46,7 @@ public class ServiceRouter extends HttpServlet{
 			request.setCharacterEncoding("utf-8");
 			response.setCharacterEncoding("utf-8");
 		}catch(UnsupportedEncodingException e) {
-			//You are a son of bitch if UTF8 is not supported.
+			//You are a son of bitch if UTF-8 is not supported.
 		}
 	}
 	

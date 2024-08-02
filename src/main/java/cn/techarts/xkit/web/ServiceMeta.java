@@ -47,7 +47,7 @@ public final class ServiceMeta {
 	
 	public void call(HttpServletRequest request, HttpServletResponse response, String m) {
 		if(method == null || object == null) return;
-		if(restful && httpMethod.equals(m)) return;
+		if(restful && !httpMethod.equals(m)) return;
 		try {
 			var p = new WebContext(request, response);
 			p.respondAsJson(method.invoke(object, p));
