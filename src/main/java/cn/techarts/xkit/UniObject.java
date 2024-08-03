@@ -5,13 +5,13 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * Generally, a POJO should derived from the class {@link IdObject} especially mapping on an entity in database.<p>
- * An instance of a subclass derived from {@link IdObject} owns a unique id(an integer) and supports serialization.<p>
+ * Generally, a POJO should derived from the class {@link UniObject} especially mapping on an entity in database.<p>
+ * An instance of a subclass derived from {@link UniObject} owns a unique id(an integer) and supports serialization.<p>
  * The class contains below state properties:<br>
  * 1. error-code and error-cause<br>
  * 2. page-number and page-size
  */
-public class IdObject implements Serializable {
+public class UniObject implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -45,7 +45,7 @@ public class IdObject implements Serializable {
 	
 	/**
 	 * In some languages such as OBJECT-C or PYTHON, the "id" is reserved as a keyword.
-	 * Programmer could not use it in their codes, so we provide a redundant property named "xid". 
+	 * Programmer could not use it in their code, so we provide a redundant property named "xid". 
 	 */
 	public int getXid() {
 		return id;

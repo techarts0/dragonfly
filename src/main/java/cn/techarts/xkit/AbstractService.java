@@ -1,22 +1,13 @@
 package cn.techarts.xkit;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import cn.techarts.xkit.data.BasicDaoException;
 import cn.techarts.xkit.data.DataHelper;
 import cn.techarts.xkit.data.RedisCacheHelper;
+import cn.techarts.xkit.data.BasicDaoException;
 
 public abstract class AbstractService 
 {
-	@Autowired
 	protected DataHelper persister = null;
-	
-	@Autowired
-	protected RedisCacheHelper cache = null;
+	private RedisCacheHelper cache = null;
 	/**
 	 * ERRID means the Id is ZERO(<b>0</b>) and it's <b>invalid</b>.
 	 * */
@@ -27,6 +18,10 @@ public abstract class AbstractService
 		this.persister = database;
 	}
 	
+	public void setCache(RedisCacheHelper cache) {
+		this.cache = cache;
+	}
+	
 	public DataHelper persister() {
 		if(persister == null) {
 			throw new BasicDaoException("persister is null.");
@@ -34,56 +29,33 @@ public abstract class AbstractService
 		return this.persister;
 	}
 	
-	public boolean checkId( int id)
+	public RedisCacheHelper cache() {
+		if(cache == null || !cache.isInitialized()) {
+			throw new BasicDaoException("cache is null.");
+		}
+		return this.cache;
+	}
+	
+	/**
+	 * Check the property id. (MUST be great than 0)
+	 */
+	public boolean ok( int id)
 	{
 		return id < 1 ? false : true;
 	}
 	
-	public boolean checkVarArg( int[] objects)
+	/**
+	 * Check the variable argument.(MUST be not null and at least 1 element)
+	 */
+	public boolean ok( int[] objects)
 	{
 		return objects != null && objects.length > 0 ? true : false; 
-	}
-	
-	public static boolean empty( Collection<? extends Object> param)
-	{
-		return param == null || param.isEmpty();
-	}
-	
-	public static boolean empty(IdObject obj) {
-		return obj == null || obj.getId() == ERRID;
-	}
-	
-	public static boolean empty(String src) {
-		return src == null || src.trim().length() == 0;
-	}
-	
-	public static boolean empty(Map<?, ?> param) {
-		return param == null || param.isEmpty();
-	}
-	
-	public<T> int get(Map<T,Integer> map, T key){
-		Integer result = map.get( key);
-		return result != null ? result : 0;
-	}
-	
-	public String uuid(){
-		return UUID.randomUUID().toString();
-	}
-	
-	public static boolean yes(int arg) {
-		return arg == 0 ? false : true;
-	}
-	
-	public boolean yes(String arg) {
-		if(arg == null) return false;
-		if("".equals(arg)) return false;
-		return "0".equals(arg) ? false : true;
 	}
 	
 	/**
 	 * Returns false if the parameter is NULL or id equals 0
 	 */
-	protected <T extends IdObject> boolean yes(T arg) {
+	protected <T extends UniObject> boolean ok(T arg) {
 		return arg == null || arg.getId() == ERRID ? false : true;
 	}
 }

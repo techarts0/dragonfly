@@ -1,5 +1,7 @@
 package cn.techarts.xkit.data;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,51 +11,44 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
-public class RedisCacheHelper {
+public class RedisCacheHelper implements Closeable{
 	
+	private boolean initialized = false;
 	private JedisPool connectionPool = null;
-	private boolean connectionPoolInited = false;
+	
+	public RedisCacheHelper(String host, int port, int poolSize) {
+		if(host == null || port <= 0) return;
+		int max = poolSize > 0 ? poolSize : 20;
+		this.initConnectionPool(host, port, max);
+	}
+	
+	private void initConnectionPool(String host, int port, int max) {
+		var config = new JedisPoolConfig();
+		config.setMinIdle(1);
+		config.setMaxIdle(20);
+		config.setMaxTotal(max);
+		config.setTestOnBorrow(false);
+		config.setTestOnReturn(false);
+		config.setTestOnCreate(false);
+		connectionPool = new JedisPool(config, host, port);
+		this.initialized = true; //Initialized successfully.
+	}
+	
+	public boolean isInitialized() {
+		return this.initialized;
+	}
 	
 	/**
-	 * The default server is 127.0.0.1:6379 if you pass null to these arguments.
+	 * Uses the raw JEDIS API directly.
 	 */
-	public RedisCacheHelper(String host, int port, int capacity) {
-		if(host == null) return;
-		var p = port > 1024 ? port : 6379; 
-		int max = capacity > 0 ? capacity : 20;
-		var ip = host != null ? host : "localhost";
-		this.initConnectionPool(ip, p, max);
-	}
-	
-	@Override
-	protected void finalize() {
-		destroy();
-	}
-	
-	public void initConnectionPool(String host, int port, int max) {
-		connectionPoolInited = true;
-		if (connectionPool == null) {
-			var config = new JedisPoolConfig();
-			config.setMinIdle(1);
-			config.setMaxIdle(20);
-			config.setMaxTotal(max);
-			config.setTestOnBorrow(false);
-			config.setTestOnReturn(false);
-			config.setTestOnCreate(false);
-		    connectionPool = new JedisPool(config, host, port);
-		}
-	}
-	
 	public Jedis session() {
-		if(!connectionPoolInited) {
-			initConnectionPool("localhost", 6379, 10);
-		}		
 		if(connectionPool == null) return null;
 		if(connectionPool.isClosed()) return null;
 		return connectionPool.getResource();
 	}
 
-	public void destroy() {
+	@Override
+	public void close() throws IOException {
 		if(connectionPool == null) return;
 		if(connectionPool.isClosed()) return;
 		connectionPool.close();
@@ -111,13 +106,13 @@ public class RedisCacheHelper {
 	}	
 	
 	/**
-	 * Save a many strings batch
+	 * Save batch
 	 * */
-	public void save(int cache, Map<String, ? extends Object> values) {
+	public void save(int table, Map<String, ? extends Object> values) {
 		if(values == null || values.isEmpty()) return;
 		try(Jedis connection = session()){
 			if(connection == null) return;
-			connection.select(cache);
+			connection.select(table);
 			try(var pipeLine = connection.pipelined()){
 				for(var val : values.entrySet()) {
 					var tmp = val.getValue();
@@ -133,6 +128,9 @@ public class RedisCacheHelper {
 		}
 	}
 	
+	/**
+	 * Save as a map
+	 */
 	@SuppressWarnings("unchecked")
 	public void save(int table, String key, Map<String, ? extends Object> value, int ttl) {
 		if(key == null || value == null || value.isEmpty()) return;
@@ -318,5 +316,5 @@ public class RedisCacheHelper {
 		}catch(Exception e) {
 			return null;
 		}
-	}
+	}	
 }

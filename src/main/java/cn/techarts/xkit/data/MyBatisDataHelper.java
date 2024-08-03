@@ -11,7 +11,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.dao.DataAccessException;
 
-import cn.techarts.xkit.IdObject;
+import cn.techarts.xkit.UniObject;
 
 public class MyBatisDataHelper implements DataHelper {
 
@@ -66,8 +66,8 @@ public class MyBatisDataHelper implements DataHelper {
 			if(isEmptyCollection(parameter)) return 0;
 			this.session.insert(statement, parameter);
 			if(!wantPrimaryKey(returnPK)) return 0;
-			if(parameter instanceof IdObject) {
-				var result = ((IdObject)parameter).getId();
+			if(parameter instanceof UniObject) {
+				var result = ((UniObject)parameter).getId();
 				return this.retrievePrimaryKey(result, statement);
 			}else {
 				var result = session.selectOne(DataHelper.SQL_GETID);

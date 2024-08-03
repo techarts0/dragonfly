@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.techarts.jhelper.Time;
 import cn.techarts.xkit.Codec;
-import cn.techarts.xkit.IdObject;
+import cn.techarts.xkit.UniObject;
 import cn.techarts.xkit.Result;
 import cn.techarts.jhelper.Converter;
 import cn.techarts.jhelper.Empty;
@@ -34,8 +34,8 @@ public class WebContext {
 			if(!result.mark()) {
 				result = Result.unknown();
 			}
-		}else if(obj instanceof IdObject){
-			var tmp = (IdObject)obj;
+		}else if(obj instanceof UniObject){
+			var tmp = (UniObject)obj;
 			this.result = tmp.toResult();
 		}else if(obj instanceof Result) {
 			this.result = (Result)obj;
