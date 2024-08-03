@@ -11,7 +11,7 @@ public final class ServiceMeta {
 	private Method method;
 	private String uri = null;
 	private String httpMethod;
-	private boolean sessionRequired = true;
+	private boolean permission = true;
 	
 	public static boolean restful = false;
 	
@@ -68,11 +68,11 @@ public final class ServiceMeta {
 		this.httpMethod = httpMethod;
 	}
 
-	public boolean isSessionRequired() {
-		return sessionRequired;
+	public boolean isPermissionRequired() {
+		return permission;
 	}
 
-	public void setSessionRequired(boolean authorizationRequired) {
-		this.sessionRequired = authorizationRequired;
+	public void setPermissionRequired(boolean permissionRequired) {
+		this.permission = permissionRequired;
 	}
 }

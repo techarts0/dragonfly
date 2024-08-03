@@ -24,7 +24,7 @@ public class ServiceRouter extends HttpServlet{
 	public int authenticate(HttpServletRequest req, HttpServletResponse response, ServiceMeta service){
 		if(service == null) return NO_SUCH_API;
 		if(!ServiceConfig.SC) return ALLOWED;
-		if(!service.isSessionRequired()) return ALLOWED;
+		if(!service.isPermissionRequired()) return ALLOWED;
 		String session = getSession(req), ip = getRemorteAddress(req);
 		if(Empty.is(session)) return INVALID_SESSION;
 		return checkSession(Converter.toInt(req.getParameter("uid")), ip,  session);

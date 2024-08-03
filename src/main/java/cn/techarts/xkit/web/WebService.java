@@ -14,5 +14,5 @@ public @interface WebService {
 	 * Default: don't use the strict RESTFUL mode.
 	 */
 	public boolean restful() default false;
-	public boolean sessionRequired() default true;
+	public boolean permission() default true;
 }

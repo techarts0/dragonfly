@@ -88,7 +88,7 @@ public class StartupListener implements ServletContextListener {
 				if(ws == null || ws.uri() == null) continue;
 				if(!checkMethodParameterType(method)) continue;
 				var s = new ServiceMeta(ws.uri(), exporter, method, ws.method());
-				s.setSessionRequired(ws.sessionRequired()); //Session
+				s.setPermissionRequired(ws.permission()); //Session
 				if(!ServiceMeta.restful) {
 					ServiceCache.cacheService(ws.uri(), s); // Without the prefix get|post 
 				}else { //With a prefix string get|post such as get/user/login
