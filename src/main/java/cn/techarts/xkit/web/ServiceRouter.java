@@ -89,13 +89,16 @@ public class ServiceRouter extends HttpServlet{
 	 * You can put the session in request header with a customized name "x:session".
 	 */
 	private String getSession(HttpServletRequest request) {
-		return request.getHeader("x:session");
+		var result = request.getHeader("x:session");
+		if(result == null) {
+			result = request.getParameter("session");
+		}
+		return result;
 	}
 	
 	private void ping(HttpServletResponse response, boolean async) {
-		var tmp = "The service is running.";
 		try {
-			response.getWriter().write(tmp);
+			response.getWriter().write("OK");
 			response.getWriter().flush();
 		}catch(IOException e) {
 			e.printStackTrace();

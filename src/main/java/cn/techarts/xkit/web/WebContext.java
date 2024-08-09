@@ -169,11 +169,15 @@ public class WebContext {
 		this.result = new Result(code, cause);
 	}
 	
-	public static String getRemorteAddress(HttpServletRequest request) {
+	public static String getClientAddress(HttpServletRequest request) {
 		var result = request.getHeader("x-forwarded-for");
 		if(result == null) result = request.getHeader("X-Real-IP");
 		return result == null ? request.getRemoteAddr() : result;
-	} 
+	}
+	
+	public String ip() {
+		return getClientAddress(this.request);
+	}
 	
 	public HttpServletRequest getRequest() {
 		return this.request;
@@ -181,6 +185,13 @@ public class WebContext {
 	
 	public HttpServletResponse getResponse() {
 		return this.response;
+	}
+	
+	/**
+	 * @return The value of user-agent field in HTTP Request header
+	 */
+	public String ua() {
+		return request.getHeader("user-agent");
 	}
 	
 	/**
