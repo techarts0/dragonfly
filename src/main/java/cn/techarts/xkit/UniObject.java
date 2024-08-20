@@ -86,7 +86,8 @@ public class UniObject implements Serializable {
 	public void setPage(int page) {
 		this.page = page;
 	}
-
+	
+	@JsonIgnore
 	public int getOffset() {
 		return page * size;
 	}
@@ -108,5 +109,10 @@ public class UniObject implements Serializable {
 	@JsonIgnore
 	public Result toResult() {
 		return new Result(code, text);
+	}
+	
+	public void error(int code, String text) {
+		this.code = code;
+		this.text = text;
 	}
 }

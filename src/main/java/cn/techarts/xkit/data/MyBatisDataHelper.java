@@ -1,9 +1,5 @@
 package cn.techarts.xkit.data;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -21,33 +17,14 @@ public class MyBatisDataHelper implements DataHelper {
 		this.session = session;
 	}
 	
-	@Override
-	public Connection getNativeJdbcConnection() throws BasicDaoException {
-		
-		try{
-			return session.getConnection();
-		}catch( Exception e){
-			throw new BasicDaoException( "Failed to get the native JDBC connection.", e);
-		}
+	public void close() throws BasicDaoException{
+		if(session != null) this.session.close();
 	}
 	
-	@Override
-	public void releaseResources(Connection c, Statement s, ResultSet r) throws BasicDaoException {
-		try{
-			if( r != null) r.close();
-			if( s != null) s.close();
-			if( c != null) c.close();
-		}catch( SQLException e){
-			throw new BasicDaoException( "Failed to release the JDBC resources.", e);
-		}
-	}
-	
-	public static boolean isEmptyCollection(Object parameter) {
+	private static boolean isEmptyCollection(Object parameter) {
 		if(parameter == null) return false;
-		if(parameter instanceof Collection) {
-			return ((Collection<?>)parameter).isEmpty();
-		}
-		return false;
+		if(!(parameter instanceof Collection)) return false;
+		return ((Collection<?>)parameter).isEmpty();
 	}
 	
 	/**
@@ -83,26 +60,6 @@ public class MyBatisDataHelper implements DataHelper {
 		throw new BasicDaoException(statement + ": Missing property [useGeneratedKeys]\n");
 	}
 	
-	/**
-	 * Returns a LONG key
-	 * @apiNote It's very dangers in concurrent environment:<br>
-	 * Can't return a correct AUTO_INCREASEMENT id
-	 */
-	@Override
-	public long create(String statement, Object parameter, boolean... returnPrimaryKey) throws BasicDaoException {
-		try{
-			if(parameter == null) return 0;
-			if(!beforeCheck(statement)) return 0;
-			if(isEmptyCollection(parameter)) return 0;
-			this.session.insert(statement, parameter);
-			if(!wantPrimaryKey(returnPrimaryKey)) return 0;
-			var result = session.selectOne(DataHelper.SQL_GETID);
-			return result != null ? ((Integer)result).intValue() : 0;
-		}catch( DataAccessException e){
-			throw new BasicDaoException( "Failed to insert the object. SQL: [" + statement + "]", e);
-		}
-	}
-
 	@Override
 	public int remove(String statement, Object parameter) throws BasicDaoException {
 		try{
@@ -132,15 +89,6 @@ public class MyBatisDataHelper implements DataHelper {
 	
 	@Override
 	public <T> T get(String statement, Object key) throws BasicDaoException {
-		try{
-			return get1( statement, key);
-		}catch( DataAccessException e){
-			throw new BasicDaoException( "Failed to search result by [" + key + "]. SQL: [" + statement + "]", e);
-		}
-	}
-	
-	@Override
-	public <T> T get(String statement, Object key, Class<T> t) throws BasicDaoException {
 		try{
 			return get1( statement, key);
 		}catch( DataAccessException e){
@@ -204,97 +152,34 @@ public class MyBatisDataHelper implements DataHelper {
 		return result != null && result instanceof String ? (String)result : null; //Latest reversion: returns an empty string("")
 	}
 	
-	private<T> List<T> select( final String statement, Object parameter, RowBounds bounds) throws BasicDaoException
-	{ 
-		if(parameter == null) {
-			return bounds == null ? session.selectList(statement) : session.selectList(statement, null, bounds);
-		}else {
-			return bounds == null ? session.selectList(statement, parameter) : session.selectList(statement, parameter, bounds);
-		}
-	}
-	
-	private<K, T> Map<K, T> select( final String statement, Object parameter, RowBounds bounds, String key) throws BasicDaoException
-	{ 
-		if(parameter == null) {
-			return bounds == null ? session.selectMap(statement, key) : session.selectMap(statement, null, key, bounds);
-		}else {
-			return bounds == null ? session.selectMap(statement, parameter, key) : session.selectMap(statement, parameter, key, bounds);
-		}
-	}
-	
-	@Override
-	public<T> List<T> query( final String statement, Object parameter, Class<T> t, int pageNumber, int pageSize) throws BasicDaoException
-	{
-		try{
-			if( pageSize == 0 || pageNumber == 0) return select( statement, parameter, null);
-			return select(statement, parameter, new RowBounds((pageNumber - 1) * pageSize, pageSize));
-		}catch( DataAccessException e){
-			throw new BasicDaoException( "Failed to search result for the argument [" + parameter + "]. SQL: [" + statement + "]", e);
-		}
-	}
-	
-	@Override
-	public<K, T> Map<K, T> query( final String statement, Object parameter, Class<T> t, int pageNumber, int pageSize, String key) throws BasicDaoException
-	{
-		try{
-			if( pageSize == 0 || pageNumber == 0) return select( statement, parameter, null, key);
-			return select( statement, parameter, new RowBounds((pageNumber - 1) * pageSize, pageSize), key);
-		}catch( DataAccessException e){
-			throw new BasicDaoException( "Failed to search result for the argument [" + parameter + "]. SQL: [" + statement + "]", e);
-		}
-	}
-	
-	
-	@Override
-	public<T> List<T> query( final String statement, Object parameter, int pageNumber, int pageSize) throws BasicDaoException
-	{
-		try{
-			if( pageSize == 0 || pageNumber == 0) return select( statement, parameter, null);
-			return select( statement, parameter, new RowBounds((pageNumber - 1) * pageSize, pageSize));
-		}catch( DataAccessException e){
-			throw new BasicDaoException( "Failed to search result for the argument [" + parameter + "]. SQL: [" + statement + "]", e);
-		}
-	}
-	
-	@Override
-	public<T> List<T> getAll( final String statement, Object parameter, Class<T> t)  throws BasicDaoException
-	{
-		return query( statement, parameter, t, 0, 0);
-	}
-	
-	@Override
-	public<T> List<T> getAll2( final String statement, Object parameter)  throws BasicDaoException{
-		return parameter == null ? null : query(statement, parameter, 0, 0);
-	}
-	
-	@Override
-	public<T> Map<Integer, T> getAll( final String statement, Object parameter, Class<T> t, String key)  throws BasicDaoException
-	{
-		return query(statement, parameter, t, 0, 0, key);
-	}
-	
 	@Override
 	public<T> List<T> getAll( final String statement, Object parameter)  throws BasicDaoException
 	{
-		return query( statement, parameter, 0, 0);
+		return select( statement, parameter, null);
+	}
+	
+	@Override
+	public<K, V> Map<K, V> getAll( final String statement, Object parameter, String key)  throws BasicDaoException
+	{
+		return select( statement, parameter, null, key);
 	}
 	
 	@Override
 	public List<Integer> getIntegers(final String statement, Object parameter) throws BasicDaoException
 	{
-		return query(statement, parameter, Integer.class, 0, 0);
+		return select( statement, parameter, null);
 	}
 	
 	@Override
 	public List<Float> getFloats(final String statement, Object parameter) throws BasicDaoException
 	{
-		return query(statement, parameter, Float.class, 0, 0);
+		return select( statement, parameter, null);
 	}
 	
 	@Override
 	public List<String> getStrings(final String statement, Object parameter) throws BasicDaoException
 	{
-		return query(statement, parameter, String.class, 0, 0);
+		return select( statement, parameter, null);
 	}
 	
 	private boolean beforeCheck( final String statement)
@@ -324,4 +209,44 @@ public class MyBatisDataHelper implements DataHelper {
 			return false;
 		}
 	}	
+	
+	@Override
+	public<K, T> Map<K, T> query( final String statement, Object parameter, Class<T> t, int pageNumber, int pageSize, String key) throws BasicDaoException
+	{
+		try{
+			if( pageSize == 0 || pageNumber == 0) return select( statement, parameter, null, key);
+			return select( statement, parameter, new RowBounds((pageNumber - 1) * pageSize, pageSize), key);
+		}catch( DataAccessException e){
+			throw new BasicDaoException( "Failed to search result for the argument [" + parameter + "]. SQL: [" + statement + "]", e);
+		}
+	}	
+	
+	@Override
+	public<T> List<T> query( final String statement, Object parameter, int pageNumber, int pageSize) throws BasicDaoException
+	{
+		try{
+			if( pageSize == 0 || pageNumber == 0) return select( statement, parameter, null);
+			return select( statement, parameter, new RowBounds((pageNumber - 1) * pageSize, pageSize));
+		}catch( DataAccessException e){
+			throw new BasicDaoException( "Failed to search result for the argument [" + parameter + "]. SQL: [" + statement + "]", e);
+		}
+	}
+	
+	private<T> List<T> select( final String statement, Object parameter, RowBounds bounds) throws BasicDaoException
+	{ 
+		if(parameter == null) {
+			return bounds == null ? session.selectList(statement) : session.selectList(statement, null, bounds);
+		}else {
+			return bounds == null ? session.selectList(statement, parameter) : session.selectList(statement, parameter, bounds);
+		}
+	}
+	
+	private<K, T> Map<K, T> select( final String statement, Object parameter, RowBounds bounds, String key) throws BasicDaoException
+	{ 
+		if(parameter == null) {
+			return bounds == null ? session.selectMap(statement, key) : session.selectMap(statement, null, key, bounds);
+		}else {
+			return bounds == null ? session.selectMap(statement, parameter, key) : session.selectMap(statement, parameter, key, bounds);
+		}
+	}
 }

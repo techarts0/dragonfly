@@ -70,7 +70,7 @@ public class RedisCacheHelper implements Closeable{
 		}
 	}
 	
-	public void save(int table, String key, List<? extends Object> value, int ttl) {
+	public void save(int table, String key, List<?> value, int ttl) {
 		if(key == null || value == null) return;
 		if(value.size() == 0) return; //At least ONE element
 		try(Jedis connection = session()){
@@ -132,7 +132,7 @@ public class RedisCacheHelper implements Closeable{
 	 * Save as a map
 	 */
 	@SuppressWarnings("unchecked")
-	public void save(int table, String key, Map<String, ? extends Object> value, int ttl) {
+	public void save(int table, String key, Map<String, ?> value, int ttl) {
 		if(key == null || value == null || value.isEmpty()) return;
 		try(Jedis connection = session()){
 			if(connection == null) return;
@@ -214,27 +214,36 @@ public class RedisCacheHelper implements Closeable{
 		}
 	}
 	
-	public String getFromMap(int table, String key, String field){
+	/**
+	 * Get the string value of the specified field from the MAP（map）  
+	 */
+	public String getItem(int table, String map, String key){
 		if(key == null) return null;
 		try(Jedis connection = session()){
 			if(connection == null) return null;
 			connection.select(table);
-			return connection.hget(key, field);
+			return connection.hget(map, key);
 		}
 	}
 	
-	public<T> T getFromMap(int table, String key, String field, Class<T> t){
+	/**
+	 * Get the item value of the specified field from the MAP（map）  
+	 */
+	public<T> T getItem(int table, String map, String key, Class<T> t){
 		if(key == null) return null;
 		try(Jedis connection = session()){
 			if(connection == null) return null;
 			connection.select(table);
-			var result = connection.hget(key, field);
+			var result = connection.hget(map, key);
 			if(result == null) return null;
 			return deserialize(result, t);
 		}
 	}
 	
-	public String getFromList(int table, String listKey, int index){
+	/**
+	 * Get the string value of the specified index from the LIST（listKey）  
+	 */
+	public String getItem(int table, String listKey, int index){
 		if(listKey == null) return null;
 		try(Jedis connection = session()){
 			if(connection == null) return null;
@@ -243,7 +252,10 @@ public class RedisCacheHelper implements Closeable{
 		}
 	}
 	
-	public<T> T getFromList(int table, String listKey, int index, Class<T> t){
+	/**
+	 * Get the value of the specified index from the LIST（listKey）  
+	 */
+	public<T> T getItem(int table, String listKey, int index, Class<T> t){
 		if(listKey == null) return null;
 		try(Jedis connection = session()){
 			if(connection == null) return null;

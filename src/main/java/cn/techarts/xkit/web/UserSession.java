@@ -26,8 +26,8 @@ public class UserSession implements Serializable {
 		return result != null ? result.equals(tmp.substring(8)) : false;
 	}
 	
-	public static String generate(String ip, int ua, int userId) {
-		var result = (ip != null ? ip : "0000") + ua + userId;
+	public static String generate(String ip, int userId) {
+		var result = (ip != null ? ip : "0000") + userId;
 		var minutes = String.valueOf(Time.minutes());
 		result = minutes.concat(result).concat(SALT);
 		return Cryptor.encrypt(result, Cryptor.toBytes(KEY));

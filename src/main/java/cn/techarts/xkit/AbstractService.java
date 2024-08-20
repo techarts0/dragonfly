@@ -58,4 +58,10 @@ public abstract class AbstractService
 	protected <T extends UniObject> boolean ok(T arg) {
 		return arg == null || arg.getId() == ERRID ? false : true;
 	}
+	
+	protected<T extends UniObject> T error(T arg, int code, String text){
+		if(arg == null) return null;
+		arg.error(code, text);
+		return arg;
+	}
 }
