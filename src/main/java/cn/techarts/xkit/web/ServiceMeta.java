@@ -3,8 +3,6 @@ package cn.techarts.xkit.web;
 import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import cn.techarts.jhelper.Empty;
-import cn.techarts.jhelper.Spliter;
 
 public final class ServiceMeta {
 	private Object object;
@@ -26,10 +24,10 @@ public final class ServiceMeta {
 	 * Get the last part of the whole URI
 	 */
 	public static String extractName(String uri) {
-		if(Empty.is(uri)) return null;
+		if(uri == null) return null;
 		if(uri.indexOf('/') <= 0) return uri;
-		var paths = Spliter.split(uri, '/');
-		return paths.get(paths.size() - 1);
+		var pathes = uri.split("/");
+		return pathes[pathes.length - 1];
 	}
 	
 	public Object getObject() {

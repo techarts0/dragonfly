@@ -1,4 +1,4 @@
-package cn.techarts.xkit.ioc;
+package cn.techarts.xkit.util;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import cn.techarts.xkit.ioc.Panic;
 
 /**
  * Utilities

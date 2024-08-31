@@ -3,7 +3,6 @@ package cn.techarts.xkit.web;
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashMap;
-import cn.techarts.jhelper.Empty;
 
 public class ServiceCache {
 	
@@ -36,7 +35,7 @@ public class ServiceCache {
 	 * post/users
 	 */
 	public static ServiceMeta getService(String uri, String method) {
-		if(Empty.is(uri)) return null;
+		if(uri == null || uri.isBlank()) return null;
 		if(!ServiceMeta.restful) {
 			return webservices != null ? webservices.get(uri) : null; 
 		}else {

@@ -10,9 +10,6 @@ import javax.inject.Named;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-
-import cn.techarts.jhelper.Cacher;
-import cn.techarts.jhelper.Empty;
 import cn.techarts.xkit.ioc.Context;
 
 public class StartupListener implements ServletContextListener {
@@ -31,7 +28,7 @@ public class StartupListener implements ServletContextListener {
 
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) {
-		Cacher.destroy();
+		
 	}
 	
 	private void initSessionSettings(ServiceConfig settings) {
@@ -88,12 +85,12 @@ public class StartupListener implements ServletContextListener {
 	 * @TODO Now it can't process the sub-packages, we need to improve it later.
 	 */
 	private List<String> scanWebServices(ServletContext context, String pkg) {
-		if(Empty.is(pkg)) return null;
+		if(pkg == null) return null;
 		var base = getApplicationBasePath();
-		if(Empty.is(base)) return null;
+		if(base == null) return null;
 		var path = base.concat(pkg.replace('.', '/'));
 		var files = poll(path, ".class");
-		if(Empty.is(files)) return null;
+		if(files == null || files.length == 0) return null;
 		try {
 			List<String> result = new ArrayList<>(24);
 			for(var f : files) {

@@ -12,9 +12,9 @@ import org.junit.Test;
 
 import cn.techarts.xkit.ioc.Meta;
 import cn.techarts.xkit.ioc.Context;
-import cn.techarts.xkit.ioc.Helper;
 import cn.techarts.xkit.ioc.Factory;
 import cn.techarts.xkit.ioc.Valued;
+import cn.techarts.xkit.util.Helper;
 import junit.framework.TestCase;
 
 public class IOCTest {

@@ -2,19 +2,17 @@ package cn.techarts.xkit.web;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import cn.techarts.jhelper.Time;
 import cn.techarts.xkit.app.Codec;
 import cn.techarts.xkit.app.Result;
 import cn.techarts.xkit.app.UniObject;
-import cn.techarts.jhelper.Converter;
-import cn.techarts.jhelper.Empty;
-import cn.techarts.jhelper.Spliter;
+import cn.techarts.xkit.util.Converter;
+
 
 public class WebContext {
 	
@@ -112,10 +110,10 @@ public class WebContext {
 		return Converter.toDouble(val);
 	}
 	
-	public List<String> toList(String name, char separator){
+	public List<String> toList(String name, String separator){
 		var tmp = request.getParameter(name);
-		if(tmp == null) return Empty.list();
-		return Spliter.split(tmp, separator);
+		if(tmp == null) return List.of();
+		return Arrays.asList(tmp.split(separator));
 	}
 	
 	public int uid() {
@@ -150,7 +148,7 @@ public class WebContext {
 		if(length < 10) return null;
 		if(length == 16) p += ":00";
 		if(length == 10) p += " 00:00:00";
-		return Time.parse(p);
+		return Converter.toDate(p);
 	}
 	
 	/**Get Date Parameter: yyyy/MM/dd*/
@@ -162,7 +160,7 @@ public class WebContext {
 		if(length > 10) {
 			p = p.substring(0, 10);
 		}
-		return Time.parse(p);
+		return Converter.toDate(p);
 	}
 	
 	public void error(int code, String cause) {
@@ -266,4 +264,6 @@ public class WebContext {
 			e.printStackTrace();
 		}
 	}
+	
+	
 }

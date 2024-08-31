@@ -1,9 +1,8 @@
 package cn.techarts.xkit.web;
 
 import java.io.Serializable;
-import cn.techarts.jhelper.Cryptor;
-import cn.techarts.jhelper.Empty;
-import cn.techarts.jhelper.Time;
+
+import cn.techarts.xkit.util.Cryptor;
 
 public class UserSession implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -19,17 +18,21 @@ public class UserSession implements Serializable {
 	
 	public static boolean verify(String ip, int userId, String session) {
 		var tmp = Cryptor.decrypt(session, Cryptor.toBytes(KEY));
-		if(Empty.is(tmp)) return false; //An invalid session
+		if(tmp == null) return false; //An invalid session
 		var bgn = Integer.parseInt(tmp.substring(0, 8));
-		if(Time.minutes() - bgn > DURATION) return false;
+		if(minutes() - bgn > DURATION) return false;
 		var result = (ip != null ? ip : "0000") + userId + SALT;
 		return result != null ? result.equals(tmp.substring(8)) : false;
 	}
 	
 	public static String generate(String ip, int userId) {
 		var result = (ip != null ? ip : "0000") + userId;
-		var minutes = String.valueOf(Time.minutes());
+		var minutes = String.valueOf(minutes());
 		result = minutes.concat(result).concat(SALT);
 		return Cryptor.encrypt(result, Cryptor.toBytes(KEY));
+	}
+	
+	public static int minutes() {
+		return (int)(System.currentTimeMillis() / 60000);
 	}
 }

@@ -11,9 +11,8 @@ import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
-import cn.techarts.jhelper.Empty;
 import cn.techarts.xkit.data.DataException;
-import cn.techarts.xkit.ioc.Helper;
+import cn.techarts.xkit.util.Helper;
 
 /**
  * A lightweight utility that's designed to access database.<br> 
@@ -269,7 +268,7 @@ final class SqlMeta{
 	}
 	
 	private static Object getValue(Object obj, String field) {
-		if(obj == null || Empty.is(field)) return null;
+		if(obj == null || field == null) return null;
 		var method = toMethodName("get", field);
 		try {
 			var raw = obj.getClass();

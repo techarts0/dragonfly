@@ -6,6 +6,8 @@ import java.lang.reflect.Type;
 
 import javax.inject.Named;
 
+import cn.techarts.xkit.util.Helper;
+
 public class Injector {
 	//Null means REF
 	private Type type;

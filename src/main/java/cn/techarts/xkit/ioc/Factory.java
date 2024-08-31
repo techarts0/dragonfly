@@ -11,6 +11,8 @@ import javax.inject.Singleton;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import cn.techarts.xkit.util.Helper;
+
 public class Factory {
 	private Map<String, Meta> crafts;
 	private Map<String, Meta> material;

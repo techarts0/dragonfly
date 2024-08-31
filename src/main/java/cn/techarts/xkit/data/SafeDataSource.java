@@ -6,7 +6,8 @@ import java.util.Properties;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import cn.techarts.jhelper.Cryptor;
+
+import cn.techarts.xkit.util.Cryptor;
 
 public class SafeDataSource extends HikariDataSource {
 	

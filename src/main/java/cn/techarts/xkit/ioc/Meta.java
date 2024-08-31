@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import cn.techarts.xkit.util.Helper;
+
 public class Meta {
 	private String name;
 	private Object instance;
