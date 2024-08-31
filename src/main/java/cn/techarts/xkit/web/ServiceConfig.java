@@ -7,7 +7,7 @@ public class ServiceConfig {
 	private String sessionSalt;
 	private int sessionDuration;
 	private boolean sessionCheck;
-	private String exporterPackage;
+	private String servicePackage;
 		
 	public boolean isSessionCheck() {
 		return sessionCheck;
@@ -35,10 +35,10 @@ public class ServiceConfig {
 	public void setSessionKey(String sessionKey) {
 		this.sessionKey = sessionKey;
 	}	
-	public String getExporterPackage() {
-		return exporterPackage;
+	public String getServicePackage() {
+		return servicePackage;
 	}
-	public void setExporterPackage(String exporterPackage) {
-		this.exporterPackage = exporterPackage;
+	public void setServicePackage(String webServicePackage) {
+		this.servicePackage = webServicePackage;
 	}
 }

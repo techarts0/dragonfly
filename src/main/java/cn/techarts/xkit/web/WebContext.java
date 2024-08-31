@@ -9,9 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.techarts.jhelper.Time;
-import cn.techarts.xkit.Codec;
-import cn.techarts.xkit.UniObject;
-import cn.techarts.xkit.Result;
+import cn.techarts.xkit.app.Codec;
+import cn.techarts.xkit.app.Result;
+import cn.techarts.xkit.app.UniObject;
 import cn.techarts.jhelper.Converter;
 import cn.techarts.jhelper.Empty;
 import cn.techarts.jhelper.Spliter;

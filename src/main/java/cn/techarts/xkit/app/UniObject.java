@@ -1,4 +1,4 @@
-package cn.techarts.xkit;
+package cn.techarts.xkit.app;
 
 import java.io.Serializable;
 

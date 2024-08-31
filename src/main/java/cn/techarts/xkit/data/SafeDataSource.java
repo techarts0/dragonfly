@@ -1,26 +1,38 @@
 package cn.techarts.xkit.data;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Properties;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import cn.techarts.jhelper.Cryptor;
 
-public class SafetyDataSource extends HikariDataSource {
+public class SafeDataSource extends HikariDataSource {
 	
 	private static final String KEY = "b67fe6a8a28e2729c196deb99e6afd60";
 	
-	public SafetyDataSource() {
+	public SafeDataSource() {
 		super();
 	}
 	
-	public SafetyDataSource(HikariConfig config) {
+	public SafeDataSource(HikariConfig config) {
 		super(config);
 	}
 	
-	private static String decrypt(String password) {
+	public static String decrypt(String password) {
 		var key = Cryptor.toBytes(KEY);
 		return Cryptor.decrypt(password, key);
+	}
+	
+	@Override
+	public void setPassword(String password) {
+		super.setPassword(decrypt(password));
+	}
+	
+	public void setDataSourcePassword(String password) {
+		var val = decrypt(password);
+		super.addDataSourceProperty("password", val);
 	}
 	
 	@Override
@@ -50,4 +62,11 @@ public class SafetyDataSource extends HikariDataSource {
 		var key = Cryptor.toBytes(KEY);
 		return Cryptor.encrypt(arg, key);
 	}
+	
+	@Override
+	public Connection getConnection() throws SQLException{
+		return super.getConnection();
+	}
+	
+	
 }

@@ -1,4 +1,4 @@
-package cn.techarts.xkit.data;
+package cn.techarts.xkit.data.mybatis;
 
 import java.sql.Blob;
 import java.sql.ResultSet;

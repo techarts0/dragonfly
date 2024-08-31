@@ -1,4 +1,4 @@
-package cn.techarts.xkit.data;
+package cn.techarts.xkit.data.redis;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import cn.techarts.xkit.Codec;
+
+import cn.techarts.xkit.app.Codec;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;

@@ -1,37 +1,44 @@
-package cn.techarts.xkit;
+package cn.techarts.xkit.app;
 
 import cn.techarts.xkit.data.DataHelper;
-import cn.techarts.xkit.data.RedisCacheHelper;
-import cn.techarts.xkit.data.BasicDaoException;
+import cn.techarts.xkit.data.MixSessionFactory;
+import cn.techarts.xkit.data.redis.RedisCacheHelper;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import cn.techarts.xkit.data.DataException;
 
 public abstract class AbstractService 
 {
-	protected DataHelper persister = null;
+	@Inject
+	@Named("mixSessionFactory")
+	private MixSessionFactory sqldb = null;
+	@Inject
+	@Named("cacheHelper")
 	private RedisCacheHelper cache = null;
+	
 	/**
 	 * ERRID means the Id is ZERO(<b>0</b>) and it's <b>invalid</b>.
 	 * */
 	public static final int ERRID = 0;
 	public static final double ZERO = 0.00001D;
 	
-	public void setPersister(DataHelper database) {
-		this.persister = database;
+	public DataHelper getDataHelper() {
+		return sqldb.getExecutor();
+	}
+	
+	public void endService(DataHelper helper) {
+		
 	}
 	
 	public void setCache(RedisCacheHelper cache) {
 		this.cache = cache;
 	}
 	
-	public DataHelper persister() {
-		if(persister == null) {
-			throw new BasicDaoException("persister is null.");
-		}
-		return this.persister;
-	}
-	
 	public RedisCacheHelper cache() {
 		if(cache == null || !cache.isInitialized()) {
-			throw new BasicDaoException("cache is null.");
+			throw new DataException("cache is null.");
 		}
 		return this.cache;
 	}

@@ -1,4 +1,4 @@
-package cn.techarts.xkit;
+package cn.techarts.xkit.app;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParser.Feature;

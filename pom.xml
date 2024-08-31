@@ -30,22 +30,6 @@
       <version>1</version>
     </dependency>
 	<dependency>
-	    <groupId>aopalliance</groupId>
-	    <artifactId>aopalliance</artifactId>
-	    <version>1.0</version>
-	</dependency>
-	<dependency>
-		<groupId>org.aspectj</groupId>
-		<artifactId>aspectjweaver</artifactId>
-		<version>1.9.4</version>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-	    <groupId>cglib</groupId>
-	    <artifactId>cglib-nodep</artifactId>
-	    <version>3.2.6</version>
-	</dependency>
-	<dependency>
     	<groupId>org.msgpack</groupId>
     	<artifactId>msgpack</artifactId>
     	<version>0.6.12</version>
@@ -60,92 +44,6 @@
     	<artifactId>jackson-dataformat-msgpack</artifactId>
     	<version>0.8.21</version>
 	</dependency>
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-jcl</artifactId>
-		<version>5.2.0.RELEASE</version>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-aop</artifactId>
-		<version>5.2.0.RELEASE</version>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-beans</artifactId>
-		<version>5.2.0.RELEASE</version>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-core</artifactId>
-		<version>5.2.0.RELEASE</version>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-expression</artifactId>
-		<version>5.2.0.RELEASE</version>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-jdbc</artifactId>
-		<version>5.2.0.RELEASE</version>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-tx</artifactId>
-		<version>5.2.0.RELEASE</version>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-test</artifactId>
-		<version>5.2.0.RELEASE</version>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-	<groupId>org.springframework</groupId>
-		<artifactId>spring-context-support</artifactId>
-		<version>5.2.0.RELEASE</version>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-context</artifactId>
-		<version>5.2.0.RELEASE</version>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-context-indexer</artifactId>
-		<version>5.2.0.RELEASE</version>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-web</artifactId>
-		<version>5.2.0.RELEASE</version>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-orm</artifactId>
-		<version>5.2.0.RELEASE</version>
-		<scope>compile</scope>
-	</dependency>
-	
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-aspects</artifactId>
-		<version>5.2.0.RELEASE</version>
-		<scope>compile</scope>
-	</dependency>
-	
 	<dependency>
 	    <groupId>com.fasterxml.jackson.core</groupId>
     	<artifactId>jackson-core</artifactId>
