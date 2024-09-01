@@ -13,14 +13,14 @@ import javax.servlet.ServletContextListener;
 import cn.techarts.xkit.ioc.Context;
 
 public class StartupListener implements ServletContextListener {
-	protected ServiceConfig config = null;
+	protected AppConfig config = null;
 	
 	@Override
 	public void contextInitialized(ServletContextEvent arg) {
 		var context = arg.getServletContext();
-		config = get(context, "webServiceConfig", ServiceConfig.class);
+		config = get(context, "webAppConfig", AppConfig.class);
 		if(config == null) {
-			throw new RuntimeException("Service settings is required!");
+			throw new RuntimeException("App config is required.");
 		}
 		initSessionSettings(config); //Key, salt and permission-ignored
 		this.loadAllWebServices(context, config.getServicePackage());
@@ -31,7 +31,7 @@ public class StartupListener implements ServletContextListener {
 		
 	}
 	
-	private void initSessionSettings(ServiceConfig settings) {
+	private void initSessionSettings(AppConfig settings) {
 		var key = settings.getSessionKey();
 		var salt = settings.getSessionSalt();
 		var duration = settings.getSessionDuration();
@@ -82,7 +82,6 @@ public class StartupListener implements ServletContextListener {
 	
 	/**
 	 * Scan the specific package path to retrieve all exporters<p>
-	 * @TODO Now it can't process the sub-packages, we need to improve it later.
 	 */
 	private List<String> scanWebServices(ServletContext context, String pkg) {
 		if(pkg == null) return null;

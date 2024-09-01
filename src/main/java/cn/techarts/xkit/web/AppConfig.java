@@ -1,6 +1,9 @@
 package cn.techarts.xkit.web;
 
-public class ServiceConfig {
+/**
+ * Web APP configuration
+ */
+public class AppConfig {
 	/**Session Check*/
 	public static boolean SC;
 	private String sessionKey;
