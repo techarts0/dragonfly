@@ -2,11 +2,11 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>cn.techarts</groupId>
-  <artifactId>xkit</artifactId>
+  <artifactId>dragonfly</artifactId>
   <packaging>jar</packaging>
   <version>0.0.1-SNAPSHOT</version>
-  <name>xkit</name>
-  <url>http://www.techarts.cn</url>
+  <name>dragonfly</name>
+  <url>http://dragonfly.techarts.cn</url>
   <dependencies>
   	<dependency>
 	    <groupId>commons-logging</groupId>
@@ -65,11 +65,6 @@
     	<version>3.5.16</version>
 	</dependency>
 	<dependency>
-    	<groupId>org.mybatis</groupId>
-    	<artifactId>mybatis-spring</artifactId>
-    	<version>3.0.3</version>
-	</dependency>
-	<dependency>
     	<groupId>mysql</groupId>
     	<artifactId>mysql-connector-java</artifactId>
     	<version>8.0.18</version>
@@ -102,18 +97,13 @@
       <version>2.9.1</version>
     </dependency>
 	<dependency>
-	    <groupId>org.apache.commons</groupId>
-	    <artifactId>commons-pool2</artifactId>
-	    <version>2.5.0</version>
-	</dependency>
-	<dependency>
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP</artifactId>
         <version>3.4.1</version>
     </dependency>
   </dependencies>
   <build>
-    <finalName>xkit</finalName>
+    <finalName>dragonfly</finalName>
     <plugins>
     	<plugin>
     		<groupId>org.apache.maven.plugins</groupId>

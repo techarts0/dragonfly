@@ -27,7 +27,11 @@ public class Panic extends RuntimeException {
 		return new Panic("Failed to set field value.", e);
 	}
 	
-	public static Panic notFound(String name) {
+	public static Panic classNotFound(String name, Throwable e) {
+		return new Panic("Can't find the object with name [" + name + "]", e);
+	}
+	
+	public static Panic classNotFound(String name) {
 		return new Panic("Can't find the object with name [" + name + "]");
 	}
 	
@@ -52,15 +56,18 @@ public class Panic extends RuntimeException {
 	}
 	
 	public static Panic noDefaultConstructor(Class<?> arg, Throwable e) {
-		var name = arg.getName();
-		return new Panic("Need a default constructor of class [" + name + "]", e);
+		return new Panic("Need a default constructor of class [" + arg.getName() + "]", e);
+	}
+	
+	public static Panic noDefaultConstructor(Class<?> arg) {
+		return new Panic("Need a default constructor of class [" + arg.getName() + "]");
 	}
 	
 	public static Panic circularDependence(String name) {
 		return new Panic("Circular dependence is not allowed: " + name);
 	}
 	
-	public static Panic keyMissing(String key) {
+	public static Panic configKeyMissing(String key) {
 		return new Panic("Can not find the key [" + key + "] in configuration.");
 	}
 	

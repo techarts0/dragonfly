@@ -10,7 +10,7 @@ import javax.inject.Inject;
 
 import cn.techarts.xkit.util.Helper;
 
-public class Meta {
+public class Craft {
 	private String name;
 	private Object instance;
 	private boolean singleton;
@@ -19,42 +19,47 @@ public class Meta {
 	/**Injected or default constructor*/
 	private Constructor<?> constructor;
 	
-	/**Injected Contractor Arguments*/
-	private Map<Integer, Injector> injectedArgs;
+	/**Constructor Injectors (Arguments)*/
+	private Map<Integer, Injector> arguments;
 	
-	/**Injected Fields*/
-	private Map<Field, Injector> injectedFields;
+	/**Fields Injector(Values)*/
+	private Map<Field, Injector> properties;
 	
-	public Meta(String name, Class<?> clazz, boolean singleton) {
+	/**From Annotation*/
+	public Craft(String name, Class<?> clazz, boolean singleton) {
 		this.name = name;
 		this.singleton = singleton;
-		this.injectedArgs = new HashMap<>();
-		this.injectedFields = new HashMap<>();
+		this.arguments = new HashMap<>();
+		this.properties = new HashMap<>();
 		this.resolveInjectedFields(clazz);
 		this.resolveInjectedContructor(clazz);
 	}
 	
-	public Meta(Node node, Class<?> clazz) {
+	/**From JSON file*/
+	public Craft(Element node, Class<?> clazz) {
 		this.name = node.getName();
 		this.singleton = node.isSingleton();
-		this.injectedArgs = new HashMap<>();
-		this.injectedFields = new HashMap<>();
+		this.arguments = new HashMap<>();
+		this.properties = new HashMap<>();
 		resolveInjectedFields(node.getProps(), clazz);
 		resolveInjectedContructor(node.getArgs(), clazz);
 	}
 	
-	public void inject(Map<String, Meta> crafts, Map<String, String> configs) {
+	/**
+	 * Set dependent crafts (REF, KEY and VAL) before assembling.
+	 */
+	public void inject(Map<String, Craft> crafts, Map<String, String> configs) {
 		setConstructorDependences(crafts, configs);
 		setPropertiesDependences(crafts, configs);
 	}
 	
-	private void setConstructorDependences(Map<String, Meta> crafts, Map<String, String> configs) {
-		if(this.instance != null) return; //Set dependences completed
-		var len = injectedArgs.size();
-		for(int i = 0; i < len; i++) {
-			var arg = injectedArgs.get(Integer.valueOf(i));
-			if(arg.valid()) continue; //The value set already.
-			if(arg.isPrimitive()) {
+	//If the instance is not NULL, that means the craft is assembled successfully.
+	private void setConstructorDependences(Map<String, Craft> crafts, Map<String, String> configs) {
+		if(instance != null) return; //Set dependences completed
+		for(int i = 0; i < arguments.size(); i++) {
+			var arg = arguments.get(Integer.valueOf(i));
+			if(arg.completed()) continue; //The value set already.
+			if(arg.isNotREF()) {
 				arg.setValue(configs.get(arg.getName()));
 			}else {
 				var craft = crafts.get(arg.getName());
@@ -63,14 +68,14 @@ public class Meta {
 		}
 	}
 	
-	private void setPropertiesDependences(Map<String, Meta> crafts, Map<String, String> configs) {
-		for(var arg : injectedFields.values()) {
-			if(arg.valid()) continue; //The value set already.
-			if(arg.isPrimitive()) {
-				arg.setValue(configs.get(arg.getName()));
+	private void setPropertiesDependences(Map<String, Craft> crafts, Map<String, String> configs) {
+		for(var field : properties.values()) {
+			if(field.completed()) continue; //The value set already.
+			if(field.isNotREF()) {
+				field.setValue(configs.get(field.getName()));
 			}else {
-				var craft = crafts.get(arg.getName());
-				if(craft != null) arg.setValue(craft.getInstance());
+				var craft = crafts.get(field.getName());
+				if(craft != null) field.setValue(craft.getInstance());
 			}
 		}
 	}
@@ -78,40 +83,26 @@ public class Meta {
 	public String getName() {
 		return name;
 	}
+	
 	public void setName(String name) {
 		this.name = name;
 	}
+	
 	public Object getInstance() {
 		if(singleton) {
 			return instance;
 		}else {
-			this.instance();
-			this.assemble();
-			return instance;
+			return instance().assemble();
 		}
 	}
-	public void setInstance(Object instance) {
-		this.instance = instance;
-	}
-	public boolean isSingleton() {
-		return singleton;
-	}
-	public void setSingleton(boolean singleton) {
-		this.singleton = singleton;
-	}	
-	public Map<Integer, Injector> getInjectedArgs(){
-		return this.injectedArgs;
-	}
-	public Map<Field, Injector> getInjectedFields(){
-		return this.injectedFields;
-	}
-	private Object[] getConstructorArgs() {
-		var len = injectedArgs.size();
+	
+	private Object[] toParameters() {
+		var len = arguments.size();
 		var result = new Object[len];
 		for(int i = 0; i < len; i++) {
 			var key = Integer.valueOf(i);
-			var arg = injectedArgs.get(key);
-			if(!arg.valid()) return null;
+			var arg = arguments.get(key);
+			if(!arg.completed()) return null;
 			result[i] = arg.getValue();
 		}
 		return result;
@@ -120,32 +111,32 @@ public class Meta {
 	/**
 	 * Create an instance but the fields are not injected.
 	 */
-	public Meta instance() {
+	public Craft instance() {
 		if(instance != null && singleton) return this;
 		try {
-			if(isDefConstructor()) {
+			if(isDefaultConstructor()) {
 				instance = constructor.newInstance();
 			}else {
-				var params = getConstructorArgs();
+				var params = toParameters();
 				if(params == null) return this; //Waiting...
 				instance = constructor.newInstance(params);
 			}
-			this.assembled = this.injectedFields.isEmpty();
-			return this; //To support chain-style calling
+			//Support constructor and field injection mean time.
+			this.assembled = this.properties.isEmpty();
+			return this; //Just for supporting chain-style calling
 		}catch(Exception e) {
 			throw Panic.cannotInstance(this.name, e);
 		}
 	}
 	
-	
-	public void assemble() {
-		if(this.assembled) return;
-		if(instance == null) return; //Waiting...
+	public Object assemble() {
+		if(this.assembled) return instance;
+		if(instance == null) return null; //Waiting...
 		this.assembled = true; //Suppose Completed
-		for(var entry : injectedFields.entrySet()) {
+		for(var entry : properties.entrySet()) {
 			var arg = entry.getValue();
 			if(arg.isAssembled(singleton)) continue; //Used
-			if(!arg.valid()) { //Waiting...
+			if(!arg.completed()) { //Waiting...
 				this.assembled = false; continue;
 			}			
 			try {
@@ -159,10 +150,11 @@ public class Meta {
 				throw Panic.cannotSetFieldValue(e);
 			}
 		}
+		return this.instance; //Just for chain-style calling
 	}
 	
-	public boolean isDefConstructor() {
-		return injectedArgs == null || injectedArgs.isEmpty();
+	public boolean isDefaultConstructor() {
+		return arguments == null || arguments.isEmpty();
 	}
 	
 	public Constructor<?> getConstructor() {
@@ -182,12 +174,12 @@ public class Meta {
 	}
 	
 	private void resolveInjectedContructor(Class<?> clazz) {
-		var constructors = clazz.getConstructors();
-		if(constructors == null) {
-			throw Panic.noDefaultConstructor(clazz, null);
+		var cons = clazz.getConstructors();
+		if(cons == null || cons.length == 0) {
+			throw Panic.noDefaultConstructor(clazz);
 		}
 		
-		for(var c : constructors) {
+		for(var c : cons) {
 			if(!c.isAnnotationPresent(Inject.class)) continue;
 			this.constructor = c; //Cache it for new instance
 			var args = this.constructor.getParameters();
@@ -195,16 +187,14 @@ public class Meta {
 			
 			for(int i = 0; i < args.length; i++) {
 				var arg = new Injector(args[i]);
-				injectedArgs.put(Integer.valueOf(i), arg);
+				arguments.put(Integer.valueOf(i), arg);
 			}
 			break; //Only ONE constructor can be injected
 		}
 		
 		if(this.constructor == null) {
-			try {
+			try { //Default and public constructor
 				this.constructor = clazz.getConstructor();
-				//this.constructor = clazz.getDeclaredConstructor();
-				//this.constructor.setAccessible(true); //If private
 			}catch(NoSuchMethodException | SecurityException es) {
 				throw Panic.noDefaultConstructor(clazz, es);
 			}
@@ -214,49 +204,53 @@ public class Meta {
 	private void resolveInjectedContructor(List<Object> args, Class<?> clazz) {
 		var constructors = clazz.getConstructors();
 		if(constructors == null) {
-			throw Panic.noDefaultConstructor(clazz, null);
+			throw Panic.noDefaultConstructor(clazz);
+		}
+		if(args == null || args.isEmpty()) {
+			this.setDefaultConstructor(clazz); return;
 		}
 		
-		if(args != null && !args.isEmpty()) {
-			for(var c : constructors) {
-				var cargs = c.getParameters();
-				if(args.size() != cargs.length) continue;
-				boolean parameterMatched = true;
-				for(int i = 0; i < cargs.length; i++) {
-					var a = getType(args.get(i));
-					var e = cargs[i].getType().getName();
-					if(!Helper.compareTypes(a, e)) { //Expect, Actual
-						parameterMatched = false; break;
-					}
+		for(var c : constructors) {
+			if(constructor != null) break;
+			var params = c.getParameters();
+			if(args.size() != params.length) continue;
+			boolean parameterMatched = true;
+			for(int i = 0; i < params.length; i++) {
+				var a = getType(args.get(i));
+				var e = params[i].getType().getName();
+				if(!Helper.compareTypes(a, e)) {//Expect, Actual
+					parameterMatched = false; break;
 				}
-				if(parameterMatched == false) continue; //Next
+			}
+			if(parameterMatched == false) continue; //Next
 				
-				for(int i = 0; i < cargs.length; i++) {
-					injectedArgs.put(i, parse(args.get(i), null));
-				}
-				this.constructor = c; //Cache it for new instance
-				break; //Only ONE constructor can be injected
+			for(int i = 0; i < params.length; i++) {
+				arguments.put(i, parse(args.get(i), null));
 			}
+			this.constructor = c; //Cache it for new instance
 		}
 		
-		if(this.constructor == null) {
-			try {
-				this.constructor = clazz.getConstructor();
-			}catch(NoSuchMethodException | SecurityException es) {
-				throw Panic.noDefaultConstructor(clazz, es);
-			}
+		if(this.constructor == null) setDefaultConstructor(clazz);
+	}
+	
+	private void setDefaultConstructor(Class<?> clazz) {
+		if(this.constructor != null) return;
+		try {
+			this.constructor = clazz.getConstructor();
+		}catch(NoSuchMethodException | SecurityException es) {
+			throw Panic.noDefaultConstructor(clazz, es);
 		}
 	}
 	
 	private void resolveInjectedFields(Map<String, Object> props, Class<?> clazz) {
-		if(props == null || props.isEmpty()) return;
 		if(clazz == null) return; //Without super class
+		if(props == null || props.isEmpty()) return;
 		var fs = clazz.getDeclaredFields();
-		if(fs != null && fs.length >= 0) {
+		if(fs != null && fs.length != 0) {
 			for(var f : fs) {
 				var val = props.get(f.getName());
 				if(val == null) continue;
-				injectedFields.put(f, parse(val, f.getType()));
+				properties.put(f, parse(val, f.getType()));
 			}
 		}
 		resolveInjectedFields(props, clazz.getSuperclass());
@@ -299,10 +293,10 @@ public class Meta {
 	private void resolveInjectedFields(Class<?> clazz) {
 		if(clazz == null) return;
 		var fs = clazz.getDeclaredFields();
-		if(fs != null && fs.length > 0) {
+		if(fs != null && fs.length != 0) {
 			for(var f : fs) {
 				if(f.isAnnotationPresent(Inject.class)) {
-					injectedFields.put(f, new Injector(f));
+					properties.put(f, new Injector(f));
 				}
 			}
 		}

@@ -5,22 +5,22 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-public class WebAppListener implements ServletContextListener {
+public class WebContextListener implements ServletContextListener {
 	
 	public static final String CONFIG_PATH = "contextConfigLocation";
 	
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
-		var base = getApplicationBasePath();
 		var context = sce.getServletContext();
 		var json = getJsonFilePath(context);
 		var config = getConfigFilePath(context);
-		Context.make(base, json, config).to(context);
+		var classpath = getApplicationBasePath();
+		Context.make(classpath, json, config).cache(context);
 	}
 	
 	private String getApplicationBasePath() {
 		var base = getClass().getResource("/");
-		if(base == null || base.getPath() == null) return null;
+		if(base == null) return null;
 		var w = File.separatorChar == '\\'; //Windows
 		return w ? base.getPath().substring(1) : base.getPath();
 	}

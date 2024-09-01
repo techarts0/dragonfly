@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An managed object definition in JSON file(crafts.json).
+ * An managed craft definition in JSON file(crafts.json).
  */
-public class Node {
+public class Element {
 	private String name;
 	private String type;
 	private boolean singleton;
@@ -21,9 +21,9 @@ public class Node {
 	 */
 	private Map<String, Object> props;
 	
-	
 	public String getName() {
-		return name;
+		if(name == null) return type;
+		return name.isBlank() ? type : name;
 	}
 	public void setName(String name) {
 		this.name = name;
@@ -55,10 +55,7 @@ public class Node {
 	public boolean isPropInject() {
 		return (props != null && !props.isEmpty());
 	}
-	
-	public void resetName(String name) {
-		if(this.name != null) return;
-		if(!this.name.isBlank()) return;
-		this.name = name; //Class short name
+	public Class<?> instance() throws ClassNotFoundException{
+		return Class.forName(this.type);
 	}
 }

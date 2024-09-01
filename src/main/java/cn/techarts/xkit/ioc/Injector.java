@@ -8,6 +8,9 @@ import javax.inject.Named;
 
 import cn.techarts.xkit.util.Helper;
 
+/**
+ * A craft(REF, KEY, VAL) needs to be inject into host craft.
+ */
 public class Injector {
 	//Null means REF
 	private Type type;
@@ -16,23 +19,19 @@ public class Injector {
 	private Object value;
 	private boolean assembled;
 	
+	/**Create a REF object*/
 	public static Injector ref(String ref) {
-		var result = new Injector();
-		result.setName(ref);
-		return result;
+		return new Injector(ref);
 	}
 	
+	/**Create a KEY object*/
 	public static Injector key(String key, Class<?> t) {
-		var result = new Injector();
-		result.setName(key);
-		if(t != null) {
-			result.setType(t);
-		}else {
-			result.setType(Object.class);
-		}
+		var result = new Injector(key);
+		result.setType(t != null ? t : Object.class);
 		return result;
 	}
 	
+	/**Create a VAL object*/
 	public static Injector val(Object val) {
 		var result = new Injector();
 		result.setValue(val);
@@ -40,25 +39,25 @@ public class Injector {
 		return result;
 	}
 	
-	public Injector() {}
+	Injector() {}
+	
+	Injector(String name) {
+		this.setName(name);
+	}
 	
 	public Injector(Parameter p) {
 		var named = p.getAnnotation(Named.class);
 		var valued = p.getAnnotation(Valued.class);
-		this.prepareArg(named, valued, p.getType());
+		parseAnnotations(named, valued, p.getType());
 	}
 	
 	public Injector(Field f) {
 		var named = f.getAnnotation(Named.class);
 		var valued = f.getAnnotation(Valued.class);
-		this.prepareArg(named, valued, f.getType());
+		parseAnnotations(named, valued, f.getType());
 	}
 	
-	public Injector(Field f, Object val, Class<?> t) {
-		
-	}
-	
-	private void  prepareArg(Named named, Valued valued, Class<?> clazz) {
+	private void  parseAnnotations(Named named, Valued valued, Class<?> clazz) {
 		if(named == null && valued == null) {
 			throw Panic.annotationMissing();
 		}
@@ -71,17 +70,14 @@ public class Injector {
 	
 	
 	private void setName(String t, Named n, Valued v) {
-		this.name = t;
+		this.name = t; //Default Name
 		if(v != null) {
 			this.name = v.key();
-			if(!"".equals(v.val())) {	//VAL
-				this.value = Helper.cast(type, v.val());
-			}
+			if(v.val().isBlank()) return;
+			value = Helper.cast(type, v.val());
 		}else {
 			var tmp = n.value();
-			if(!tmp.isEmpty()) {
-				this.name = tmp;
-			}
+			if(!tmp.isBlank()) this.name = tmp;
 		}
 	}
 	
@@ -91,7 +87,9 @@ public class Injector {
 	public String getName() {
 		return name;
 	}
-	public boolean isPrimitive() {
+	
+	/**KEY or VALUE, NOT A REF*/
+	public boolean isNotREF() {
 		return this.type != null;
 	}
 	
@@ -104,11 +102,11 @@ public class Injector {
 		if(value == null) {
 			if(type == null) return; //REF
 			if(this.value != null) return; //VAL
-			throw Panic.keyMissing(name);
+			throw Panic.configKeyMissing(name);
 		}
 		//To avoid duplicated setting 
 		if(this.value != null) return;
-		if(type == null) {
+		if(type == null) { //REF
 			this.value = value;
 		}else {
 			this.value = Helper.cast(value, type);
@@ -123,7 +121,7 @@ public class Injector {
 		this.type = type;
 	}
 	
-	public boolean valid() {
+	public boolean completed() {
 		return this.value != null;
 	}
 

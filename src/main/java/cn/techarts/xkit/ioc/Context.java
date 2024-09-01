@@ -9,7 +9,7 @@ import java.util.Properties;
 import javax.servlet.ServletContext;
 
 public class Context {
-	private Map<String, Meta> crafts;
+	private Map<String, Craft> crafts;
 	public static final String NAME = "context.dragonfly.techarts.cn";
 	
 	public static Context make(String base, String json, String config) {
@@ -17,20 +17,20 @@ public class Context {
 	}
 	
 	public static Context make(String[] bases, String[] jsons, String config) {
-		var container = new HashMap<String, Meta>(512);
+		var container = new HashMap<String, Craft>(512);
 		var inventory = new Factory(container);
 		var configs = resolveConfiguration(config);
-		inventory.setConfiguration(configs);
-		inventory.initialize(bases, jsons);
+		inventory.setConfigs(configs);
+		inventory.start(bases, jsons);
 		return new Context(container); 
 	}
 	
 	/**For test purpose only*/
 	public static Context make(String base, String json, Map<String, String> config) {
-		var container = new HashMap<String, Meta>(512);
+		var container = new HashMap<String, Craft>(512);
 		var inventory = new Factory(container);
-		inventory.setConfiguration(config);
-		inventory.initialize(base, json);
+		inventory.setConfigs(config);
+		inventory.start(base, json);
 		return new Context(container); 
 	}
 	
@@ -55,7 +55,7 @@ public class Context {
 		}
 	}
 	
-	Context(Map<String, Meta> container){
+	Context(Map<String, Craft> container){
 		this.crafts = container;
 	}
 	
@@ -68,7 +68,7 @@ public class Context {
 		}
 		var bean = crafts.get(name);
 		if(bean == null) {
-			throw Panic.notFound(name);
+			throw Panic.classNotFound(name);
 		}
 		return t.cast(bean.getInstance());
 	}
@@ -82,7 +82,7 @@ public class Context {
 		}
 		var craft = crafts.get(name);
 		if(craft == null) {
-			throw Panic.notFound(name);
+			throw Panic.classNotFound(name);
 		}
 		return craft.getInstance();
 	}
@@ -91,7 +91,7 @@ public class Context {
 	 * Cache the IOC context into  SERVLET context, 
 	 * call the method {@link from} then to retrieve it.
 	 */
-	public void to(ServletContext context) {
+	public void cache(ServletContext context) {
 		context.setAttribute(NAME, this);
 	}
 }

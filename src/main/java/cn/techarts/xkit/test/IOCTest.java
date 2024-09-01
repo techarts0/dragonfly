@@ -10,7 +10,7 @@ import javax.inject.Singleton;
 
 import org.junit.Test;
 
-import cn.techarts.xkit.ioc.Meta;
+import cn.techarts.xkit.ioc.Craft;
 import cn.techarts.xkit.ioc.Context;
 import cn.techarts.xkit.ioc.Factory;
 import cn.techarts.xkit.ioc.Valued;
@@ -21,7 +21,7 @@ public class IOCTest {
 	
 	//@Test
 	public void testBeanMeta() {
-		var meta = new Meta("person", Person.class, false);
+		var meta = new Craft("person", Person.class, false);
 	}
 	
 	//@Test
