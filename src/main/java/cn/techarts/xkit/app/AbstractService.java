@@ -18,6 +18,8 @@ public abstract class AbstractService
 	@Named("cacheHelper")
 	private RedisCacheHelper cache = null;
 	
+	private boolean factoryInited = false;
+	
 	/**
 	 * ERRID means the Id is ZERO(<b>0</b>) and it's <b>invalid</b>.
 	 * */
@@ -25,7 +27,11 @@ public abstract class AbstractService
 	public static final double ZERO = 0.00001D;
 	
 	public DataHelper getDataHelper() {
-		return sqldb.getExecutor();
+		if(!factoryInited) {
+			factoryInited = true;
+			sqldb.initializeFactory();
+		}
+		return this.sqldb.getExecutor();
 	}
 	
 	public void endService(DataHelper helper) {

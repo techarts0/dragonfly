@@ -58,11 +58,7 @@ public class IOCTest {
 	
 	@Test
 	public void testReflectFields() {
-		Class<?> clz = String.class;
-		Class<?> smp = int.class;
-		Character c;
-		TestCase.assertEquals(true, clz == String.class);
-		TestCase.assertEquals(true, smp.isPrimitive());
+		TestCase.assertEquals(false, "a".equals(null));
 	}
 	
 	private void reflectObject(Class<?> obj) {
