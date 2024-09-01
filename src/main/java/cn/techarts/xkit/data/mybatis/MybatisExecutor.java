@@ -32,21 +32,16 @@ public class MybatisExecutor implements DataHelper {
 	 * 	
 	 */
 	@Override
-	public int save(String statement, Object parameter, boolean... returnPK) throws DataException {
+	public int save(String statement, Object parameter) throws DataException {
 		try{
 			if(parameter == null) return 0;
 			if(isEmptyCollection(parameter)) return 0;
-			session.insert(statement, parameter);
-			if(!wantPrimaryKey(returnPK)) return 0;
-			if(parameter instanceof UniObject) {
-				var result = ((UniObject)parameter).getId();
-				return this.retrievePrimaryKey(result, statement);
-			}else {
-				var result = session.selectOne(DataHelper.SQL_GETID);
-				return result != null ? ((Integer)result).intValue() : 0;
-			}
+			int rs = session.insert(statement, parameter);
+			if(!(parameter instanceof UniObject))  return rs;
+			var result = ((UniObject)parameter).getId();
+			return this.retrievePrimaryKey(result, statement);
 		}catch(Exception e){
-			throw new DataException( "Failed to insert the object. SQL: [" + statement + "]", e);
+			throw new DataException( "Failed to execute sql: [" + statement + "]", e);
 		}
 	}
 	
@@ -61,7 +56,7 @@ public class MybatisExecutor implements DataHelper {
 			if(isEmptyCollection(parameter)) return 0;
 			return session.delete( statement, parameter);
 		}catch(Exception e){
-			throw new DataException( "Failed to delete object [" + parameter + "]. SQL: [" + statement + "]", e);
+			throw new DataException( "Failed to execute sql: [" + statement + "]", e);
 		}
 	}
 
@@ -71,30 +66,24 @@ public class MybatisExecutor implements DataHelper {
 			if(isEmptyCollection(parameter)) return 0;
 			return session.update( statement, parameter);
 		}catch(Exception e){
-			throw new DataException( "Failed to update the object[" + parameter + "]. SQL: [" + statement + "]", e);
+			throw new DataException( "Failed to execute sql: [" + statement + "]", e);
 		}
 	} 
 
 	private<T> T get1( String statement, Object param) throws DataException {
-		if(param == null) {
-			return session.selectOne(statement);
-		}
-		return session.selectOne(statement, param);
-	}
-	
-	@Override
-	public <T> T get(String statement, Object key) throws DataException {
-		try{
-			return get1( statement, key);
-		}catch(Exception e){
-			throw new DataException( "Failed to search result by [" + key + "]. SQL: [" + statement + "]", e);
+		try {
+			if(param == null) {
+				return session.selectOne(statement);
+			}
+			return session.selectOne(statement, param);
+		}catch(Exception e) {
+			throw new DataException( "Failed to execute sql: [" + statement + "]", e);
 		}
 	}
 	
-	@Deprecated
 	@Override
 	public <T> T get(String statement, Object key, Class<T> t) throws DataException {
-		return get(statement, key);
+		return get1( statement, key);
 	}
 	
 	@Override
@@ -131,28 +120,19 @@ public class MybatisExecutor implements DataHelper {
 	}
 	
 	@Override
-	public<T> List<T> getAll( final String statement, Object parameter)  throws DataException
-	{
+	public <T> List<T> getAll(String statement, Object parameter, Class<T> t) throws DataException {
 		return select( statement, parameter, null);
 	}
 	
-	@Deprecated
-	@Override
-	public <T> List<T> getAll(String statement, Object parameter, Class<T> t) throws DataException {
-		return this.getAll(statement, parameter);
-	}
-	
-	private boolean wantPrimaryKey( boolean... args)
-	{
-		if(args == null) return false;
-		return args.length >= 1 ? args[0] : false;
-	}
-	
 	private<T> List<T> select( final String statement, Object parameter, RowBounds bounds) throws DataException{ 
-		if(parameter == null) {
-			return bounds == null ? session.selectList(statement) : session.selectList(statement, null, bounds);
-		}else {
-			return bounds == null ? session.selectList(statement, parameter) : session.selectList(statement, parameter, bounds);
+		try {
+			if(parameter == null) {
+				return bounds == null ? session.selectList(statement) : session.selectList(statement, null, bounds);
+			}else {
+				return bounds == null ? session.selectList(statement, parameter) : session.selectList(statement, parameter, bounds);
+			}
+		}catch(Exception e) {
+			throw new DataException( "Failed to execute sql: [" + statement + "]", e);
 		}
 	}
 	

@@ -53,21 +53,21 @@ public class StartupListener implements ServletContextListener {
 		if(services == null || services.isEmpty()) return;
 		var container = Context.from(context);
 		for(var service : services) {
-			var exporter = container.get(service);
-			if(exporter == null) continue;
-			var methods = exporter.getClass().getMethods();
+			var ws = container.get(service);
+			if(ws == null) continue;
+			var methods = ws.getClass().getMethods();
 			if(methods == null || methods.length == 0) continue;
 			for(var method : methods) {
-				var ws = method.getAnnotation(WebMethod.class);
+				var wm = method.getAnnotation(WebMethod.class);
 				//The method is not a (or not a legal) web service
-				if(ws == null || ws.uri() == null) continue;
+				if(wm == null || wm.uri() == null) continue;
 				if(!checkMethodParameterType(method)) continue;
-				var s = new ServiceMeta(ws.uri(), exporter, method, ws.method());
-				s.setPermissionRequired(ws.permission()); //Session
+				var s = new ServiceMeta(wm.uri(), ws, method, wm.method());
+				s.setPermissionRequired(wm.permission()); //Session
 				if(!ServiceMeta.restful) {
-					ServiceCache.cacheService(ws.uri(), s); // Without the prefix get|post 
+					ServiceCache.cacheService(wm.uri(), s); // Without the prefix get|post 
 				}else { //With a prefix string get|post such as get/user/login
-					ServiceCache.cacheService(ws.uri(), ws.method(), s);
+					ServiceCache.cacheService(wm.uri(), wm.method(), s);
 				}
 			}
 		}

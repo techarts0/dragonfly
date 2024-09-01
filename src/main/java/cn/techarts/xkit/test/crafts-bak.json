@@ -1,0 +1,39 @@
+[
+	
+ 	{	
+		"name": "User",
+		"singleton": true,
+ 		"type": "cn.techarts.xkit.test.User",
+ 		"props": {"id":5,"salary": "REF:Money"}
+ 	},
+ 	{	
+		"name": "Money",
+		"singleton": true,
+ 		"type": "cn.techarts.xkit.test.Money",
+ 		"props": {"decemal":"KEY:user.age"}
+ 	},
+ 	
+ 	{	
+		"name": "mixSessionFactory",
+		"singleton": true,
+ 		"type": "cn.techarts.xkit.data.MixSessionFactory",
+ 		"args": ["cn/techarts/mantis/map/mybatis-config.xml"]
+ 	},
+ 	{	
+		"name": "mixSessionFactory",
+		"singleton": true,
+ 		"type": "cn.techarts.xkit.data.MixSessionFactory",
+ 		"args": ["org.mariadb.jdbc.MariaDbDataSource", 
+ 		         "jdbc:mysql://localhost:3306/mantis",
+ 		         "root", 
+ 		         "f5c3ef65a7c843462110f87b622688f2", 10] 		
+ 	},
+ 	{
+ 		"name": "webAppConfig",
+ 		"singleton": true,
+ 		"type": "cn.techarts.xkit.web.AppConfig",
+ 		"props":{"sessionCheck": "KEY:session.check", "sessionKey":"KEY:session.key", 
+ 				 "sessionSalt": "KEY:session.salt", "sessionDuration": "KEY:session.duration", 
+ 				 "servicePackage": "KEY:web.service.package"}
+ 	}
+]

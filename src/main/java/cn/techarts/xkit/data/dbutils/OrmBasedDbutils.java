@@ -167,7 +167,7 @@ public final class OrmBasedDbutils {
 	
 	private SqlMeta parseStatement(String sql) {
 		if(sql == null || sql.isBlank()) {
-			throw new DataException("The parameter sql is required!");
+			throw new DataException("SQL is required!");
 		}
 		var key = Integer.valueOf(sql.hashCode());
 		var result = this.cachedStatements.get(key);

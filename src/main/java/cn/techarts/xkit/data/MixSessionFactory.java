@@ -20,9 +20,9 @@ public class MixSessionFactory {
 	/**
 	 * Construct a MYBATIS-based data helper
 	 */
-	public MixSessionFactory(String configuration){
+	public MixSessionFactory(){
 		try {
-			var config = Resources.getResourceAsStream(configuration);
+			var config = Resources.getResourceAsStream("mybatis-config.xml");
 			this.factory1 = new SqlSessionFactoryBuilder().build(config);
 		}catch(IOException e) {
 			throw new DataException("Failed to initialize mybatis session factory.", e);

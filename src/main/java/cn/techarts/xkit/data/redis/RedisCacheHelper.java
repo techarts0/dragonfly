@@ -7,19 +7,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
 import cn.techarts.xkit.app.Codec;
+import cn.techarts.xkit.ioc.Valued;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisCacheHelper implements Closeable{
 	
+	@Inject
+	@Valued(key="cache.redis.port")
+	private int port;
+	@Inject
+	@Valued(key="cache.redis.host")
+	private String host;
+	@Inject
+	@Valued(key="cache.redis.capacity")
+	private int capacity;
+	
 	private boolean initialized = false;
 	private JedisPool connectionPool = null;
 	
-	public RedisCacheHelper(String host, int port, int poolSize) {
+	
+	public RedisCacheHelper() {
 		if(host == null || port <= 0) return;
-		int max = poolSize > 0 ? poolSize : 20;
+		int max = capacity > 0 ? capacity : 20;
 		this.initConnectionPool(host, port, max);
 	}
 	

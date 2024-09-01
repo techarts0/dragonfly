@@ -1,15 +1,34 @@
 package cn.techarts.xkit.web;
 
+import javax.inject.Inject;
+
+import cn.techarts.xkit.ioc.Valued;
+
 /**
  * Web APP configuration
  */
 public class AppConfig {
 	/**Session Check*/
 	public static boolean SC;
+	
+	@Inject
+	@Valued(key="session.key")
 	private String sessionKey;
+	
+	@Inject
+	@Valued(key="session.salt")
 	private String sessionSalt;
+	
+	@Inject
+	@Valued(key="session.duration")
 	private int sessionDuration;
+	
+	@Inject
+	@Valued(key="session.check")
 	private boolean sessionCheck;
+	
+	@Inject
+	@Valued(key="web.service.package")
 	private String servicePackage;
 		
 	public boolean isSessionCheck() {

@@ -41,6 +41,9 @@ public class Craft {
 		this.singleton = node.isSingleton();
 		this.arguments = new HashMap<>();
 		this.properties = new HashMap<>();
+		
+		//Allows both of annotation and JSON. 
+		resolveInjectedFields(clazz); //Annotation
 		resolveInjectedFields(node.getProps(), clazz);
 		resolveInjectedContructor(node.getArgs(), clazz);
 	}

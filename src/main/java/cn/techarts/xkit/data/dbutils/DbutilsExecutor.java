@@ -26,9 +26,8 @@ public class DbutilsExecutor implements DataHelper {
 	}
 
 	@Override
-	public int save(String statement, Object parameter, boolean... returnPK) throws DataException {
-		var rpk = returnPK != null && returnPK.length == 1 ? returnPK[0] : false; 
-		return (int)this.dbutils.insert(statement, parameter, rpk, session);
+	public int save(String statement, Object parameter) throws DataException {
+		return (int)dbutils.insert(statement, parameter, true, session);
 	}
 
 	@Override
@@ -39,11 +38,6 @@ public class DbutilsExecutor implements DataHelper {
 	@Override
 	public int modify(String statement, Object parameter) throws DataException {
 		return this.dbutils.update(statement, parameter, session);
-	}
-
-	@Override
-	public <T> T get(String statement, Object key) throws DataException {
-		return null;
 	}
 	
 	@Override
@@ -72,13 +66,7 @@ public class DbutilsExecutor implements DataHelper {
 	@Override
 	public String getString(String statement, Object parameter) throws DataException {
 		return dbutils.select(statement, parameter,String.class, session);
-	}
-
-	@Deprecated
-	@Override
-	public <T> List<T> getAll(String statement, Object parameter) throws DataException {
-		return null;
-	}
+	}	
 	
 	@Override
 	public <T> List<T> getAll(String statement, Object parameter, Class<T> t) throws DataException {
