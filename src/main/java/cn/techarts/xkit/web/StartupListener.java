@@ -5,6 +5,7 @@ import java.io.FileFilter;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Named;
 import javax.servlet.ServletContext;
@@ -15,22 +16,29 @@ import cn.techarts.xkit.ioc.Context;
 import cn.techarts.xkit.ioc.Panic;
 
 public class StartupListener implements ServletContextListener {
-	protected AppConfig config = null;
 	public static final String CONFIG_PATH = "contextConfigLocation";
 	
 	@Override
 	public void contextInitialized(ServletContextEvent arg) {
 		var context = arg.getServletContext();
 		var classpath = this.getRootClassPath();
-		//new ServiceEnhancer(classpath).start();
-		initializeIocContainer(context, classpath);
-		
-		config = get(context, "webAppConfig", AppConfig.class);
-		if(config == null) {
-			throw new RuntimeException("App config is required.");
-		}
-		initSessionSettings(config); //Key, salt and permission-ignored
-		this.loadAllWebServices(context, config.getServicePackage());
+		var config = classpath.concat("config.properties");
+		var configs = Context.resolveConfiguration(config);
+		initializeIocContainer(context, classpath, configs);
+		initSessionSettings(this.getSessionConfig(configs));
+		var wsPackage = "web.service.package";//Scan the folder
+		loadAllWebServices(context, configs.remove(wsPackage));
+	}
+	
+	private SessionConfig getSessionConfig(Map<String, String> configs) {
+		var result = new SessionConfig();
+		result.setSessionKey(configs.remove("session.key"));
+		result.setSessionSalt(configs.remove("session.salt"));
+		var duration = configs.remove("session.duration");		
+		result.setSessionDuration(Integer.parseInt(duration));
+		var permission = configs.remove("session.check");
+		result.setSessionCheck(Boolean.parseBoolean(permission));
+		return result;
 	}
 	
 	private String getRootClassPath() {
@@ -41,10 +49,9 @@ public class StartupListener implements ServletContextListener {
 		return result.getPath().substring(1); //Usually, it is WEB-INF/classes
 	}
 	
-	private void initializeIocContainer(ServletContext context, String classpath) {
+	private void initializeIocContainer(ServletContext context, String classpath, Map<String, String> configs) {
 		var json = classpath.concat("crafts.json");
-		var config = classpath.concat("config.properties");
-		Context.make(classpath, json, config).cache(context);
+		Context.make(classpath, json, configs).cache(context);
 	}
 
 	@Override
@@ -52,7 +59,7 @@ public class StartupListener implements ServletContextListener {
 		
 	}
 	
-	private void initSessionSettings(AppConfig settings) {
+	private void initSessionSettings(SessionConfig settings) {
 		var key = settings.getSessionKey();
 		var salt = settings.getSessionSalt();
 		var duration = settings.getSessionDuration();

@@ -20,7 +20,7 @@ public class ServiceRouter extends HttpServlet{
 
 	public int authenticate(HttpServletRequest req, HttpServletResponse response, ServiceMeta service){
 		if(service == null) return NO_SUCH_API;
-		if(!AppConfig.SC) return ALLOWED;
+		if(!SessionConfig.SC) return ALLOWED;
 		if(!service.isPermissionRequired()) return ALLOWED;
 		String session = getSession(req), ip = getRemorteAddress(req);
 		if(session == null || session.isBlank()) return INVALID_SESSION;

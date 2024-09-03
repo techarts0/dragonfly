@@ -42,6 +42,4 @@ public final class Result implements Serializable{
 	public static Result unknown() {
 		return new Result(-1, "Unknown exception");
 	}
-	
-	
 }

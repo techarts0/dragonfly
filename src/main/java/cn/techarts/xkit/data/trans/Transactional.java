@@ -1,4 +1,4 @@
-package cn.techarts.xkit.data;
+package cn.techarts.xkit.data.trans;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -9,5 +9,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RUNTIME)
 public @interface Transactional {
-
+	public boolean readonly() default true;
+	public Isolation isolation() default Isolation.READ_COMMITED;
+	public Propagation propagation() default Propagation.SUPPORTED;
 }

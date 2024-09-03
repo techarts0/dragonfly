@@ -25,6 +25,14 @@ public class Context {
 		return new Context(container); 
 	}
 	
+	public static Context make(String[] bases, String[] jsons, Map<String, String> configs) {
+		var container = new HashMap<String, Craft>(512);
+		var inventory = new Factory(container);
+		inventory.setConfigs(configs);
+		inventory.start(bases, jsons);
+		return new Context(container); 
+	}
+	
 	/**For test purpose only*/
 	public static Context make(String base, String json, Map<String, String> config) {
 		var container = new HashMap<String, Craft>(512);
@@ -41,7 +49,7 @@ public class Context {
 		return (Context)obj;
 	}
 	
-	private static Map<String, String> resolveConfiguration(String file) {
+	public static Map<String, String> resolveConfiguration(String file) {
 		var config = new Properties();
 		var result = new HashMap<String, String>(64);
 		try(var in = new FileInputStream(file)) {

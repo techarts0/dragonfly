@@ -9,7 +9,7 @@ import javax.servlet.ServletException;
 import cn.techarts.xkit.app.ServiceEnhancer;
 import cn.techarts.xkit.ioc.Panic;
 
-public class DragonflyInitializer implements ServletContainerInitializer{
+public class XkitInitializer implements ServletContainerInitializer{
 	@Override
 	public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException {
 		var classpath = this.getRootClassPath();

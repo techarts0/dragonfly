@@ -7,7 +7,7 @@ import cn.techarts.xkit.aop.AopException;
 import cn.techarts.xkit.aop.Bytecoder;
 import cn.techarts.xkit.aop.Enhanced;
 import cn.techarts.xkit.data.DataException;
-import cn.techarts.xkit.data.Transactional;
+import cn.techarts.xkit.data.trans.Transactional;
 import cn.techarts.xkit.util.Helper;
 
 public class ServiceEnhancer {
@@ -46,13 +46,13 @@ public class ServiceEnhancer {
 		var bytecoder = new Bytecoder(service);
 		for(var method : methods) {
 			if(!method.isAnnotationPresent(Transactional.class)) continue;
-			bytecoder.beforeReturn(method.getName(), CODE_COMMIT);
-			bytecoder.addCatch(method.getName(), CODE_ROLL, DATA_EX, "e");
+			bytecoder.beforeReturn(method.getName(), SRC_COMMIT);
+			bytecoder.addCatch(method.getName(), SRC_ROLL, DATA_EX, "e");
 		}
 		bytecoder.save(true); //Save the enhanced class file  to recover the original
 	}
 	
-	private static final String CODE_COMMIT = "super.commitAndClose();";
-	private static final String CODE_ROLL = "getDataHelper().rollback(); throw e;";
+	private static final String SRC_COMMIT = "super.commitAndClose();";
+	private static final String SRC_ROLL = "getDataHelper().rollback(); throw e;";
 	private static final Class<DataException> DATA_EX = DataException.class;
 }
