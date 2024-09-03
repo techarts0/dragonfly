@@ -1,7 +1,7 @@
 package cn.techarts.xkit.app;
 
 import cn.techarts.xkit.data.DataHelper;
-import cn.techarts.xkit.data.MixSessionFactory;
+import cn.techarts.xkit.data.DatabaseFactory;
 import cn.techarts.xkit.data.redis.RedisCacheHelper;
 
 import javax.inject.Inject;
@@ -12,8 +12,8 @@ import cn.techarts.xkit.data.DataException;
 public abstract class AbstractService 
 {
 	@Inject
-	@Named("mixSessionFactory")
-	private MixSessionFactory sqldb = null;
+	@Named("databaseFactory")
+	private DatabaseFactory sqldb = null;
 	@Inject
 	@Named("cacheHelper")
 	private RedisCacheHelper cache = null;

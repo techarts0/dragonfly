@@ -13,7 +13,7 @@ import cn.techarts.xkit.data.dbutils.QueryRunnerFactory;
 import cn.techarts.xkit.data.mybatis.MybatisExecutor;
 import cn.techarts.xkit.ioc.Valued;
 
-public class MixSessionFactory {
+public class DatabaseFactory {
 	@Inject
 	@Valued(key="jdbc.url")
 	private String url;
@@ -46,7 +46,7 @@ public class MixSessionFactory {
 		
 	public static final String MYBATIS = "mybatis-config.xml";
 	
-	public MixSessionFactory() {}
+	public DatabaseFactory() {}
 	
 	/**
 	 * Construct a MYBATIS-based data helper
