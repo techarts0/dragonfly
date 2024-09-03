@@ -23,4 +23,14 @@ public class AopException extends RuntimeException {
 	public static AopException notAnInterface(Class<?> t) {
 		return new AopException("The parameter t is not an interface: " + t.getName());
 	}
+	
+	public static AopException notFound(String clzz, Throwable e) {
+		return new AopException("Can not find the class or method: " + clzz, e);
+	}
+	
+	public static AopException failedSaveFile(Throwable e) {
+		return new AopException("Failed to save the class bytecode.", e);
+	}
+	
+	
 }

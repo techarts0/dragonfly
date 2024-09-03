@@ -2,7 +2,7 @@ package cn.techarts.xkit.data;
 
 import java.util.List;
 
-public interface DataHelper extends AutoCloseable
+public interface DataHelper
 {
 	public int save(String statement, Object parameter) throws DataException;
 	
@@ -21,4 +21,8 @@ public interface DataHelper extends AutoCloseable
 	public String getString(String statement, Object parameter) throws DataException;
 	
 	public<T> List<T> getAll(String statement, Object parameter, Class<T> t) throws DataException;
+	
+	public void rollback() throws DataException;
+	
+	public void close() throws DataException;
 }

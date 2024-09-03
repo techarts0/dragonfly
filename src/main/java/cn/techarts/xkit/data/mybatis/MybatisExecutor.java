@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Collection;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
-
 import cn.techarts.xkit.app.UniObject;
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.DataHelper;
@@ -137,9 +136,13 @@ public class MybatisExecutor implements DataHelper {
 	}
 	
 	@Override
-	public void close() throws Exception{
-		if(this.session != null) {
-			this.session.close();
-		}
-	}	
+	public void rollback() throws DataException {
+		if(session != null) session.rollback();
+	}
+
+	@Override
+	public void close() throws DataException {
+		if(session == null) return;
+		this.session.close();
+	}
 }

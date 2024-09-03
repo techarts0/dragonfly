@@ -1,6 +1,7 @@
 package cn.techarts.xkit.data.dbutils;
 
 import java.util.List;
+import java.sql.SQLException;
 import org.apache.commons.dbutils.QueryRunner;
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.DataHelper;
@@ -15,16 +16,6 @@ public class DbutilsExecutor implements DataHelper {
 		this.session = session;
 	}
 	
-	@Override
-	public void close() throws Exception {
-		var ds = (SafeDataSource)session.getDataSource();
-		if(ds != null) {
-			var connection = ds.getConnection();
-			connection.commit();
-			connection.setAutoCommit(true);
-		}
-	}
-
 	@Override
 	public int save(String statement, Object parameter) throws DataException {
 		return (int)dbutils.insert(statement, parameter, true, session);
@@ -71,5 +62,30 @@ public class DbutilsExecutor implements DataHelper {
 	@Override
 	public <T> List<T> getAll(String statement, Object parameter, Class<T> t) throws DataException {
 		return this.dbutils.selectAll(statement, parameter, t, session);
-	}	
+	}
+
+	@Override
+	public void rollback() {
+		var ds = (SafeDataSource)session.getDataSource();
+		if(ds == null) return;
+		try {
+			var connection = ds.getConnection();
+			connection.rollback();
+		}catch(SQLException e) {
+			throw new DataException("Failed to rollback transaction.");
+		}
+	}
+
+	@Override
+	public void close() throws DataException {
+		var ds = (SafeDataSource)session.getDataSource();
+		if(ds == null) return;
+		try {
+			var connection = ds.getConnection();
+			connection.commit();
+			connection.close();
+		}catch(SQLException e) {
+			throw new DataException("Failed to commit transaction.");
+		}
+	}
 }

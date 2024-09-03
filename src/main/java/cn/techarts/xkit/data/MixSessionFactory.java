@@ -31,6 +31,10 @@ public class MixSessionFactory {
 	private String password;
 	
 	@Inject
+	@Valued(key="jdbc.capacity")
+	private int capacity;
+	
+	@Inject
 	@Valued(key="jdbc.framework")
 	private String framework;
 	
@@ -63,7 +67,7 @@ public class MixSessionFactory {
 	public void createDbutilsSessionFactory() {
 		if(this.dbutilsFactory != null) return;
 		try {
-			this.dbutilsFactory = new QueryRunnerFactory(driver, url, user, password, 10);
+			this.dbutilsFactory = new QueryRunnerFactory(driver, url, user, password, capacity);
 		}catch(Exception e) {
 			throw new DataException("Failed to initialize dbunits session factory.", e);
 		}
@@ -81,7 +85,7 @@ public class MixSessionFactory {
 	
 	public DataHelper getExecutor() {
 		if(mybatisFactory != null) {
-			var session = mybatisFactory.openSession(false);
+			var session = mybatisFactory.openSession();
 			return new MybatisExecutor(session);
 		}else if(dbutilsFactory != null) {
 			var session = dbutilsFactory.openQueryRunner();

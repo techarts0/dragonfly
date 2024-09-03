@@ -26,6 +26,7 @@ public class ProxyFactory {
 										 finalAdvice);
 		
 		var interfaces = target.getClass().getInterfaces();
+		if(interfaces == null || interfaces.length == 0)return target;
 		return t.cast(Proxy.newProxyInstance(cl, interfaces, handler));
 	}
 	
@@ -47,6 +48,7 @@ public class ProxyFactory {
 								 finalAdvice);
 		
 		var interfaces = target.getClass().getInterfaces();
+		if(interfaces == null || interfaces.length == 0)return target;
 		return t.cast(Proxy.newProxyInstance(cl, interfaces, handler));
 	}
 	
@@ -67,6 +69,7 @@ public class ProxyFactory {
 						 null);
 		
 		var interfaces = target.getClass().getInterfaces();
+		if(interfaces == null || interfaces.length == 0)return target;
 		return t.cast(Proxy.newProxyInstance(cl, interfaces, handler));
 	}
 	
@@ -85,6 +88,7 @@ public class ProxyFactory {
 						 null, null);
 		
 		var interfaces = target.getClass().getInterfaces();
+		if(interfaces == null || interfaces.length == 0)return target;
 		return t.cast(Proxy.newProxyInstance(cl, interfaces, handler));
 	}
 	
@@ -101,6 +105,7 @@ public class ProxyFactory {
 						 null, null, null);
 		
 		var interfaces = target.getClass().getInterfaces();
+		if(interfaces == null || interfaces.length == 0)return target;
 		return t.cast(Proxy.newProxyInstance(cl, interfaces, handler));
 	}
 }

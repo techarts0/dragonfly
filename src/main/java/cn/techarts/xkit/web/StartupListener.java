@@ -10,20 +10,41 @@ import javax.inject.Named;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+
 import cn.techarts.xkit.ioc.Context;
+import cn.techarts.xkit.ioc.Panic;
 
 public class StartupListener implements ServletContextListener {
 	protected AppConfig config = null;
+	public static final String CONFIG_PATH = "contextConfigLocation";
 	
 	@Override
 	public void contextInitialized(ServletContextEvent arg) {
 		var context = arg.getServletContext();
+		var classpath = this.getRootClassPath();
+		//new ServiceEnhancer(classpath).start();
+		initializeIocContainer(context, classpath);
+		
 		config = get(context, "webAppConfig", AppConfig.class);
 		if(config == null) {
 			throw new RuntimeException("App config is required.");
 		}
 		initSessionSettings(config); //Key, salt and permission-ignored
 		this.loadAllWebServices(context, config.getServicePackage());
+	}
+	
+	private String getRootClassPath() {
+		var result = getClass().getResource("/");
+		if(result == null || result.getPath() == null) {
+			throw new Panic("Failed to get resource path.");
+		}
+		return result.getPath().substring(1); //Usually, it is WEB-INF/classes
+	}
+	
+	private void initializeIocContainer(ServletContext context, String classpath) {
+		var json = classpath.concat("crafts.json");
+		var config = classpath.concat("config.properties");
+		Context.make(classpath, json, config).cache(context);
 	}
 
 	@Override

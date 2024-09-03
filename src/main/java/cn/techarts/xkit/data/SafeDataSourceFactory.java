@@ -10,10 +10,20 @@ public class SafeDataSourceFactory extends UnpooledDataSourceFactory {
 	    this.dataSource = new SafeDataSource();
 	}
 	
+	private int parseCapacity(String capacity) {
+		if(capacity == null) return 10; //Default;
+		try {
+			return Integer.parseInt(capacity);
+		}catch(NumberFormatException e) {
+			return 10;
+		}
+	}
+	
 	@Override
 	public void setProperties(Properties properties) {
 		var ds = (SafeDataSource)dataSource;
-		
+		var capacity = properties.getProperty("poolSize");
+		ds.setMaximumPoolSize(parseCapacity(capacity));
 		var driverClassName = properties.getProperty("jdbcDriver");
 		if(driverClassName != null) {
 			ds.setDriverClassName(driverClassName);

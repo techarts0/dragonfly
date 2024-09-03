@@ -20,22 +20,36 @@ public abstract class AbstractService
 	
 	private boolean factoryInited = false;
 	
+	private final ThreadLocal<DataHelper> threadLocal = new ThreadLocal<>();
+	
 	/**
 	 * ERRID means the Id is ZERO(<b>0</b>) and it's <b>invalid</b>.
 	 * */
 	public static final int ERRID = 0;
 	public static final double ZERO = 0.00001D;
 	
+	/**
+	 * Within a transaction.
+	 */
 	public DataHelper getDataHelper() {
 		if(!factoryInited) {
 			factoryInited = true;
 			sqldb.initializeFactory();
 		}
-		return this.sqldb.getExecutor();
+		var result = threadLocal.get();
+		if(result == null) {
+			result = sqldb.getExecutor();
+			this.threadLocal.set(result);
+		}
+		return result; //Current Thread
 	}
 	
-	public void endService(DataHelper helper) {
-		
+	/**
+	 * The method is called automatically.
+	 */
+	protected void commitAndClose() {
+		getDataHelper().close();
+		this.threadLocal.remove();
 	}
 	
 	public void setCache(RedisCacheHelper cache) {
