@@ -1,6 +1,8 @@
 package cn.techarts.xkit.web;
 
 import java.io.Serializable;
+
+import cn.techarts.xkit.util.Converter;
 import cn.techarts.xkit.util.Hotchpotch;
 
 public class UserSession implements Serializable {
@@ -18,7 +20,7 @@ public class UserSession implements Serializable {
 	public static boolean verify(String ip, int userId, String session) {
 		var tmp = Hotchpotch.decrypt(session, Hotchpotch.toBytes(KEY));
 		if(tmp == null) return false; //An invalid session
-		var bgn = Integer.parseInt(tmp.substring(0, 8));
+		var bgn = Converter.toInt(tmp.substring(0, 8));
 		if(minutes() - bgn > DURATION) return false;
 		var result = (ip != null ? ip : "0000") + userId + SALT;
 		return result != null ? result.equals(tmp.substring(8)) : false;

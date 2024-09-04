@@ -4,6 +4,8 @@ import java.util.Properties;
 
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
 
+import cn.techarts.xkit.util.Converter;
+
 public class SafeDataSourceFactory extends UnpooledDataSourceFactory {
 
 	public SafeDataSourceFactory() {
@@ -13,7 +15,7 @@ public class SafeDataSourceFactory extends UnpooledDataSourceFactory {
 	private int parseCapacity(String capacity) {
 		if(capacity == null) return 10; //Default;
 		try {
-			return Integer.parseInt(capacity);
+			return Converter.toInt(capacity);
 		}catch(NumberFormatException e) {
 			return 10;
 		}

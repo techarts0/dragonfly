@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.techarts.xkit.util.Converter;
+
 @WebServlet("/ws/*")
 public class ServiceRouter extends HttpServlet{
 	
@@ -24,7 +26,7 @@ public class ServiceRouter extends HttpServlet{
 		if(!service.isPermissionRequired()) return ALLOWED;
 		String session = getSession(req), ip = getRemorteAddress(req);
 		if(session == null || session.isBlank()) return INVALID_SESSION;
-		return checkSession(Integer.parseInt(req.getParameter("uid")), ip,  session);
+		return checkSession(Converter.toInt(req.getParameter("uid")), ip,  session);
 	}
 	
 	public static String getRemorteAddress(HttpServletRequest request) {

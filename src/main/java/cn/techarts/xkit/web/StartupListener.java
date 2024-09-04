@@ -14,6 +14,7 @@ import javax.servlet.ServletContextListener;
 
 import cn.techarts.xkit.ioc.Context;
 import cn.techarts.xkit.ioc.Panic;
+import cn.techarts.xkit.util.Converter;
 
 public class StartupListener implements ServletContextListener {
 	public static final String CONFIG_PATH = "contextConfigLocation";
@@ -35,9 +36,9 @@ public class StartupListener implements ServletContextListener {
 		result.setSessionKey(configs.remove("session.key"));
 		result.setSessionSalt(configs.remove("session.salt"));
 		var duration = configs.remove("session.duration");		
-		result.setSessionDuration(Integer.parseInt(duration));
+		result.setSessionDuration(Converter.toInt(duration));
 		var permission = configs.remove("session.check");
-		result.setSessionCheck(Boolean.parseBoolean(permission));
+		result.setSessionCheck(Converter.toBoolean(permission));
 		return result;
 	}
 	
