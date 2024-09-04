@@ -56,7 +56,7 @@ public class StartupListener implements ServletContextListener {
 
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) {
-		
+		Context.from(arg0.getServletContext()).close();
 	}
 	
 	private void initSessionSettings(SessionConfig settings) {

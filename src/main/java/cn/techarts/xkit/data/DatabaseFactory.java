@@ -13,7 +13,7 @@ import cn.techarts.xkit.data.dbutils.QueryRunnerFactory;
 import cn.techarts.xkit.data.mybatis.MybatisExecutor;
 import cn.techarts.xkit.ioc.Valued;
 
-public class DatabaseFactory {
+public class DatabaseFactory implements AutoCloseable{
 	@Inject
 	@Valued(key="jdbc.url")
 	private String url;
@@ -38,6 +38,8 @@ public class DatabaseFactory {
 	@Valued(key="jdbc.framework")
 	private String framework;
 	
+	private boolean initialized;
+	
 	//MYBATIS
 	private SqlSessionFactory mybatisFactory;
 		
@@ -45,6 +47,8 @@ public class DatabaseFactory {
 	private QueryRunnerFactory dbutilsFactory;
 		
 	public static final String MYBATIS = "mybatis-config.xml";
+	
+	private ThreadLocal<DataHelper> threadLocal = new ThreadLocal<>();
 	
 	public DatabaseFactory() {}
 	
@@ -81,9 +85,10 @@ public class DatabaseFactory {
 		}else {
 			throw new DataException("Unsupported orm framework: " + framework);
 		}
+		this.setInitialized(true); //
 	}
 	
-	public DataHelper getExecutor() {
+	private DataHelper getExecutor0() {
 		if(mybatisFactory != null) {
 			var session = mybatisFactory.openSession();
 			return new MybatisExecutor(session);
@@ -92,6 +97,23 @@ public class DatabaseFactory {
 			return new DbutilsExecutor(session, dbutilsFactory.getDbutils());
 		}else {
 			throw new DataException("Unsupported orm framework: " + framework);
+		}
+	}
+	
+	public DataHelper getExecutor() {
+		var result = threadLocal.get();
+		if(result == null) {
+			result = getExecutor0();
+			this.threadLocal.set(result);
+		}
+		return result; //Current Thread
+	}
+	
+	public void closeExecutor() {
+		var current = threadLocal.get();
+		if(current != null) {
+			current.close();
+			threadLocal.remove();
 		}
 	}
 	
@@ -106,5 +128,26 @@ public class DatabaseFactory {
 		}else {
 			throw new DataException("Unsupported orm framework: " + framework);
 		}
+	}
+
+	@Override
+	public void close() {
+		if(threadLocal == null) return;
+		this.threadLocal.remove();
+		this.threadLocal = null;
+		if(dbutilsFactory != null) {
+			dbutilsFactory.close();
+		}
+		if(mybatisFactory != null) {
+			mybatisFactory = null;
+		}
+	}
+
+	public boolean isInitialized() {
+		return initialized;
+	}
+
+	public void setInitialized(boolean initialized) {
+		this.initialized = initialized;
 	}
 }

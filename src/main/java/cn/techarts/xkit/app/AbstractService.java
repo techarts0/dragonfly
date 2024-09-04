@@ -18,10 +18,6 @@ public abstract class AbstractService
 	@Named("cacheHelper")
 	private RedisCacheHelper cache = null;
 	
-	private boolean factoryInited = false;
-	
-	private final ThreadLocal<DataHelper> threadLocal = new ThreadLocal<>();
-	
 	/**
 	 * ERRID means the Id is ZERO(<b>0</b>) and it's <b>invalid</b>.
 	 * */
@@ -32,16 +28,10 @@ public abstract class AbstractService
 	 * Within a transaction.
 	 */
 	public DataHelper getDataHelper() {
-		if(!factoryInited) {
-			factoryInited = true;
+		if(!sqldb.isInitialized()) {
 			sqldb.initializeFactory();
 		}
-		var result = threadLocal.get();
-		if(result == null) {
-			result = sqldb.getExecutor();
-			this.threadLocal.set(result);
-		}
-		return result; //Current Thread
+		return this.sqldb.getExecutor();
 	}
 	
 	/**
@@ -49,14 +39,14 @@ public abstract class AbstractService
 	 */
 	protected void commitAndClose() {
 		getDataHelper().close();
-		this.threadLocal.remove();
+		this.sqldb.closeExecutor();
 	}
 	
 	public void setCache(RedisCacheHelper cache) {
 		this.cache = cache;
 	}
 	
-	public RedisCacheHelper cache() {
+	protected RedisCacheHelper cache() {
 		if(cache == null || !cache.isInitialized()) {
 			throw new DataException("cache is null.");
 		}
@@ -66,7 +56,7 @@ public abstract class AbstractService
 	/**
 	 * Check the property id. (MUST be great than 0)
 	 */
-	public boolean ok( int id)
+	protected boolean ok( int id)
 	{
 		return id < 1 ? false : true;
 	}
@@ -74,7 +64,7 @@ public abstract class AbstractService
 	/**
 	 * Check the variable argument.(MUST be not null and at least 1 element)
 	 */
-	public boolean ok( int[] objects)
+	protected boolean ok( int[] objects)
 	{
 		return objects != null && objects.length > 0 ? true : false; 
 	}

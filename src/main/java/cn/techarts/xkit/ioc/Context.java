@@ -8,12 +8,28 @@ import java.util.Properties;
 
 import javax.servlet.ServletContext;
 
-public class Context {
+public class Context implements AutoCloseable{
 	private Map<String, Craft> crafts;
 	public static final String NAME = "context.dragonfly.techarts.cn";
 	
 	public static Context make(String base, String json, String config) {
 		return make(new String[] {base}, new String[] {json}, config);
+	}
+	
+	public void close() {
+		if(crafts == null) return;
+		if(crafts.isEmpty()) return;
+		for(var craft : crafts.values()) {
+			var obj = craft.getInstance();
+			if(obj == null) continue;
+			if(obj instanceof AutoCloseable) {
+				try {
+					((AutoCloseable)obj).close();
+				}catch(Exception e) {
+					//Ignored
+				}
+			}
+		}
 	}
 	
 	public static Context make(String[] bases, String[] jsons, String config) {
