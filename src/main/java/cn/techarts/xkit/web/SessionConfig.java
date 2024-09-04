@@ -4,8 +4,6 @@ package cn.techarts.xkit.web;
  * Web APP configuration
  */
 public class SessionConfig {
-	/**Session Check*/
-	public static boolean SC;
 	
 	private String sessionKey;
 	
@@ -19,7 +17,6 @@ public class SessionConfig {
 		return sessionCheck;
 	}
 	public void setSessionCheck(boolean check) {
-		SC = check; //An alias
 		this.sessionCheck = check;
 	}	
 	public String getSessionSalt() {

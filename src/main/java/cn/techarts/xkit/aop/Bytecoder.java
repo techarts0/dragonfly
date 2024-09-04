@@ -47,7 +47,7 @@ public final class Bytecoder {
 		var clzz = Class.forName(source);
 		var domain = clzz.getProtectionDomain();
 		var loc = domain.getCodeSource().getLocation();
-		return loc.getPath().substring(1);
+		return loc.getPath();
 	}
 	
 	public void beforeReturn(String method, String code) {

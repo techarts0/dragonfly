@@ -10,10 +10,12 @@ public class UserSession implements Serializable {
 	public static int DURATION = 0;
 	public static String KEY = null;
 	public static String SALT = null;
+	public static boolean CHECK = false;
 	
-	public static void init(String salt, int duration, String key) {
+	public static void init(String salt, int duration, String key, boolean check) {
 		KEY = key;
 		SALT = salt;
+		CHECK = check;
 		DURATION = duration;
 	}
 	

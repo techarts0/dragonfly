@@ -47,7 +47,7 @@ public class StartupListener implements ServletContextListener {
 		if(result == null || result.getPath() == null) {
 			throw new Panic("Failed to get resource path.");
 		}
-		return result.getPath().substring(1); //Usually, it is WEB-INF/classes
+		return result.getPath();
 	}
 	
 	private void initializeIocContainer(ServletContext context, String classpath, Map<String, String> configs) {
@@ -63,8 +63,9 @@ public class StartupListener implements ServletContextListener {
 	private void initSessionSettings(SessionConfig settings) {
 		var key = settings.getSessionKey();
 		var salt = settings.getSessionSalt();
+		var check = settings.isSessionCheck();
 		var duration = settings.getSessionDuration();
-		UserSession.init(salt, duration, key);
+		UserSession.init(salt, duration, key, check);
 	}
 	
 	public<T> T get(ServletContext ctx, String id, Class<T> clzz)
@@ -114,7 +115,7 @@ public class StartupListener implements ServletContextListener {
 	 */
 	private List<String> scanWebServices(ServletContext context, String pkg) {
 		if(pkg == null) return null;
-		var base = getApplicationBasePath();
+		var base = getRootClassPath();
 		if(base == null) return null;
 		var path = base.concat(pkg.replace('.', '/'));
 		var files = poll(path, ".class");
@@ -146,13 +147,6 @@ public class StartupListener implements ServletContextListener {
 	{
 		var directory = new File( srcFolder);
 		return directory.listFiles( new XFileFilter(fileType));
-	}
-	
-	private String getApplicationBasePath() {
-		var base = getClass().getResource("/");
-		if(base == null || base.getPath() == null) return null;
-		var w = File.separatorChar == '\\'; //Windows
-		return w ? base.getPath().substring(1) : base.getPath();
 	}
 }
 

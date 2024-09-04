@@ -21,6 +21,6 @@ public class XkitInitializer implements ServletContainerInitializer{
 		if(result == null || result.getPath() == null) {
 			throw new Panic("Failed to get resource path.");
 		}
-		return result.getPath().substring(1); //Usually, it is WEB-INF/classes
+		return result.getPath(); //Usually, it is WEB-INF/classes
 	}
 }
