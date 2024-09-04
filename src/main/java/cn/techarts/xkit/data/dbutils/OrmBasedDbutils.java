@@ -12,7 +12,7 @@ import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 import cn.techarts.xkit.data.DataException;
-import cn.techarts.xkit.util.Helper;
+import cn.techarts.xkit.util.Hotchpotch;
 
 /**
  * A lightweight utility that's designed to access database.<br> 
@@ -92,7 +92,7 @@ public final class OrmBasedDbutils {
 			throw new DataException("Could not find the sql:" + sql);
 		}
 		ResultSetHandler<T> target = new BeanHandler<T>(clazz);
-		if(Helper.isPrimitive(clazz)) {
+		if(Hotchpotch.isPrimitive(clazz)) {
 			target = new ScalarHandler<T>(1); //A single value (primitive)
 		}
 		try {
@@ -116,7 +116,7 @@ public final class OrmBasedDbutils {
 		if(clazz == null) return null;
 		var meta = this.parseStatement(sql);
 		ResultSetHandler<List<T>> target = new BeanListHandler<T>(clazz);
-		if(Helper.isPrimitive(clazz)) {
+		if(Hotchpotch.isPrimitive(clazz)) {
 			target = new ColumnListHandler<T>(1);
 		}
 		try {

@@ -8,7 +8,7 @@ import cn.techarts.xkit.aop.Bytecoder;
 import cn.techarts.xkit.aop.Enhanced;
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.trans.Transactional;
-import cn.techarts.xkit.util.Helper;
+import cn.techarts.xkit.util.Hotchpotch;
 
 public class ServiceEnhancer {
 	private String classpath = null;
@@ -37,7 +37,7 @@ public class ServiceEnhancer {
 		var base = new File(classpath);//Root class-path
 		if(base == null || !base.isDirectory()) return null;
 		var start = base.getAbsolutePath().length();
-		return Helper.scanClasses(base, start);
+		return Hotchpotch.scanClasses(base, start);
 	}
 	
 	private void enhanceClassWithinTransaction(Class<?> service) {

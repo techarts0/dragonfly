@@ -10,7 +10,7 @@ import javax.inject.Singleton;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import cn.techarts.xkit.util.Helper;
+import cn.techarts.xkit.util.Hotchpotch;
 
 public class Factory {
 	private Map<String, Craft> crafts;
@@ -130,7 +130,7 @@ public class Factory {
 		var base = new File(classpath);//Root class-path
 		if(base == null || !base.isDirectory()) return;
 		var start = base.getAbsolutePath().length();
-		var classes = Helper.scanClasses(base, start);
+		var classes = Hotchpotch.scanClasses(base, start);
 		classes.forEach(clazz->this.register(clazz));
 	}
 	

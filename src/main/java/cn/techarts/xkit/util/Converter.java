@@ -5,12 +5,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Convert the specific type to another. For an incorrect input parameter,<p>
@@ -138,14 +135,6 @@ public final class Converter {
 		return Date.from(instant);
 	}
 	
-	
-	
-	@SuppressWarnings("unchecked")
-	public static<T> T[] toArray(Collection<T> arg) {
-		if(arg == null) return null;
-		return (T[])arg.toArray(); //Force to convert the generic type
-	}
-	
 	public static<T> List<T> toList(T[] arg){
 		if(arg == null) return null;
 		var result = new ArrayList<T>();
@@ -154,14 +143,6 @@ public final class Converter {
 			if(item != null) result.add(item);
 		}
 		return result;
-	}
-	
-	public static<T> Set<T> toSet(T[] arg){
-		if(arg == null) return null;
-		if(arg.length == 0) {
-			return new HashSet<>();
-		}
-		return new HashSet<>(toList(arg));
 	}
 	
 	public static<T> T to(Object arg, Class<T> clazz) {
@@ -177,13 +158,13 @@ public final class Converter {
 	 * An alias of {@link Reflector.dump}
 	 */
 	public static Map<String, Object> toMap(Object arg){
-		return Reflector.dump(arg);
+		return Hotchpotch.dump(arg);
 	}
 	
 	/**
 	 * An alias of {@link Reflector.fill}
 	 */
 	public static void toBean(Object bean, Map<String, Object> data) {
-		Reflector.fill(bean, data);
+		Hotchpotch.fill(bean, data);
 	}
 }

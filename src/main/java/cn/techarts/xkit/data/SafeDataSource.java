@@ -3,11 +3,9 @@ package cn.techarts.xkit.data;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
-
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
-import cn.techarts.xkit.util.Cryptor;
+import cn.techarts.xkit.util.Hotchpotch;
 
 public class SafeDataSource extends HikariDataSource {
 	
@@ -22,8 +20,8 @@ public class SafeDataSource extends HikariDataSource {
 	}
 	
 	public static String decrypt(String password) {
-		var key = Cryptor.toBytes(KEY);
-		return Cryptor.decrypt(password, key);
+		var key = Hotchpotch.toBytes(KEY);
+		return Hotchpotch.decrypt(password, key);
 	}
 	
 	@Override
@@ -60,8 +58,8 @@ public class SafeDataSource extends HikariDataSource {
 	}
 	
 	public static String encrypt(String arg) {
-		var key = Cryptor.toBytes(KEY);
-		return Cryptor.encrypt(arg, key);
+		var key = Hotchpotch.toBytes(KEY);
+		return Hotchpotch.encrypt(arg, key);
 	}
 	
 	@Override
