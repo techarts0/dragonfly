@@ -2,7 +2,7 @@ package cn.techarts.xkit.app;
 
 import java.io.File;
 import java.util.List;
-
+import org.apache.logging.log4j.Logger;
 import cn.techarts.xkit.aop.AopException;
 import cn.techarts.xkit.aop.Bytecoder;
 import cn.techarts.xkit.aop.Enhanced;
@@ -12,6 +12,8 @@ import cn.techarts.xkit.util.Hotchpotch;
 
 public class ServiceEnhancer {
 	private String classpath = null;
+	private static final Logger LOGGER = Hotchpotch.getLogger(ServiceEnhancer.class);
+	
 	public ServiceEnhancer(String classpath) {
 		this.classpath = classpath;
 	}
@@ -50,6 +52,7 @@ public class ServiceEnhancer {
 			bytecoder.addCatch(method.getName(), SRC_ROLL, DATA_EX, "e");
 		}
 		bytecoder.save(true); //Save the enhanced class file  to recover the original
+		LOGGER.info("Enhanced the service class: " + service.getName());
 	}
 	
 	private static final String SRC_COMMIT = "super.commitAndClose();";

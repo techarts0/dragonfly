@@ -4,14 +4,19 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import org.apache.commons.dbutils.QueryRunner;
+import org.apache.logging.log4j.Logger;
+
 import com.zaxxer.hikari.HikariConfig;
 
 import cn.techarts.xkit.data.DataException;
+import cn.techarts.xkit.data.DatabaseFactory;
 import cn.techarts.xkit.data.SafeDataSource;
+import cn.techarts.xkit.util.Hotchpotch;
 
 public class QueryRunnerFactory {
 	private SafeDataSource dataSource = null;
 	private OrmBasedDbutils ormdbutils = null;	
+	private static final Logger LOGGER = Hotchpotch.getLogger(DatabaseFactory.class);
 	
 	public OrmBasedDbutils getDbutils() {
 		return this.ormdbutils;
@@ -26,6 +31,7 @@ public class QueryRunnerFactory {
 		try {
 			var con = result.getDataSource().getConnection();
 			if(con != null) con.setAutoCommit(false);
+			LOGGER.info("Got a connection wrapped in: " + result);
 		}catch(SQLException e) {
 			throw new DataException("Failed to open session.");
 		}
@@ -36,6 +42,7 @@ public class QueryRunnerFactory {
 		this.ormdbutils = new OrmBasedDbutils();
 		int poolsize = maxPoolSize <= 0 ? 10 : maxPoolSize;
 		this.prepareDataSource(driver, url, user, password, poolsize);
+		LOGGER.info("Connect to database with url: " + url);
 	}
 	
 	public void close() {

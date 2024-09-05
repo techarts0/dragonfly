@@ -11,6 +11,8 @@ import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
+import org.apache.logging.log4j.Logger;
+
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.util.Hotchpotch;
 
@@ -20,10 +22,11 @@ import cn.techarts.xkit.util.Hotchpotch;
  * 
  * Persister supports named-parameter style: The placeholder in SQL is compatible to MyBatis 
  */
-public final class OrmBasedDbutils {
+public class OrmBasedDbutils {
 	
 	private Map<Integer, SqlMeta> cachedStatements = null;
-	
+	private static final Logger LOGGER = Hotchpotch.getLogger(OrmBasedDbutils.class);
+		
 	public OrmBasedDbutils() {
 		this.cachedStatements = new HashMap<>(512);
 	}
@@ -178,6 +181,7 @@ public final class OrmBasedDbutils {
 		if(result == null || !result.check()) {
 			throw new DataException("Could not find the sql: " + sql);
 		}
+		LOGGER.info("Executing the SQL statement: " + result.getSql());
 		return result;
 	}
 	
@@ -209,82 +213,83 @@ public final class OrmBasedDbutils {
 		}
 		return new SqlMeta(stmt.toString(), params);
 	}
-}
+	
+	public static class SqlMeta{
+		private String sql;
+		private List<String> args;
+		
+		public SqlMeta(String statement, List<String> params) {
+			this.setArgs(params);
+			this.setSql(statement);
+		}
+		
+		public boolean check() {
+			return sql != null && !sql.isBlank();
+		}
+		
+		/**
+		 * The parameters number count
+		 */
+		public int count() {
+			return args != null ? args.size() : 0;
+		}
+		
+		public boolean hasArgs() {
+			return args != null && !args.isEmpty();
+		}	
+		
+		public String getSql() {
+			return sql;
+		}
 
-final class SqlMeta{
-	private String sql;
-	private List<String> args;
-	
-	public SqlMeta(String statement, List<String> params) {
-		this.setArgs(params);
-		this.setSql(statement);
-	}
-	
-	public boolean check() {
-		return sql != null && !sql.isBlank();
-	}
-	
-	/**
-	 * The parameters number count
-	 */
-	public int count() {
-		return args != null ? args.size() : 0;
-	}
-	
-	public boolean hasArgs() {
-		return args != null && !args.isEmpty();
-	}	
-	
-	public String getSql() {
-		return sql;
-	}
+		public void setSql(String sql) {
+			this.sql = sql;
+		}
+		
+		public List<String> getArgs() {
+			return args;
+		}
 
-	public void setSql(String sql) {
-		this.sql = sql;
-	}
-	
-	public List<String> getArgs() {
-		return args;
-	}
-
-	public void setArgs(List<String> args) {
-		this.args = args;
-	}
-	
-	public Object[] toParameters(Object arg) {
-		int count = this.count();
-		if(arg == null || count == 0) return null;
-		if(count == 1) {//1 parameter & Primitive Type
-			if(arg instanceof Number) return new Object[] {arg};
-			if(arg instanceof String) return new Object[] {arg};
-			if(arg instanceof Boolean) return new Object[] {arg};
-			if(arg instanceof Character) return new Object[] {arg};
+		public void setArgs(List<String> args) {
+			this.args = args;
 		}
-		var result = new Object[count];
-		for(int i = 0; i < result.length; i++) {
-			result[i] = getValue(arg, args.get(i));
+		
+		public Object[] toParameters(Object arg) {
+			int count = this.count();
+			if(arg == null || count == 0) return null;
+			LOGGER.info("====> Parameters: " + arg);
+			if(count == 1) {//1 parameter & Primitive Type
+				if(arg instanceof Number) return new Object[] {arg};
+				if(arg instanceof String) return new Object[] {arg};
+				if(arg instanceof Boolean) return new Object[] {arg};
+				if(arg instanceof Character) return new Object[] {arg};
+			}
+			var result = new Object[count];
+			for(int i = 0; i < result.length; i++) {
+				result[i] = getValue(arg, args.get(i));
+			}
+			return result;
 		}
-		return result;
-	}
-	
-	private static Object getValue(Object obj, String field) {
-		if(obj == null || field == null) return null;
-		var method = toMethodName("get", field);
-		try {
-			var raw = obj.getClass();
-			var getter = raw.getMethod(method);
-			if(getter == null) return null;
-			return getter.invoke(obj);
-		}catch(Exception e) {
-			throw new DataException("Failed to get value.", e);
+		
+		private Object getValue(Object obj, String field) {
+			if(obj == null || field == null) return null;
+			var method = toMethodName("get", field);
+			try {
+				var raw = obj.getClass();
+				var getter = raw.getMethod(method);
+				if(getter == null) return null;
+				return getter.invoke(obj);
+			}catch(Exception e) {
+				throw new DataException("Failed to get value.", e);
+			}
 		}
-	}
-	
-	private static String toMethodName(String prefix, String field) {
-		var chars = field.toCharArray();
-		if (chars[0] >= 'a' && chars[0] <= 'z') {
-			chars[0] = (char) (chars[0] - 32);
+		
+		private String toMethodName(String prefix, String field) {
+			var chars = field.toCharArray();
+			if (chars[0] >= 'a' && chars[0] <= 'z') {
+				chars[0] = (char) (chars[0] - 32);
+			}
+			return prefix.concat(String.valueOf(chars));
 		}
-		return prefix.concat(String.valueOf(chars));
 	}
 }

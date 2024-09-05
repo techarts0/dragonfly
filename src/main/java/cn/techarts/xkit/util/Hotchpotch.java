@@ -11,6 +11,9 @@ import java.util.Map;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import cn.techarts.xkit.ioc.Panic;
 
 /**
@@ -257,6 +260,10 @@ public final class Hotchpotch {
 		var encrypted = result.toString();
 		return upperCase ? encrypted.toUpperCase() : encrypted;
     }
+	
+	public static Logger getLogger(Class<?> clazz) {
+		return LogManager.getLogger(clazz);
+	}
 }
 
 class ClassFilter implements FileFilter

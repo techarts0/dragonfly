@@ -12,12 +12,16 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.apache.logging.log4j.Logger;
+
 import cn.techarts.xkit.ioc.Context;
 import cn.techarts.xkit.ioc.Panic;
 import cn.techarts.xkit.util.Converter;
+import cn.techarts.xkit.util.Hotchpotch;
 
 public class StartupListener implements ServletContextListener {
 	public static final String CONFIG_PATH = "contextConfigLocation";
+	private static final Logger LOGGER = Hotchpotch.getLogger(StartupListener.class);
 	
 	@Override
 	public void contextInitialized(ServletContextEvent arg) {
@@ -134,6 +138,7 @@ public class StartupListener implements ServletContextListener {
 				if(name == null || name.isEmpty()) {
 					name = c.getName();
 				}
+				LOGGER.info("Scanned the web service: " + name);
 				result.add(name);
 			}
 			return result;

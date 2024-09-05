@@ -7,11 +7,13 @@ import javax.inject.Inject;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.logging.log4j.Logger;
 
 import cn.techarts.xkit.data.dbutils.DbutilsExecutor;
 import cn.techarts.xkit.data.dbutils.QueryRunnerFactory;
 import cn.techarts.xkit.data.mybatis.MybatisExecutor;
 import cn.techarts.xkit.ioc.Valued;
+import cn.techarts.xkit.util.Hotchpotch;
 
 public class DatabaseFactory implements AutoCloseable{
 	@Inject
@@ -50,6 +52,8 @@ public class DatabaseFactory implements AutoCloseable{
 	
 	private ThreadLocal<DataHelper> threadLocal = new ThreadLocal<>();
 	
+	private static final Logger LOGGER = Hotchpotch.getLogger(DatabaseFactory.class);
+	
 	public DatabaseFactory() {}
 	
 	/**
@@ -86,6 +90,7 @@ public class DatabaseFactory implements AutoCloseable{
 			throw new DataException("Unsupported orm framework: " + framework);
 		}
 		this.setInitialized(true); //
+		LOGGER.info("Initialized the database factory with: " + framework);
 	}
 	
 	private DataHelper getExecutor0() {
@@ -98,6 +103,7 @@ public class DatabaseFactory implements AutoCloseable{
 		}else {
 			throw new DataException("Unsupported orm framework: " + framework);
 		}
+		
 	}
 	
 	public DataHelper getExecutor() {
@@ -115,6 +121,7 @@ public class DatabaseFactory implements AutoCloseable{
 			current.close();
 			threadLocal.remove();
 		}
+		LOGGER.info("Closed the connection wrapped in: " + current);
 	}
 	
 	public DataHelper getExecutor(boolean enableTransaction) {
@@ -141,6 +148,7 @@ public class DatabaseFactory implements AutoCloseable{
 		if(mybatisFactory != null) {
 			mybatisFactory = null;
 		}
+		LOGGER.info("Closed the database factory.");
 	}
 
 	public boolean isInitialized() {

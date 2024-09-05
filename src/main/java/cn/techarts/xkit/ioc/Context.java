@@ -8,9 +8,14 @@ import java.util.Properties;
 
 import javax.servlet.ServletContext;
 
+import org.apache.logging.log4j.Logger;
+
+import cn.techarts.xkit.util.Hotchpotch;
+
 public class Context implements AutoCloseable{
 	private Map<String, Craft> crafts;
 	public static final String NAME = "context.dragonfly.techarts.cn";
+	private static final Logger LOGGER = Hotchpotch.getLogger(Context.class);
 	
 	public static Context make(String base, String json, String config) {
 		return make(new String[] {base}, new String[] {json}, config);
@@ -81,6 +86,7 @@ public class Context implements AutoCloseable{
 	
 	Context(Map<String, Craft> container){
 		this.crafts = container;
+		LOGGER.info("Initialized the IOC container.");
 	}
 	
 	/**

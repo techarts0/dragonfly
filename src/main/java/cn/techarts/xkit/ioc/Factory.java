@@ -7,6 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.apache.logging.log4j.Logger;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
@@ -16,6 +18,7 @@ public class Factory {
 	private Map<String, Craft> crafts;
 	private Map<String, Craft> material;
 	private Map<String, String> configs;
+	private static final Logger LOGGER = Hotchpotch.getLogger(Factory.class);
 	
 	public Factory(Map<String, Craft> container) {
 		if(container == null) {
@@ -63,6 +66,7 @@ public class Factory {
 		this.resolveJSR330BasedCrafts(classpaths);
 		this.resolveConfigBasedCrafts(resources);
 		this.assembleAndInstanceManagedCrafts();
+		LOGGER.info("Assembled " + crafts.size() + " managed objects.");
 	}
 	
 	/**
@@ -72,6 +76,7 @@ public class Factory {
 		this.resolveJSR330BasedCrafts(classpath);
 		this.resolveConfigBasedCrafts(resource);
 		this.assembleAndInstanceManagedCrafts();
+		LOGGER.info("Assembled " + crafts.size() + " managed objects.");
 	}
 	
 	public void register(String clzz) {
