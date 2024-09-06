@@ -71,7 +71,7 @@ public class ParameterHelper {
 		}
 		return new SqlMeta(stmt.toString(), params);
 	}
-	
+		
 	public static SqlMeta parseHjqlNamedParameters(String sql) {
 		if(sql == null || sql.isBlank()) return null;
 		var chars = sql.toCharArray();
@@ -83,10 +83,11 @@ public class ParameterHelper {
 		for(int i = 0; i < length; i++) {
 			char ch = chars[i];
 			if(matched) {
-				if(ch != ',' || ch != ' ') {
+				if(ch != ' ' && ch != ',') {
 					param.append(ch);
 				}else { //End of the parameter
 					matched = false;
+					stmt.append(ch); //Blank
 					params.add(param.toString());
 					param = new StringBuilder(24);
 				}
@@ -97,6 +98,7 @@ public class ParameterHelper {
 				matched = true; //Start of a parameter
 			}
 		}
+		params.add(param.toString());
 		return new SqlMeta(stmt.toString(), params);
 	}
 	
