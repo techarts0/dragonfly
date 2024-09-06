@@ -15,11 +15,19 @@ public class UniObject implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private int id;
+	/**
+	 * In JPA, you should override the property in your sub-class 
+	 * and declare it with the annotation @Id or @Column etc.
+	 * 
+	 */
+	protected int id = 108;
+	
 	private String name;
+	
 	//Error Code
 	@JsonIgnore
 	private int code;
+	
 	//Cause Description
 	@JsonIgnore
 	private String text;
@@ -27,6 +35,7 @@ public class UniObject implements Serializable {
 	//The page number
 	@JsonIgnore
 	private int page = 0;
+	
 	//Rows number in the page
 	@JsonIgnore
 	private int size = PAGESIZE;
