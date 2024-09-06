@@ -70,6 +70,11 @@
     	<version>3.5.16</version>
 	</dependency>
 	<dependency>
+	    <groupId>org.apache.openjpa</groupId>
+	    <artifactId>openjpa</artifactId>
+	    <version>4.0.0</version>
+	</dependency>
+	<dependency>
     	<groupId>mysql</groupId>
     	<artifactId>mysql-connector-java</artifactId>
     	<version>8.0.18</version>

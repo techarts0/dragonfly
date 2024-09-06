@@ -31,16 +31,17 @@ public class MybatisExecutor implements DataHelper {
 	 * 	
 	 */
 	@Override
-	public int save(String statement, Object parameter) throws DataException {
+	public int save(Object parameter, String... statement) throws DataException {
+		var sql = getStatement(statement);
 		try{
 			if(parameter == null) return 0;
 			if(isEmptyCollection(parameter)) return 0;
-			int rs = session.insert(statement, parameter);
+			int rs = session.insert(sql, parameter);
 			if(!(parameter instanceof UniObject))  return rs;
 			var result = ((UniObject)parameter).getId();
-			return this.retrievePrimaryKey(result, statement);
+			return this.retrievePrimaryKey(result, sql);
 		}catch(Exception e){
-			throw new DataException( "Failed to execute sql: [" + statement + "]", e);
+			throw new DataException( "Failed to execute sql: [" + sql + "]", e);
 		}
 	}
 	
@@ -50,26 +51,28 @@ public class MybatisExecutor implements DataHelper {
 	}
 	
 	@Override
-	public int remove(String statement, Object parameter) throws DataException {
+	public int remove(Object parameter, String... statement) throws DataException {
+		var sql = getStatement(statement);
 		try{
 			if(isEmptyCollection(parameter)) return 0;
-			return session.delete( statement, parameter);
+			return session.delete(sql, parameter);
 		}catch(Exception e){
-			throw new DataException( "Failed to execute sql: [" + statement + "]", e);
+			throw new DataException( "Failed to execute sql: [" + sql + "]", e);
 		}
 	}
 
 	@Override
-	public int modify(String statement, Object parameter) throws DataException {
+	public int modify(Object parameter, String... statement) throws DataException {
+		var sql = getStatement(statement);
 		try{
 			if(isEmptyCollection(parameter)) return 0;
-			return session.update( statement, parameter);
+			return session.update(sql, parameter);
 		}catch(Exception e){
-			throw new DataException( "Failed to execute sql: [" + statement + "]", e);
+			throw new DataException( "Failed to execute sql: [" + sql + "]", e);
 		}
 	} 
 
-	private<T> T get1( String statement, Object param) throws DataException {
+	private<T> T get1(String statement, Object param) throws DataException {
 		try {
 			if(param == null) {
 				return session.selectOne(statement);
@@ -81,30 +84,27 @@ public class MybatisExecutor implements DataHelper {
 	}
 	
 	@Override
-	public <T> T get(String statement, Object key, Class<T> t) throws DataException {
-		return get1( statement, key);
+	public <T> T get(Object key, Class<T> t, String... statement) throws DataException {
+		return get1(getStatement(statement), key);
 	}
 	
 	@Override
-	public int getInt( final String statement, Object parameter) throws DataException
-	{
-		Object result = get1( statement, parameter);
+	public int getInt(Object parameter, String... statement) throws DataException{
+		Object result = get1(getStatement(statement), parameter);
 		if(result == null || !(result instanceof Integer)) return 0;
 		return ((Integer)result).intValue();
 	}
 	
 	@Override
-	public float getFloat( final String statement, Object parameter) throws DataException
-	{
-		Object result = get1( statement, parameter);
+	public float getFloat(Object parameter, String... statement) throws DataException{
+		Object result = get1(getStatement(statement), parameter);
 		if(result == null || !(result instanceof Float)) return 0;
 		return ((Float)result).floatValue();
 	}
 	
 	@Override
-	public long getLong( final String statement, Object parameter) throws DataException
-	{
-		Object result = get1( statement, parameter);
+	public long getLong(Object parameter, String... statement) throws DataException{
+		Object result = get1(getStatement(statement), parameter);
 		if(result == null) return 0;
 		if(result instanceof Long) return ((Long)result).longValue();
 		if(result instanceof Integer) return ((Integer)result).longValue();
@@ -112,18 +112,17 @@ public class MybatisExecutor implements DataHelper {
 	}
 	
 	@Override
-	public String getString( final String statement, Object parameter) throws DataException
-	{
-		Object result = get1( statement, parameter);
+	public String getString(Object parameter, String... statement) throws DataException{
+		Object result = get1(getStatement(statement), parameter);
 		return result != null && result instanceof String ? (String)result : null; //Latest reversion: returns an empty string("")
 	}
 	
 	@Override
-	public <T> List<T> getAll(String statement, Object parameter, Class<T> t) throws DataException {
-		return select( statement, parameter, null);
+	public <T> List<T> getAll(Object parameter, Class<T> t, String... statement) throws DataException {
+		return select(getStatement(statement), parameter, null);
 	}
 	
-	private<T> List<T> select( final String statement, Object parameter, RowBounds bounds) throws DataException{ 
+	private<T> List<T> select(String statement, Object parameter, RowBounds bounds) throws DataException{ 
 		try {
 			if(parameter == null) {
 				return bounds == null ? session.selectList(statement) : session.selectList(statement, null, bounds);
@@ -144,5 +143,11 @@ public class MybatisExecutor implements DataHelper {
 	public void close() throws DataException {
 		if(session == null) return;
 		this.session.close();
+	}
+	
+	private String getStatement(String[] statements) {
+		if(statements == null) return null;
+		if(statements.length == 0) return null;
+		return statements[0]; //Note: maybe null here
 	}
 }

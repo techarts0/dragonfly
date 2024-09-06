@@ -38,7 +38,6 @@ public abstract class AbstractService
 	 * The method is called automatically.
 	 */
 	protected void commitAndClose() {
-		getDataHelper().close();
 		this.sqldb.closeExecutor();
 	}
 	

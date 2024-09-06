@@ -5,9 +5,10 @@ import java.sql.SQLException;
 import org.apache.commons.dbutils.QueryRunner;
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.DataHelper;
+import cn.techarts.xkit.data.ParameterHelper;
 import cn.techarts.xkit.data.SafeDataSource;
 
-public class DbutilsExecutor implements DataHelper {
+public class DbutilsExecutor extends ParameterHelper implements DataHelper {
 	private QueryRunner session;
 	private OrmBasedDbutils dbutils;
 	
@@ -17,51 +18,51 @@ public class DbutilsExecutor implements DataHelper {
 	}
 	
 	@Override
-	public int save(String statement, Object parameter) throws DataException {
-		return (int)dbutils.insert(statement, parameter, true, session);
+	public int save(Object parameter, String... statement) throws DataException {
+		return (int)dbutils.insert(getStatement(statement), parameter, true, session);
 	}
 
 	@Override
-	public int remove(String statement, Object parameter) throws DataException {
-		return this.dbutils.delete(statement, parameter, session);
+	public int remove(Object parameter, String... statement) throws DataException {
+		return this.dbutils.delete(getStatement(statement), parameter, session);
 	}
 
 	@Override
-	public int modify(String statement, Object parameter) throws DataException {
-		return this.dbutils.update(statement, parameter, session);
+	public int modify(Object parameter, String... statement) throws DataException {
+		return this.dbutils.update(getStatement(statement), parameter, session);
 	}
 	
 	@Override
-	public <T> T get(String statement, Object key, Class<T> clazz) throws DataException {
-		return this.dbutils.select(statement, key, clazz, session);
+	public <T> T get(Object key, Class<T> clazz, String... statement) throws DataException {
+		return this.dbutils.select(getStatement(statement), key, clazz, session);
 	}
 
 	@Override
-	public int getInt(String statement, Object parameter) throws DataException {
-		Integer result = dbutils.select(statement, parameter,Integer.class, session);
+	public int getInt(Object parameter, String... statement) throws DataException {
+		Integer result = dbutils.select(getStatement(statement), parameter,Integer.class, session);
 		return result != null ? result.intValue() : 0;
 	}
 
 	@Override
-	public float getFloat(String statement, Object parameter) throws DataException {
-		Float result = dbutils.select(statement, parameter,Float.class, session);
+	public float getFloat(Object parameter, String... statement) throws DataException {
+		Float result = dbutils.select(getStatement(statement), parameter,Float.class, session);
 		return result != null ? result.floatValue() : 0;
 	}
 
 	@Override
-	public long getLong(String statement, Object parameter) throws DataException {
-		Long result = dbutils.select(statement, parameter,Long.class, session);
+	public long getLong(Object parameter, String... statement) throws DataException {
+		Long result = dbutils.select(getStatement(statement), parameter,Long.class, session);
 		return result != null ? result.longValue() : 0;
 	}
 
 	@Override
-	public String getString(String statement, Object parameter) throws DataException {
-		return dbutils.select(statement, parameter,String.class, session);
+	public String getString(Object parameter, String... statement) throws DataException {
+		return dbutils.select(getStatement(statement), parameter,String.class, session);
 	}	
 	
 	@Override
-	public <T> List<T> getAll(String statement, Object parameter, Class<T> t) throws DataException {
-		return this.dbutils.selectAll(statement, parameter, t, session);
+	public <T> List<T> getAll(Object parameter, Class<T> t, String... statement) throws DataException {
+		return this.dbutils.selectAll(getStatement(statement), parameter, t, session);
 	}
 
 	@Override
