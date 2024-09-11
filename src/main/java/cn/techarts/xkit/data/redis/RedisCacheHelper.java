@@ -17,13 +17,13 @@ import redis.clients.jedis.JedisPoolConfig;
 public class RedisCacheHelper implements Closeable{
 	
 	@Inject
-	@Valued(key="cache.redis.port")
+	@Valued(key="redis.port")
 	private int port;
 	@Inject
-	@Valued(key="cache.redis.host")
+	@Valued(key="redis.host")
 	private String host;
 	@Inject
-	@Valued(key="cache.redis.capacity")
+	@Valued(key="redis.capacity")
 	private int capacity;
 	
 	private boolean initialized = false;

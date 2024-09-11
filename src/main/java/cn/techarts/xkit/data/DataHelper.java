@@ -22,10 +22,14 @@ public interface DataHelper
 	
 	public<T> List<T> getAll(Object parameter, Class<T> t, String... statement) throws DataException;
 	
+	
+	//Start a transaction
 	default void begin() throws DataException{}
 	
+	//Roll-back the transaction if failed
 	public void rollback() throws DataException;
 	
+	//Clean up resources while shutdown
 	public void close() throws DataException;
 	
 }

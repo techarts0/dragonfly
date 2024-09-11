@@ -2,6 +2,7 @@ package cn.techarts.xkit.web;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -17,6 +18,7 @@ import cn.techarts.xkit.util.Converter;
 public class WebContext {
 	
 	private static final String CT_JSON = "application/json;charset=UTF-8";
+	private static final String CT_FORM = "application/x-www-form-urlencoded";
 	
 	private HttpServletRequest request;
 	private HttpServletResponse response;
@@ -190,6 +192,20 @@ public class WebContext {
 	 */
 	public String ua() {
 		return request.getHeader("user-agent");
+	}
+	
+	/**
+	 * If the content-type of request is application/json, returns the whole content string. 
+	 */
+	public String getJson(){
+		var ct = this.request.getContentType();
+		if(!ct.toLowerCase().contains("/json")) return null;
+		try {
+			var bs = request.getInputStream().readAllBytes();
+			return new String(bs, StandardCharsets.UTF_8);
+		}catch(IOException e) {
+			throw new RuntimeException("Failed to get json from request.", e);
+		}
 	}
 	
 	/**

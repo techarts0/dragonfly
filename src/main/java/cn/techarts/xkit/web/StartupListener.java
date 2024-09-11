@@ -61,7 +61,8 @@ public class StartupListener implements ServletContextListener {
 
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) {
-		Context.from(arg0.getServletContext()).close();
+		var ctx = Context.from(arg0.getServletContext());
+		if(ctx != null) ctx.close();
 	}
 	
 	private void initSessionSettings(SessionConfig settings) {
@@ -138,9 +139,9 @@ public class StartupListener implements ServletContextListener {
 				if(name == null || name.isEmpty()) {
 					name = c.getName();
 				}
-				LOGGER.info("Scanned the web service: " + name);
 				result.add(name);
 			}
+			LOGGER.info("Find " + result.size() + " web services.");
 			return result;
 		}catch(Exception e) {
 			e.printStackTrace();
