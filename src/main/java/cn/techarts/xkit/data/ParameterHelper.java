@@ -15,17 +15,8 @@ public class ParameterHelper {
 		this.cachedStatements = new HashMap<>(512);
 	}
 	
-	protected String getStatement(String[] statements) {
-		if(statements == null) return null;
-		if(statements.length == 0) return null;
-		return statements[0]; //Note: maybe null here
-	}
-	
 	/** 0: DBUTILS, 1: OPENJPA */
 	protected SqlMeta parseStatement(String sql, int type) {
-		if(sql == null || sql.isBlank()) {
-			throw new DataException("SQL is required!");
-		}
 		var key = Integer.valueOf(sql.hashCode());
 		var result = this.cachedStatements.get(key);
 		if(result == null) {
