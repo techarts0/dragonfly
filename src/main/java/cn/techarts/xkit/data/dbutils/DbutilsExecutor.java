@@ -61,7 +61,7 @@ public class DbutilsExecutor extends ParameterHelper implements DataHelper {
 	}	
 	
 	@Override
-	public <T> List<T> getAll(Object parameter, Class<T> t, String... statement) throws DataException {
+	public <T> List<T> get(Class<T> t, Object parameter, String... statement) throws DataException {
 		return this.dbutils.selectAll(getStatement(statement), parameter, t, session);
 	}
 

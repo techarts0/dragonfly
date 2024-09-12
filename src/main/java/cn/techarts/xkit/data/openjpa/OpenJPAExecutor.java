@@ -110,7 +110,7 @@ public class OpenJPAExecutor extends ParameterHelper implements DataHelper {
 	}
 
 	@Override
-	public <T> List<T> getAll(Object parameter, Class<T> t, String... statement) throws DataException {
+	public <T> List<T> get(Class<T> t, Object parameter, String... statement) throws DataException {
 		if(parameter == null || t == null) return null;
 		var jpql = this.getStatement(statement);
 		var meta = this.getSqlMeta(jpql);

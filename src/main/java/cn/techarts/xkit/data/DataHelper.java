@@ -20,7 +20,8 @@ public interface DataHelper
 	
 	public String getString(Object parameter, String... statement) throws DataException;
 	
-	public<T> List<T> getAll(Object parameter, Class<T> t, String... statement) throws DataException;
+	/**Get all results which matched the specified conditions*/
+	public<T> List<T> get(Class<T> t, Object parameter, String... statement) throws DataException;
 	
 	
 	//Start a transaction
