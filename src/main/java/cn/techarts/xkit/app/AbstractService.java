@@ -1,22 +1,23 @@
 package cn.techarts.xkit.app;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import cn.techarts.xkit.data.DataHelper;
 import cn.techarts.xkit.data.DatabaseFactory;
 import cn.techarts.xkit.data.redis.RedisCacheHelper;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import cn.techarts.xkit.data.DataException;
 
 public abstract class AbstractService 
 {
 	@Inject
 	@Named("databaseFactory")
 	private DatabaseFactory sqldb = null;
+	
 	@Inject
 	@Named("cacheHelper")
 	private RedisCacheHelper cache = null;
+	
+	
 	
 	/**
 	 * ERRID means the Id is ZERO(<b>0</b>) and it's <b>invalid</b>.
@@ -41,13 +42,9 @@ public abstract class AbstractService
 		this.sqldb.closeExecutor();
 	}
 	
-	public void setCache(RedisCacheHelper cache) {
-		this.cache = cache;
-	}
-	
 	protected RedisCacheHelper cache() {
 		if(cache == null || !cache.isInitialized()) {
-			throw new DataException("cache is null.");
+			throw new RuntimeException("Redis is not enabled.");
 		}
 		return this.cache;
 	}

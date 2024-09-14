@@ -31,7 +31,7 @@ public class Context implements AutoCloseable{
 				try {
 					((AutoCloseable)obj).close();
 				}catch(Exception e) {
-					//Ignored
+					LOGGER.error("Failed to close: " + craft.getName(), e);
 				}
 			}
 		}
