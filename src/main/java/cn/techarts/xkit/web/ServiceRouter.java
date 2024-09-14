@@ -2,7 +2,6 @@ package cn.techarts.xkit.web;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import javax.servlet.http.HttpServlet;
@@ -26,7 +25,7 @@ public class ServiceRouter extends HttpServlet{
 		if(!service.isPermissionRequired()) return ALLOWED;
 		String session = getSession(req), ip = getRemorteAddress(req);
 		if(session == null || session.isBlank()) return INVALID_SESSION;
-		return checkSession(Converter.toInt(req.getParameter("uid")), ip,  session);
+		return validate(Converter.toInt(req.getParameter("uid")), ip,  session);
 	}
 	
 	public static String getRemorteAddress(HttpServletRequest request) {
@@ -35,7 +34,7 @@ public class ServiceRouter extends HttpServlet{
 		return result == null ? request.getRemoteAddr() : result;
 	} 
 	
-	public int checkSession(int user, String ip, String session) {
+	public int validate(int user, String ip, String session) {
 		boolean result = UserSession.verify(ip, user, session);
 		return result ? ALLOWED : INVALID_SESSION;
 	}

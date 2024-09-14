@@ -277,9 +277,7 @@ public class WebContext {
 					//Ignored the unsupported parameter types.
 			}
 		}catch(Exception e){
-			e.printStackTrace();
+			throw new RuntimeException("Failed to call the method: " + m.getName(), e);
 		}
 	}
-	
-	
 }
