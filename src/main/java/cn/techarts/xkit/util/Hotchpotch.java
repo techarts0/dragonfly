@@ -2,11 +2,14 @@ package cn.techarts.xkit.util;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -264,6 +267,27 @@ public final class Hotchpotch {
 	public static Logger getLogger(Class<?> clazz) {
 		return LogManager.getLogger(clazz);
 	}
+	
+	public static Map<String, String> resolveConfiguration(String file) {
+		var config = new Properties();
+		var result = new HashMap<String, String>(64);
+		try(var in = new FileInputStream(file)) {
+			config.load(in);
+			for(var key : config.stringPropertyNames()) {
+				result.put(key, config.getProperty(key));
+			}
+			return result;
+		}catch(IOException e) {
+			throw new Panic("Failed to load config [" + file + "]", e);
+		}
+	}	
+	
+	public static String getFirst(String[] statements) {
+		if(statements == null) return null;
+		if(statements.length == 0) return null;
+		return statements[0]; //Note: maybe null here
+	}
+	
 }
 
 class ClassFilter implements FileFilter

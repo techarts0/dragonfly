@@ -2,6 +2,7 @@ package cn.techarts.xkit.data.dbutils;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanHandler;
@@ -19,6 +20,24 @@ import cn.techarts.xkit.util.Hotchpotch;
  * Persister supports named-parameter style: The placeholder in SQL is compatible to MyBatis 
  */
 public class OrmBasedDbutils extends ParameterHelper{
+	
+	private Map<String, String> statements = null;
+	
+	public OrmBasedDbutils() {
+		super();
+		var path = getClass().getResource("/");
+		var sql = path.getPath() + "sql.properties";
+		statements = Hotchpotch.resolveConfiguration(sql);
+	}
+	
+	public String getStatement(String key) {
+		var result = key == null ? null : "";
+		if(key != null) {
+			result = this.statements.get(key);
+		}
+		if(result != null) return result;
+		throw new DataException("The sql [" + key + "] does not exist.");
+	}
 	
 	/**
 	 * Save the data into database table
@@ -57,7 +76,8 @@ public class OrmBasedDbutils extends ParameterHelper{
 	/**
 	 * Execute batch of operations of INSERT, UPDATE or DELETE
 	 */
-	public int update(String sql, List<Object> params, QueryRunner session) {
+	public int update(String sqlName, List<Object> params, QueryRunner session) {
+		var sql = getStatement(sqlName);
 		var meta = this.parseStatement(sql, 0);
 		int d0 = params.size(), d1 = meta.count();
 		try {
@@ -77,8 +97,9 @@ public class OrmBasedDbutils extends ParameterHelper{
 	 * @param sql The named SQL string
 	 * @param params A java bean stores SQL parameters 
 	 */
-	public<T> T select(String sql, Object params, Class<T> clazz, QueryRunner session){
+	public<T> T select(String sqlName, Object params, Class<T> clazz, QueryRunner session){
 		if(clazz == null) return null;
+		var sql = getStatement(sqlName);
 		var meta = parseStatement(sql, 0);
 		if(meta == null || !meta.check()) {
 			throw new DataException("Could not find the sql:" + sql);
@@ -104,8 +125,9 @@ public class OrmBasedDbutils extends ParameterHelper{
 	 * @param sql The named SQL string
 	 * @param params A java bean stores SQL parameters 
 	 */
-	public<T> List<T> selectAll(String sql, Object params, Class<T> clazz, QueryRunner session){
+	public<T> List<T> selectAll(String sqlName, Object params, Class<T> clazz, QueryRunner session){
 		if(clazz == null) return null;
+		var sql = getStatement(sqlName);
 		var meta = parseStatement(sql, 0);
 		ResultSetHandler<List<T>> target = new BeanListHandler<T>(clazz);
 		if(Hotchpotch.isPrimitive(clazz)) {
@@ -126,7 +148,8 @@ public class OrmBasedDbutils extends ParameterHelper{
 	/**
 	 * Named Parameters
 	 */
-	private int executeUpdateWithNamedParameters(String sql, Object params, QueryRunner session){
+	private int executeUpdateWithNamedParameters(String sqlName, Object params, QueryRunner session){
+		var sql = getStatement(sqlName);
 		var meta = parseStatement(sql, 0);
 		try {
 			if(!meta.hasArgs()) {
@@ -140,8 +163,9 @@ public class OrmBasedDbutils extends ParameterHelper{
 		}
 	}
 	
-	private long executeInsertWithNamedParameters(String sql, Object params, QueryRunner session){
+	private long executeInsertWithNamedParameters(String sqlName, Object params, QueryRunner session){
 		Long result = null; //Auto-Increment ID
+		var sql = getStatement(sqlName);
 		var meta = parseStatement(sql, 0);
 		var rsh = new ScalarHandler<Long>();
 		try {

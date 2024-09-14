@@ -1,15 +1,10 @@
 package cn.techarts.xkit.ioc;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
+import java.util.HashMap;
 
 import javax.servlet.ServletContext;
-
 import org.apache.logging.log4j.Logger;
-
 import cn.techarts.xkit.util.Hotchpotch;
 
 public class Context implements AutoCloseable{
@@ -40,7 +35,7 @@ public class Context implements AutoCloseable{
 	public static Context make(String[] bases, String[] jsons, String config) {
 		var container = new HashMap<String, Craft>(512);
 		var inventory = new Factory(container);
-		var configs = resolveConfiguration(config);
+		var configs = Hotchpotch.resolveConfiguration(config);
 		inventory.setConfigs(configs);
 		inventory.start(bases, jsons);
 		return new Context(container); 
@@ -68,20 +63,6 @@ public class Context implements AutoCloseable{
 		if(obj == null) return null;
 		if(!(obj instanceof Context)) return null;
 		return (Context)obj;
-	}
-	
-	public static Map<String, String> resolveConfiguration(String file) {
-		var config = new Properties();
-		var result = new HashMap<String, String>(64);
-		try(var in = new FileInputStream(file)) {
-			config.load(in);
-			for(var key : config.stringPropertyNames()) {
-				result.put(key, config.getProperty(key));
-			}
-			return result;
-		}catch(IOException e) {
-			throw new Panic("Failed to load config [" + file + "]", e);
-		}
 	}
 	
 	Context(Map<String, Craft> container){

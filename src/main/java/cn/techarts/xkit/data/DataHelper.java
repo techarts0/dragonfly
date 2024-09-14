@@ -20,12 +20,17 @@ public interface DataHelper
 	
 	public String getString(Object parameter, String... statement) throws DataException;
 	
-	public<T> List<T> getAll(Object parameter, Class<T> t, String... statement) throws DataException;
+	/**Get all results which matched the specified conditions*/
+	public<T> List<T> get(Class<T> t, Object parameter, String... statement) throws DataException;
 	
+	
+	//Start a transaction
 	default void begin() throws DataException{}
 	
+	//Roll-back the transaction if failed
 	public void rollback() throws DataException;
 	
+	//Clean up resources while shutdown
 	public void close() throws DataException;
 	
 }
