@@ -1,12 +1,12 @@
 package cn.techarts.xkit.data;
 
+import java.util.logging.Logger;
 import java.io.IOException;
 import javax.inject.Inject;
 
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.apache.logging.log4j.Logger;
 
 import cn.techarts.xkit.data.dbutils.DbutilsExecutor;
 import cn.techarts.xkit.data.dbutils.QueryRunnerFactory;
@@ -14,7 +14,7 @@ import cn.techarts.xkit.data.mybatis.MybatisExecutor;
 import cn.techarts.xkit.data.openjpa.JPASessionFactory;
 import cn.techarts.xkit.data.openjpa.OpenJPAExecutor;
 import cn.techarts.xkit.ioc.Valued;
-import cn.techarts.xkit.util.Hotchpotch;
+import cn.techarts.xkit.util.Hotpot;
 
 public class DatabaseFactory implements AutoCloseable{
 	@Inject
@@ -56,7 +56,7 @@ public class DatabaseFactory implements AutoCloseable{
 	
 	private ThreadLocal<DataHelper> threadLocal = new ThreadLocal<>();
 	
-	private static final Logger LOGGER = Hotchpotch.getLogger(DatabaseFactory.class);
+	private static final Logger LOGGER = Hotpot.getLogger();
 	
 	public DatabaseFactory() {}
 	

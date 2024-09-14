@@ -158,13 +158,13 @@ public final class Converter {
 	 * An alias of {@link Reflector.dump}
 	 */
 	public static Map<String, Object> toMap(Object arg){
-		return Hotchpotch.dump(arg);
+		return Hotpot.dump(arg);
 	}
 	
 	/**
 	 * An alias of {@link Reflector.fill}
 	 */
 	public static void toBean(Object bean, Map<String, Object> data) {
-		Hotchpotch.fill(bean, data);
+		Hotpot.fill(bean, data);
 	}
 }

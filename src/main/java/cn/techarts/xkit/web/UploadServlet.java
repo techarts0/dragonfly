@@ -1,25 +1,24 @@
 package cn.techarts.xkit.web;
 
 import java.io.IOException;
+import java.util.logging.Logger;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.Logger;
-
 import cn.techarts.xkit.app.UploadHandler;
 import cn.techarts.xkit.ioc.Context;
-import cn.techarts.xkit.util.Hotchpotch;
+import cn.techarts.xkit.util.Hotpot;
 
 @WebServlet("/file/upload")
 @MultipartConfig(maxFileSize = 1024 * 1024 * 128)
 public class UploadServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final String CT_MULTIPART = "multipart/form-data";
-	private static final Logger LOGGER = Hotchpotch.getLogger(UploadServlet.class);
+	private static final Logger LOGGER = Hotpot.getLogger();
 	
 	@Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -43,7 +42,7 @@ public class UploadServlet extends HttpServlet {
 			var type = part.getContentType();
 			var name = part.getSubmittedFileName();
 			handler.handle(name, type, size, part.getInputStream());
-			LOGGER.debug("Successfully uploaded the file: " + name);
+			LOGGER.info("Successfully uploaded the file: " + name);
 		}
 	}
 }

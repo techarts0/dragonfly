@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import cn.techarts.xkit.util.Hotchpotch;
+import cn.techarts.xkit.util.Hotpot;
 
 public class SafeDataSource extends HikariDataSource {
 	
@@ -20,8 +20,8 @@ public class SafeDataSource extends HikariDataSource {
 	}
 	
 	public static String decrypt(String password) {
-		var key = Hotchpotch.toBytes(KEY);
-		return Hotchpotch.decrypt(password, key);
+		var key = Hotpot.toBytes(KEY);
+		return Hotpot.decrypt(password, key);
 	}
 	
 	@Override
@@ -58,8 +58,8 @@ public class SafeDataSource extends HikariDataSource {
 	}
 	
 	public static String encrypt(String arg) {
-		var key = Hotchpotch.toBytes(KEY);
-		return Hotchpotch.encrypt(arg, key);
+		var key = Hotpot.toBytes(KEY);
+		return Hotpot.encrypt(arg, key);
 	}
 	
 	@Override

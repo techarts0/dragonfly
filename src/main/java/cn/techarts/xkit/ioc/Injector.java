@@ -6,7 +6,7 @@ import java.lang.reflect.Type;
 
 import javax.inject.Named;
 
-import cn.techarts.xkit.util.Hotchpotch;
+import cn.techarts.xkit.util.Hotpot;
 
 /**
  * A craft(REF, KEY, VAL) needs to be inject into host craft.
@@ -74,7 +74,7 @@ public class Injector {
 		if(v != null) {
 			this.name = v.key();
 			if(v.val().isBlank()) return;
-			value = Hotchpotch.cast(type, v.val());
+			value = Hotpot.cast(type, v.val());
 		}else {
 			var tmp = n.value();
 			if(!tmp.isBlank()) this.name = tmp;
@@ -109,7 +109,7 @@ public class Injector {
 		if(type == null) { //REF
 			this.value = value;
 		}else {
-			this.value = Hotchpotch.cast(value, type);
+			this.value = Hotpot.cast(value, type);
 		}
 	}
 	

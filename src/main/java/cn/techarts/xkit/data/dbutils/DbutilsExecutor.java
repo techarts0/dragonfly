@@ -6,7 +6,7 @@ import org.apache.commons.dbutils.QueryRunner;
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.DataHelper;
 import cn.techarts.xkit.data.SafeDataSource;
-import cn.techarts.xkit.util.Hotchpotch;
+import cn.techarts.xkit.util.Hotpot;
 
 public class DbutilsExecutor implements DataHelper {
 	private QueryRunner session;
@@ -19,50 +19,50 @@ public class DbutilsExecutor implements DataHelper {
 	
 	@Override
 	public int save(Object parameter, String... statement) throws DataException {
-		return (int)dbutils.insert(Hotchpotch.getFirst(statement), parameter, true, session);
+		return (int)dbutils.insert(Hotpot.getFirst(statement), parameter, true, session);
 	}
 
 	@Override
 	public int remove(Object parameter, String... statement) throws DataException {
-		return this.dbutils.delete(Hotchpotch.getFirst(statement), parameter, session);
+		return this.dbutils.delete(Hotpot.getFirst(statement), parameter, session);
 	}
 
 	@Override
 	public int modify(Object parameter, String... statement) throws DataException {
-		return this.dbutils.update(Hotchpotch.getFirst(statement), parameter, session);
+		return this.dbutils.update(Hotpot.getFirst(statement), parameter, session);
 	}
 	
 	@Override
 	public <T> T get(Object key, Class<T> clazz, String... statement) throws DataException {
-		return this.dbutils.select(Hotchpotch.getFirst(statement), key, clazz, session);
+		return this.dbutils.select(Hotpot.getFirst(statement), key, clazz, session);
 	}
 
 	@Override
 	public int getInt(Object parameter, String... statement) throws DataException {
-		Integer result = dbutils.select(Hotchpotch.getFirst(statement), parameter,Integer.class, session);
+		Integer result = dbutils.select(Hotpot.getFirst(statement), parameter,Integer.class, session);
 		return result != null ? result.intValue() : 0;
 	}
 
 	@Override
 	public float getFloat(Object parameter, String... statement) throws DataException {
-		Float result = dbutils.select(Hotchpotch.getFirst(statement), parameter,Float.class, session);
+		Float result = dbutils.select(Hotpot.getFirst(statement), parameter,Float.class, session);
 		return result != null ? result.floatValue() : 0;
 	}
 
 	@Override
 	public long getLong(Object parameter, String... statement) throws DataException {
-		Long result = dbutils.select(Hotchpotch.getFirst(statement), parameter,Long.class, session);
+		Long result = dbutils.select(Hotpot.getFirst(statement), parameter,Long.class, session);
 		return result != null ? result.longValue() : 0;
 	}
 
 	@Override
 	public String getString(Object parameter, String... statement) throws DataException {
-		return dbutils.select(Hotchpotch.getFirst(statement), parameter,String.class, session);
+		return dbutils.select(Hotpot.getFirst(statement), parameter,String.class, session);
 	}	
 	
 	@Override
 	public <T> List<T> get(Class<T> t, Object parameter, String... statement) throws DataException {
-		return this.dbutils.selectAll(Hotchpotch.getFirst(statement), parameter, t, session);
+		return this.dbutils.selectAll(Hotpot.getFirst(statement), parameter, t, session);
 	}
 
 	@Override

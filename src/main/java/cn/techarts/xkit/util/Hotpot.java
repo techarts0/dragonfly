@@ -10,19 +10,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
+import java.util.logging.Logger;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import cn.techarts.xkit.ioc.Panic;
 
 /**
  * Various kinds of UN-classifiable helper methods
  */
-public final class Hotchpotch {
+public final class Hotpot {
 	public static List<String> scanClasses(File dest, int start){
 		var result = new ArrayList<String>();
 		var tmp = dest.listFiles(new ClassFilter());
@@ -264,8 +260,12 @@ public final class Hotchpotch {
 		return upperCase ? encrypted.toUpperCase() : encrypted;
     }
 	
-	public static Logger getLogger(Class<?> clazz) {
-		return LogManager.getLogger(clazz);
+	public static Logger getLogger() {
+		return Logger.getGlobal();
+	}
+	
+	public static Logger getLogger(String name) {
+		return Logger.getLogger(name);
 	}
 	
 	public static Map<String, String> resolveConfiguration(String file) {

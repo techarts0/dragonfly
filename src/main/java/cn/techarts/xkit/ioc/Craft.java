@@ -8,7 +8,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import cn.techarts.xkit.util.Hotchpotch;
+import cn.techarts.xkit.util.Hotpot;
 
 public class Craft {
 	private String name;
@@ -221,7 +221,7 @@ public class Craft {
 			for(int i = 0; i < params.length; i++) {
 				var a = getType(args.get(i));
 				var e = params[i].getType().getName();
-				if(!Hotchpotch.compareTypes(a, e)) {//Expect, Actual
+				if(!Hotpot.compareTypes(a, e)) {//Expect, Actual
 					parameterMatched = false; break;
 				}
 			}

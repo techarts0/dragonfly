@@ -11,7 +11,7 @@ import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.ParameterHelper;
-import cn.techarts.xkit.util.Hotchpotch;
+import cn.techarts.xkit.util.Hotpot;
 
 /**
  * A lightweight utility that's designed to access database.<br> 
@@ -27,7 +27,7 @@ public class OrmBasedDbutils extends ParameterHelper{
 		super();
 		var path = getClass().getResource("/");
 		var sql = path.getPath() + "sql.properties";
-		statements = Hotchpotch.resolveConfiguration(sql);
+		statements = Hotpot.resolveConfiguration(sql);
 	}
 	
 	public String getStatement(String key) {
@@ -105,7 +105,7 @@ public class OrmBasedDbutils extends ParameterHelper{
 			throw new DataException("Could not find the sql:" + sql);
 		}
 		ResultSetHandler<T> target = new BeanHandler<T>(clazz);
-		if(Hotchpotch.isPrimitive(clazz)) {
+		if(Hotpot.isPrimitive(clazz)) {
 			target = new ScalarHandler<T>(1); //A single value (primitive)
 		}
 		try {
@@ -130,7 +130,7 @@ public class OrmBasedDbutils extends ParameterHelper{
 		var sql = getStatement(sqlName);
 		var meta = parseStatement(sql, 0);
 		ResultSetHandler<List<T>> target = new BeanListHandler<T>(clazz);
-		if(Hotchpotch.isPrimitive(clazz)) {
+		if(Hotpot.isPrimitive(clazz)) {
 			target = new ColumnListHandler<T>(1);
 		}
 		try {

@@ -2,17 +2,18 @@ package cn.techarts.xkit.app;
 
 import java.io.File;
 import java.util.List;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Logger;
+
 import cn.techarts.xkit.aop.AopException;
 import cn.techarts.xkit.aop.Bytecoder;
 import cn.techarts.xkit.aop.Enhanced;
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.trans.Transactional;
-import cn.techarts.xkit.util.Hotchpotch;
+import cn.techarts.xkit.util.Hotpot;
 
 public class ServiceEnhancer {
 	private String classpath = null;
-	private static final Logger LOGGER = Hotchpotch.getLogger(ServiceEnhancer.class);
+	private static final Logger LOGGER = Hotpot.getLogger();
 	
 	public ServiceEnhancer(String classpath) {
 		this.classpath = classpath;
@@ -39,7 +40,7 @@ public class ServiceEnhancer {
 		var base = new File(classpath);//Root class-path
 		if(base == null || !base.isDirectory()) return null;
 		var start = base.getAbsolutePath().length();
-		return Hotchpotch.scanClasses(base, start);
+		return Hotpot.scanClasses(base, start);
 	}
 	
 	private void enhanceClassWithinTransaction(Class<?> service) {

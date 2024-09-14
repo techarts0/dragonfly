@@ -4,21 +4,19 @@ import java.io.File;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
+
 import javax.inject.Named;
 import javax.inject.Singleton;
-
-import org.apache.logging.log4j.Logger;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import cn.techarts.xkit.util.Hotchpotch;
+import cn.techarts.xkit.util.Hotpot;
 
 public class Factory {
 	private Map<String, Craft> crafts;
 	private Map<String, Craft> material;
 	private Map<String, String> configs;
-	private static final Logger LOGGER = Hotchpotch.getLogger(Factory.class);
+	private static final Logger LOGGER = Hotpot.getLogger();
 	
 	public Factory(Map<String, Craft> container) {
 		if(container == null) {
@@ -135,7 +133,7 @@ public class Factory {
 		var base = new File(classpath);//Root class-path
 		if(base == null || !base.isDirectory()) return;
 		var start = base.getAbsolutePath().length();
-		var classes = Hotchpotch.scanClasses(base, start);
+		var classes = Hotpot.scanClasses(base, start);
 		classes.forEach(clazz->this.register(clazz));
 	}
 	

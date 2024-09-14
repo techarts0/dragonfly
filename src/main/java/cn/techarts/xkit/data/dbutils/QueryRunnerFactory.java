@@ -2,21 +2,19 @@ package cn.techarts.xkit.data.dbutils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.logging.Logger;
+
 import javax.sql.DataSource;
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.logging.log4j.Logger;
-
 import com.zaxxer.hikari.HikariConfig;
-
 import cn.techarts.xkit.data.DataException;
-import cn.techarts.xkit.data.DatabaseFactory;
 import cn.techarts.xkit.data.SafeDataSource;
-import cn.techarts.xkit.util.Hotchpotch;
+import cn.techarts.xkit.util.Hotpot;
 
 public class QueryRunnerFactory {
 	private SafeDataSource dataSource = null;
 	private OrmBasedDbutils ormdbutils = null;	
-	private static final Logger LOGGER = Hotchpotch.getLogger(DatabaseFactory.class);
+	private static final Logger LOGGER = Hotpot.getLogger();
 	
 	public OrmBasedDbutils getDbutils() {
 		return this.ormdbutils;

@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.logging.log4j.Logger;
-import cn.techarts.xkit.util.Hotchpotch;
+import java.util.logging.Logger;
+import cn.techarts.xkit.util.Hotpot;
 
 public class ParameterHelper {
 	private Map<Integer, SqlMeta> cachedStatements = null;
-	private static final Logger LOGGER = Hotchpotch.getLogger(ParameterHelper.class);
+	private static final Logger LOGGER = Hotpot.getLogger();
 	
 	public ParameterHelper() {
 		this.cachedStatements = new HashMap<>(512);

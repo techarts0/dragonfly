@@ -1,16 +1,16 @@
 package cn.techarts.xkit.ioc;
 
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.HashMap;
 
 import javax.servlet.ServletContext;
-import org.apache.logging.log4j.Logger;
-import cn.techarts.xkit.util.Hotchpotch;
+import cn.techarts.xkit.util.Hotpot;
 
 public class Context implements AutoCloseable{
 	private Map<String, Craft> crafts;
 	public static final String NAME = "context.dragonfly.techarts.cn";
-	private static final Logger LOGGER = Hotchpotch.getLogger(Context.class);
+	private static final Logger LOGGER = Hotpot.getLogger();
 	
 	public static Context make(String base, String json, String config) {
 		return make(new String[] {base}, new String[] {json}, config);
@@ -26,7 +26,7 @@ public class Context implements AutoCloseable{
 				try {
 					((AutoCloseable)obj).close();
 				}catch(Exception e) {
-					LOGGER.error("Failed to close: " + craft.getName(), e);
+					LOGGER.severe("Failed to close: " + craft.getName() + ", Details: " + e.getMessage());
 				}
 			}
 		}
@@ -35,7 +35,7 @@ public class Context implements AutoCloseable{
 	public static Context make(String[] bases, String[] jsons, String config) {
 		var container = new HashMap<String, Craft>(512);
 		var inventory = new Factory(container);
-		var configs = Hotchpotch.resolveConfiguration(config);
+		var configs = Hotpot.resolveConfiguration(config);
 		inventory.setConfigs(configs);
 		inventory.start(bases, jsons);
 		return new Context(container); 

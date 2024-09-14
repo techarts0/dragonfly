@@ -5,7 +5,7 @@ import cn.techarts.xkit.app.UniObject;
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.DataHelper;
 import cn.techarts.xkit.data.ParameterHelper;
-import cn.techarts.xkit.util.Hotchpotch;
+import cn.techarts.xkit.util.Hotpot;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 
@@ -33,7 +33,7 @@ public class OpenJPAExecutor extends ParameterHelper implements DataHelper {
 	public int remove(Object parameter, String... statement) throws DataException {
 		if(parameter == null) return 0;
 		try {
-			var jpql = Hotchpotch.getFirst(statement);
+			var jpql = Hotpot.getFirst(statement);
 			if(jpql == null) {
 				this.session.remove(parameter);
 				return 1; //Effected Rows: 1
@@ -53,7 +53,7 @@ public class OpenJPAExecutor extends ParameterHelper implements DataHelper {
 	public int modify(Object parameter, String... statement) throws DataException {
 		if(parameter == null) return 0;
 		try {
-			var jpql = Hotchpotch.getFirst(statement);
+			var jpql = Hotpot.getFirst(statement);
 			if(jpql == null) {
 				this.session.merge(parameter);
 				return 1; //Effected Rows: 1
@@ -72,7 +72,7 @@ public class OpenJPAExecutor extends ParameterHelper implements DataHelper {
 	private <T> T get1(Object parameter, Class<T> clazz, String... statement) throws DataException {
 		if(parameter == null || clazz == null) return null;
 		try {
-			var jpql = Hotchpotch.getFirst(statement);
+			var jpql = Hotpot.getFirst(statement);
 			if(jpql == null) {
 				return this.session.find(clazz, parameter);
 			}else {
@@ -113,7 +113,7 @@ public class OpenJPAExecutor extends ParameterHelper implements DataHelper {
 	@Override
 	public <T> List<T> get(Class<T> t, Object parameter, String... statement) throws DataException {
 		if(parameter == null || t == null) return null;
-		var jpql = Hotchpotch.getFirst(statement);
+		var jpql = Hotpot.getFirst(statement);
 		var meta = this.getSqlMeta(jpql);
 		try {
 			var query = this.session.createQuery(jpql, t);

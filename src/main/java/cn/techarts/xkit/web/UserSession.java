@@ -3,7 +3,7 @@ package cn.techarts.xkit.web;
 import java.io.Serializable;
 
 import cn.techarts.xkit.util.Converter;
-import cn.techarts.xkit.util.Hotchpotch;
+import cn.techarts.xkit.util.Hotpot;
 
 public class UserSession implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -20,7 +20,7 @@ public class UserSession implements Serializable {
 	}
 	
 	public static boolean verify(String ip, int userId, String session) {
-		var tmp = Hotchpotch.decrypt(session, Hotchpotch.toBytes(KEY));
+		var tmp = Hotpot.decrypt(session, Hotpot.toBytes(KEY));
 		if(tmp == null) return false; //An invalid session
 		var bgn = Converter.toInt(tmp.substring(0, 8));
 		if(minutes() - bgn > DURATION) return false;
@@ -32,7 +32,7 @@ public class UserSession implements Serializable {
 		var result = (ip != null ? ip : "0000") + userId;
 		var minutes = String.valueOf(minutes());
 		result = minutes.concat(result).concat(SALT);
-		return Hotchpotch.encrypt(result, Hotchpotch.toBytes(KEY));
+		return Hotpot.encrypt(result, Hotpot.toBytes(KEY));
 	}
 	
 	public static int minutes() {

@@ -6,29 +6,27 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.inject.Named;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-
-import org.apache.logging.log4j.Logger;
-
 import cn.techarts.xkit.ioc.Context;
 import cn.techarts.xkit.ioc.Panic;
 import cn.techarts.xkit.util.Converter;
-import cn.techarts.xkit.util.Hotchpotch;
+import cn.techarts.xkit.util.Hotpot;
 
 public class StartupListener implements ServletContextListener {
 	public static final String CONFIG_PATH = "contextConfigLocation";
-	private static final Logger LOGGER = Hotchpotch.getLogger(StartupListener.class);
+	private static final Logger LOGGER = Hotpot.getLogger();
 	
 	@Override
 	public void contextInitialized(ServletContextEvent arg) {
 		var context = arg.getServletContext();
 		var classpath = this.getRootClassPath();
 		var config = classpath.concat("config.properties");
-		var configs = Hotchpotch.resolveConfiguration(config);
+		var configs = Hotpot.resolveConfiguration(config);
 		initializeIocContainer(context, classpath, configs);
 		initSessionSettings(this.getSessionConfig(configs));
 		var wsPackage = "web.service.package";//Scan the folder
@@ -141,7 +139,7 @@ public class StartupListener implements ServletContextListener {
 				}
 				result.add(name);
 			}
-			LOGGER.info("Find " + result.size() + " web services.");
+			LOGGER.info("Found " + result.size() + " web services.");
 			return result;
 		}catch(Exception e) {
 			e.printStackTrace();
