@@ -1,18 +1,12 @@
 package cn.techarts.xkit.data.openjpa;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import org.apache.openjpa.persistence.PersistenceProviderImpl;
 import org.apache.openjpa.persistence.PersistenceUnitInfoImpl;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.zaxxer.hikari.HikariConfig;
-
-import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.SafeDataSource;
+import cn.techarts.xkit.ioc.Panic;
+import cn.techarts.xkit.util.PackageScanner;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.spi.PersistenceUnitTransactionType;
@@ -20,7 +14,7 @@ import jakarta.persistence.spi.PersistenceUnitTransactionType;
 public class JPASessionFactory {
 	private EntityManagerFactory factory;
 	
-	public JPASessionFactory(String driver, String url, String user, String password, int maxPoolSize) {
+	public JPASessionFactory(String driver, String url, String user, String password, int maxPoolSize, String pkg) {
 		int capacity = maxPoolSize <= 0 ? 10 : maxPoolSize;
 		var datasource = prepareDataSource(driver, url, user, password, capacity);
 		var pui = new PersistenceUnitInfoImpl();
@@ -28,7 +22,9 @@ public class JPASessionFactory {
 		pui.setPersistenceUnitName("OPENJPA");
 		pui.setTransactionType(PersistenceUnitTransactionType.RESOURCE_LOCAL);
 		
-		var managedClasses = this.parseMappingClasses();
+		var base = this.getRootClassPath();
+		var scanner = new PackageScanner(base, pkg);
+		var managedClasses = scanner.scanJPAEntities();
 		managedClasses.forEach(mc->pui.addManagedClassName(mc));
 		
         var map = Map.of("openjpa.DataCache", "true",
@@ -38,25 +34,15 @@ public class JPASessionFactory {
         		         "openjpa.RuntimeUnenhancedClasses", "supported");
         
         var provider = new PersistenceProviderImpl();
-        this.factory = provider.createContainerEntityManagerFactory(pui, map);
-	}
+        factory = provider.createContainerEntityManagerFactory(pui, map);
+    }
 	
-	private List<String> parseMappingClasses(){
-		var path = getClass().getResource("/");
-		var base = path.getPath() + "jpa-mapping.json";
-		var parser = new ObjectMapper();
-		try {
-			var file = new File(base);
-			var nodes = parser.readValue(file, ArrayNode.class);
-			if(nodes == null || nodes.isEmpty()) return List.of();
-			var result = new ArrayList<String>();
-			for(var node : nodes) {
-				result.add(node.toString());
-			}
-			return result;
-		}catch(Exception e) {
-			throw new DataException("Failed to parse JPA mapping file.", e);
+	private String getRootClassPath() {
+		var result = getClass().getResource("/");
+		if(result == null || result.getPath() == null) {
+			throw new Panic("Failed to get resource path.");
 		}
+		return result.getPath();
 	}
 	
 	

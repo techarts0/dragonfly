@@ -1,14 +1,7 @@
 package cn.techarts.xkit.web;
 
-import java.io.File;
-import java.io.FileFilter;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
-
-import javax.inject.Named;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -16,11 +9,11 @@ import cn.techarts.xkit.ioc.Context;
 import cn.techarts.xkit.ioc.Panic;
 import cn.techarts.xkit.util.Converter;
 import cn.techarts.xkit.util.Hotpot;
+import cn.techarts.xkit.util.PackageScanner;
 
 public class StartupListener implements ServletContextListener {
 	public static final String CONFIG_PATH = "contextConfigLocation";
-	private static final Logger LOGGER = Hotpot.getLogger();
-	
+		
 	@Override
 	public void contextInitialized(ServletContextEvent arg) {
 		var context = arg.getServletContext();
@@ -81,7 +74,9 @@ public class StartupListener implements ServletContextListener {
 	}
 	
 	private void loadAllWebServices(ServletContext context, String pkg) {
-		var services = scanWebServices(context, pkg);
+		var root = this.getRootClassPath();
+		var scanner = new PackageScanner(root, pkg);
+		var services = scanner.scanWebServices();
 		//There is not any service need to be exported
 		if(services == null || services.isEmpty()) return;
 		var container = Context.from(context);
@@ -111,63 +106,5 @@ public class StartupListener implements ServletContextListener {
 		if(pts == null || pts.length != 1) return false;
 		var ptn = WebContext.class.getName();
 		return ptn.equals(pts[0].getName());
-	}
-	
-	/**
-	 * Scan the specific package path to retrieve all exporters<p>
-	 */
-	private List<String> scanWebServices(ServletContext context, String pkg) {
-		if(pkg == null) return null;
-		var base = getRootClassPath();
-		if(base == null) return null;
-		var path = base.concat(pkg.replace('.', '/'));
-		var files = poll(path, ".class");
-		if(files == null || files.length == 0) return null;
-		try {
-			List<String> result = new ArrayList<>(24);
-			for(var f : files) {
-				if(f == null || !f.isFile()) continue;
-				var n = f.getName().replace(".class", "");
-				var c = Class.forName(pkg.concat(".").concat(n));
-				if(c == null) continue;
-				var named = c.getAnnotation(Named.class);
-				var ws = c.getAnnotation(WebService.class);
-				if(named == null || ws == null) continue;
-				var name = named.value();
-				if(name == null || name.isEmpty()) {
-					name = c.getName();
-				}
-				result.add(name);
-			}
-			LOGGER.info("Found " + result.size() + " web services.");
-			return result;
-		}catch(Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-	
-	private static File[] poll( String srcFolder, String fileType)
-	{
-		var directory = new File( srcFolder);
-		return directory.listFiles( new XFileFilter(fileType));
-	}
-}
-
-class XFileFilter implements FileFilter
-{
-	private String type = null;
-	
-	public XFileFilter( String fileType)
-	{
-		this.type = fileType;
-	}
-	
-	@Override
-	public boolean accept( File file)
-	{
-		if( file == null) return false;
-		if( this.type == null || this.type.isEmpty()) return true;
-		return file.isFile() && file.getName().endsWith( this.type);
-	}
+	}	
 }

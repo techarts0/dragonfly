@@ -1,7 +1,10 @@
 package cn.techarts.xkit.data;
 
 import java.util.logging.Logger;
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
+
 import javax.inject.Inject;
 
 import org.apache.ibatis.io.Resources;
@@ -41,6 +44,10 @@ public class DatabaseFactory implements AutoCloseable{
 	@Valued(key="jdbc.framework")
 	private String framework;
 	
+	@Inject
+	@Valued(key="jdbc.model.package")
+	private String modelPackage;
+	
 	private boolean initialized;
 	
 	//MYBATIS
@@ -67,7 +74,8 @@ public class DatabaseFactory implements AutoCloseable{
 	public void createJpaEntityManagerFactory() {
 		if(this.openJPAFactory != null) return;
 		try {
-			openJPAFactory = new JPASessionFactory(driver, url, user, password, capacity);
+			this.openJPAFactory = new JPASessionFactory(driver, url, user, 
+								       password, capacity, modelPackage);
 		}catch(Exception e) {
 			throw new DataException("Failed to initialize JPA EntityManager factory.", e);
 		}
@@ -183,5 +191,23 @@ public class DatabaseFactory implements AutoCloseable{
 
 	public void setInitialized(boolean initialized) {
 		this.initialized = initialized;
+	}
+}
+
+class XFileFilter implements FileFilter
+{
+	private String type = null;
+	
+	public XFileFilter( String fileType)
+	{
+		this.type = fileType;
+	}
+	
+	@Override
+	public boolean accept( File file)
+	{
+		if( file == null) return false;
+		if( this.type == null || this.type.isEmpty()) return true;
+		return file.isFile() && file.getName().endsWith( this.type);
 	}
 }

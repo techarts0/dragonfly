@@ -17,8 +17,8 @@ import cn.techarts.xkit.util.Converter;
 
 public class WebContext {
 	
-	private static final String CT_JSON = "application/json;charset=UTF-8";
-	private static final String CT_FORM = "application/x-www-form-urlencoded";
+	public static final String CT_JSON = "application/json;charset=UTF-8";
+	public static final String CT_FORM = "application/x-www-form-urlencoded";
 	
 	private HttpServletRequest request;
 	private HttpServletResponse response;
