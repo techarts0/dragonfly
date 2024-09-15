@@ -12,8 +12,8 @@ public class Context implements AutoCloseable{
 	public static final String NAME = "context.dragonfly.techarts.cn";
 	private static final Logger LOGGER = Hotpot.getLogger();
 	
-	public static Context make(String base, String json, String config) {
-		return make(new String[] {base}, new String[] {json}, config);
+	public static Context make(String base, String path, String config) {
+		return make(new String[] {base}, new String[] {path}, config);
 	}
 	
 	public void close() {
@@ -32,29 +32,29 @@ public class Context implements AutoCloseable{
 		}
 	}
 	
-	public static Context make(String[] bases, String[] jsons, String config) {
+	public static Context make(String[] bases, String[] paths, String config) {
 		var container = new HashMap<String, Craft>(512);
 		var inventory = new Factory(container);
 		var configs = Hotpot.resolveProperties(config);
 		inventory.setConfigs(configs);
-		inventory.start(bases, jsons);
+		inventory.start(bases, paths);
 		return new Context(container); 
 	}
 	
-	public static Context make(String[] bases, String[] jsons, Map<String, String> configs) {
+	public static Context make(String[] bases, String[] paths, Map<String, String> configs) {
 		var container = new HashMap<String, Craft>(512);
 		var inventory = new Factory(container);
 		inventory.setConfigs(configs);
-		inventory.start(bases, jsons);
+		inventory.start(bases, paths);
 		return new Context(container); 
 	}
 	
 	/**For test purpose only*/
-	public static Context make(String base, String json, Map<String, String> config) {
+	public static Context make(String base, String path, Map<String, String> config) {
 		var container = new HashMap<String, Craft>(512);
 		var inventory = new Factory(container);
 		inventory.setConfigs(config);
-		inventory.start(base, json);
+		inventory.start(base, path);
 		return new Context(container); 
 	}
 	

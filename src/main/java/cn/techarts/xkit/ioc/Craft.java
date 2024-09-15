@@ -228,7 +228,8 @@ public class Craft {
 			if(parameterMatched == false) continue; //Next
 				
 			for(int i = 0; i < params.length; i++) {
-				arguments.put(i, parse(args.get(i), null));
+				var t = params[i].getType();
+				arguments.put(i, parse(args.get(i), t));
 			}
 			this.constructor = c; //Cache it for new instance
 		}
@@ -286,8 +287,10 @@ public class Craft {
 			var val = tmp.substring(4, idx);
 			return Injector.ref(val);
 		}else if(tmp.startsWith("KEY:")) {
-			var v = tmp.substring(4);
-			return Injector.key(v, ft);
+			var idx = tmp.lastIndexOf(':');
+			if(idx == 3) idx = tmp.length();
+			var val = tmp.substring(4, idx);
+			return Injector.key(val, ft);
 		}else { //Default VAL
 			return Injector.val(tmp);
 		}

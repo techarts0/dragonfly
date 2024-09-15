@@ -1,14 +1,17 @@
 package cn.techarts.xkit.data.dbutils;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
+import org.w3c.dom.Element;
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.ParameterHelper;
 import cn.techarts.xkit.util.Hotpot;
@@ -25,9 +28,10 @@ public class OrmBasedDbutils extends ParameterHelper{
 	
 	public OrmBasedDbutils() {
 		super();
-		var path = getClass().getResource("/");
-		var sql = path.getPath() + "dbutils-sql.conf";
-		statements = Hotpot.resolveConfiguration(sql);
+		var xml = "/dbutils-config.xml";
+		//var ini = "/dbutils-config.ini";
+		statements = this.resolveConfiguration(xml);
+		//statements = Hotpot.resolveConfiguration1(ini);
 	}
 	
 	public String getStatement(String key) {
@@ -179,5 +183,26 @@ public class OrmBasedDbutils extends ParameterHelper{
 		}catch(SQLException e) {
 			throw new DataException("Failed to execute the sql: " + sql, e);
 		}
+	}
+	
+	private Map<String, String> resolveConfiguration(String xml){
+		try {
+			var factory = DocumentBuilderFactory.newInstance();
+			var stream = getClass().getResourceAsStream(xml);
+            var doc = factory.newDocumentBuilder().parse(stream);
+	        doc.getDocumentElement().normalize();
+	        var sqls = doc.getElementsByTagName("sql");
+	        var result = new HashMap<String, String>(256);
+	        for(int i = 0; i < sqls.getLength(); i++) {
+	        	var sql = sqls.item(i);
+	        	var element = (Element)sql; //<sql>
+	        	var name = element.getAttribute("id");
+	        	var text = element.getTextContent();
+	        	if(name != null && text != null) result.put(name, text);
+	        }
+	        return result;
+        }catch(Exception e) {
+        	throw new DataException("Failed to parse the file: " + xml, e);
+        }
 	}
 }

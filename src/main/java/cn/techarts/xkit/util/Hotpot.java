@@ -57,6 +57,8 @@ public final class Hotpot {
 			switch(name) {
 				case "java.lang.String":
 					return v;
+				case "String":
+					return v;
 				case "java.lang.Integer":
 					return Integer.parseInt(v);
 				case "java.lang.Float":
@@ -93,9 +95,7 @@ public final class Hotpot {
 		}
 	}
 	
-	private static final Map<String, Integer> PRIMITIVES = new HashMap<>() {/**
-		 * 
-		 */
+	private static final Map<String, Integer> PRIMITIVES = new HashMap<>() {
 		private static final long serialVersionUID = 1L;
 
 	{
@@ -107,7 +107,7 @@ public final class Hotpot {
 		put("java.lang.Double",    6);    put("double", 6);
 		put("java.lang.Byte",      7);    put("byte",   7);
 		put("java.lang.Character", 8);    put("char",   8);
-		put("java.lang.String",    9); //Total 9 kinds of primitive types.
+		put("java.lang.String",    9);    put("String", 9);
 	}};
 			
 	
@@ -298,7 +298,7 @@ public final class Hotpot {
 	/**
 	 * INI-Liked configuration
 	 */
-	public static Map<String, String> resolveConfiguration(String path){
+	public static Map<String, String> resolveConfiguration1(String path){
 		boolean multiLines = false;
 		String line = null, sentence = null;
 		var result = new HashMap<String, String>(512);
