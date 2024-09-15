@@ -1,8 +1,10 @@
 package cn.techarts.xkit.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -268,7 +270,10 @@ public final class Hotpot {
 		return Logger.getLogger(name);
 	}
 	
-	public static Map<String, String> resolveConfiguration(String file) {
+	/**
+	 * Properties configuration
+	 */
+	public static Map<String, String> resolveProperties(String file) {
 		var config = new Properties();
 		var result = new HashMap<String, String>(64);
 		try(var in = new FileInputStream(file)) {
@@ -288,6 +293,39 @@ public final class Hotpot {
 		return statements[0]; //Note: maybe null here
 	}
 	
+	private static final String P = "^\\s*[a-zA-Z\\s][a-zA-Z0-9_.-]*\\s*=\\s*.*$";
+	
+	/**
+	 * INI-Liked configuration
+	 */
+	public static Map<String, String> resolveConfiguration(String path){
+		boolean multiLines = false;
+		String line = null, sentence = null;
+		var result = new HashMap<String, String>(512);
+		try(var reader = new BufferedReader(new FileReader(path))){
+			while((line = reader.readLine()) != null) {
+				line = line.stripTrailing();
+				if(line.isBlank()) continue;
+				if(line.startsWith("#")) continue;
+				if(multiLines && sentence != null) {
+					var end = sentence.length() - 2;
+					sentence = sentence.substring(0, end).concat(line);
+				}
+				if(!multiLines && line.matches(P)) sentence = line;
+				multiLines = line.endsWith("\\\\"); //Current Line
+				if(sentence == null || multiLines) continue;
+				int i = sentence.indexOf('=');
+				var k = sentence.substring(0, i);
+				var v = sentence.substring(i + 1);
+				if(v == null || v.length() == 0) continue;
+				result.put(k.trim(), v.trim());
+				sentence = null; //Reset the variable 
+			}
+			return result;
+		}catch(IOException e){
+			throw new RuntimeException("Fail to load the ini file", e);
+		}
+	}
 }
 
 class ClassFilter implements FileFilter

@@ -26,7 +26,7 @@ public class StartupListener implements ServletContextListener {
 		var context = arg.getServletContext();
 		var classpath = this.getRootClassPath();
 		var config = classpath.concat("config.properties");
-		var configs = Hotpot.resolveConfiguration(config);
+		var configs = Hotpot.resolveProperties(config);
 		initializeIocContainer(context, classpath, configs);
 		initSessionSettings(this.getSessionConfig(configs));
 		var wsPackage = "web.service.package";//Scan the folder

@@ -35,7 +35,7 @@ public class Context implements AutoCloseable{
 	public static Context make(String[] bases, String[] jsons, String config) {
 		var container = new HashMap<String, Craft>(512);
 		var inventory = new Factory(container);
-		var configs = Hotpot.resolveConfiguration(config);
+		var configs = Hotpot.resolveProperties(config);
 		inventory.setConfigs(configs);
 		inventory.start(bases, jsons);
 		return new Context(container); 

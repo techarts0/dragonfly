@@ -26,7 +26,7 @@ public class OrmBasedDbutils extends ParameterHelper{
 	public OrmBasedDbutils() {
 		super();
 		var path = getClass().getResource("/");
-		var sql = path.getPath() + "sql.properties";
+		var sql = path.getPath() + "dbutils-sql.ini";
 		statements = Hotpot.resolveConfiguration(sql);
 	}
 	
