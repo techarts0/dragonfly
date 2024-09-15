@@ -1,7 +1,6 @@
 package cn.techarts.xkit.data.redis;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +61,7 @@ public class RedisCacheHelper implements Closeable{
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		if(connectionPool == null) return;
 		if(connectionPool.isClosed()) return;
 		connectionPool.close();
