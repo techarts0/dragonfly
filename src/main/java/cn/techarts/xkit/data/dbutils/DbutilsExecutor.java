@@ -12,6 +12,12 @@ public class DbutilsExecutor implements DataHelper {
 	private QueryRunner session;
 	private OrmBasedDbutils dbutils;
 	
+	@Override
+	@SuppressWarnings("unchecked")
+	public QueryRunner getExecutor() {
+		return this.session;
+	}
+	
 	public DbutilsExecutor(QueryRunner session, OrmBasedDbutils dbutils) {
 		this.dbutils = dbutils;
 		this.session = session;

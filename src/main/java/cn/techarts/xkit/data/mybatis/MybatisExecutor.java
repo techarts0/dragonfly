@@ -12,6 +12,12 @@ public class MybatisExecutor implements DataHelper {
 	
 	private SqlSession session = null;
 	
+	@Override
+	@SuppressWarnings("unchecked")
+	public SqlSession getExecutor() {
+		return this.session;
+	}
+	
 	public MybatisExecutor(SqlSession session) {
 		this.session = session;
 	}

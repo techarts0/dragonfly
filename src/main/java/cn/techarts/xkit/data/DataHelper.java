@@ -2,8 +2,18 @@ package cn.techarts.xkit.data;
 
 import java.util.List;
 
-public interface DataHelper
-{
+public interface DataHelper{
+	
+	/**
+	 * Returns the native executor what dependents on the under-lay framework.<p>
+	 * MYBATIS: SqlSession<br>
+	 * DBUTILS: QueryRunner<br>
+	 * OPENJPA: EntityManager<p>
+	 * 
+	 * You have the full permission to manipulate the database on the connection.
+	 */
+	public<T> T getExecutor();
+	
 	public int save(Object parameter, String... statement) throws DataException;
 	
 	public int remove(Object parameter, String... statement) throws DataException;

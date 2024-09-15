@@ -13,6 +13,12 @@ public class OpenJPAExecutor extends ParameterHelper implements DataHelper {
 	
 	private EntityManager session;
 	
+	@Override
+	@SuppressWarnings("unchecked")
+	public EntityManager getExecutor() {
+		return this.session;
+	}
+	
 	public OpenJPAExecutor(EntityManager session) {
 		this.session = session;
 	}
