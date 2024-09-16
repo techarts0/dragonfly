@@ -11,6 +11,9 @@ import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.trans.Transactional;
 import cn.techarts.xkit.util.Hotpot;
 
+/**
+ * Provides transaction support for service.
+ */
 public class ServiceEnhancer {
 	private String classpath = null;
 	private static final Logger LOGGER = Hotpot.getLogger();

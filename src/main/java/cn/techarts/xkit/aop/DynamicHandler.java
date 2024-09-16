@@ -6,10 +6,10 @@ import java.lang.reflect.Method;
 
 public class DynamicHandler implements InvocationHandler {
 	private Object target;
-	private Advice threw;
-	private Advice fianlly;
-	private Advice[] afters;
-	private Advice[] befores;
+	private Advice threw;		//Handle Exception
+	private Advice fianlly;		//Clean Resources
+	private Advice[] afters;	//Change Result
+	private Advice[] befores;	//Initialize Context
 	
 	public DynamicHandler(Object target, Advice[] beforeAdvices, Advice[] afterAdvices, Advice finalAdvice, Advice throwAdvice) {
 		if(target == null) {

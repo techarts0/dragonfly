@@ -59,7 +59,7 @@ public class UniObject implements Serializable {
 	public int getXid() {
 		return id;
 	}
-
+	
 	public String getName() {
 		return name;
 	}

@@ -2,8 +2,6 @@ package cn.techarts.xkit.app;
 
 import java.io.InputStream;
 
-
-
 /**
  * The implementation needs to be managed by IoC container using the annotation @Named("fileUploadHandler")<p>
  * Important: The name MUST BE "<b>fileUploadHandler</b>".
