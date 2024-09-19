@@ -26,7 +26,7 @@ public class Context implements AutoCloseable{
 				try {
 					((AutoCloseable)obj).close();
 				}catch(Exception e) {
-					LOGGER.severe("Failed to close: " + craft.getName() + ", Details: " + e.getMessage());
+					LOGGER.severe("Failed to close " + craft.getName() + ": " + e.getMessage());
 				}
 			}
 		}

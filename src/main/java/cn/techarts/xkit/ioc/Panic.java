@@ -91,4 +91,7 @@ public class Panic extends RuntimeException {
 		return new Panic("Failed to parse the xml config: " + file, e);
 	}
 	
+	public static Panic typeMissing(String arg) {
+		return new Panic("The constructor parameter type is required: " + arg);
+	}
 }

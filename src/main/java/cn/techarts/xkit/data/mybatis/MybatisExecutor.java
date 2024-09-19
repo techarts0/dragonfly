@@ -148,6 +148,7 @@ public class MybatisExecutor implements DataHelper {
 	@Override
 	public void close() throws DataException {
 		if(session == null) return;
+		this.session.commit();
 		this.session.close();
 	}
 	

@@ -42,7 +42,7 @@ public class Craft {
 		this.arguments = new HashMap<>();
 		this.properties = new HashMap<>();
 		
-		//Allows both of annotation and JSON. 
+		//Allows both of annotation and JSON/XML. 
 		resolveInjectedFields(clazz); //Annotation
 		resolveInjectedFields(node.getProps(), clazz);
 		resolveInjectedContructor(node.getArgs(), clazz);
@@ -260,16 +260,21 @@ public class Craft {
 		resolveInjectedFields(props, clazz.getSuperclass());
 	}
 	
-	//REF:User:cn.techarts.xkit.test.User
+	/** REF:User:cn.techarts.xkit.test.User, or
+	 *  KEY:user.name:String<p>
+	 *  The data type is required in KEY and REF.
+	 */
 	private String getType(Object arg) {
 		if(!(arg instanceof String)) {
 			return arg.getClass().getName();
 		}
 		var tmp = ((String)arg).trim();
-			
 		if(tmp.startsWith("REF:") ||
-			tmp.startsWith("KEY:")) {
+		   tmp.startsWith("KEY:")) {
 			var idx = tmp.lastIndexOf(':');
+			if(idx == 3) { //Missing Type
+				throw Panic.typeMissing(tmp);
+			}
 			return tmp.substring(idx + 1);
 		}else {
 			return tmp.getClass().getName();

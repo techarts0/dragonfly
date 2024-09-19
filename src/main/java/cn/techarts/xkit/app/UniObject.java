@@ -20,7 +20,7 @@ public class UniObject implements Serializable {
 	 * and declare it with the annotation @Id or @Column etc.
 	 * 
 	 */
-	protected int id = 108;
+	protected int id;
 	
 	private String name;
 	
