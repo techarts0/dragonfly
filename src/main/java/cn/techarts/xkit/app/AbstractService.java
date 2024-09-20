@@ -10,6 +10,7 @@ import javax.inject.Named;
 import cn.techarts.xkit.data.DataHelper;
 import cn.techarts.xkit.data.DatabaseFactory;
 import cn.techarts.xkit.data.redis.RedisCacheHelper;
+import cn.techarts.xkit.data.trans.Isolation;
 
 public abstract class AbstractService 
 {
@@ -40,10 +41,24 @@ public abstract class AbstractService
 	}
 	
 	/**
-	 * The method is called automatically.
+	 * Begin a transaction(The service runs within a transaction)
 	 */
-	protected void commitAndClose() {
+	protected void beginTransaction(int level, boolean readonly) {
+		var isolation = Isolation.to(level);
+		getDataHelper().begin(isolation, readonly);
+	}
+	
+	/**
+	 * 1. Commit transaction(if enabled).<br> 
+	 * 2. Close the connection. <br>
+	 * 3. Remove the connection from LocalThread.
+	 */
+	protected void closeConnection() {
 		this.sqldb.closeExecutor();
+	}
+	
+	protected void rollbackTransaction() {
+		this.getDataHelper().rollback();
 	}
 	
 	protected RedisCacheHelper cache() {

@@ -1,5 +1,6 @@
 package cn.techarts.xkit.data.dbutils;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -50,11 +51,11 @@ public class OrmBasedDbutils extends ParameterHelper{
 	 * @param params A java bean stores SQL parameters
 	 * @param returnKey true tells the method to return the auto-increment key 
 	 */
-	public long insert(String sql, Object params, boolean returnKey, QueryRunner session){
+	public long insert(String sql, Object params, boolean returnKey, QueryRunner session, Connection con){
 		if(!returnKey) {
-			return executeUpdateWithNamedParameters(sql, params, session);
+			return executeUpdateWithNamedParameters(sql, params, session, con);
 		}else {
-			return executeInsertWithNamedParameters(sql, params, session);
+			return executeInsertWithNamedParameters(sql, params, session, con);
 		}
 	}
 	
@@ -63,8 +64,8 @@ public class OrmBasedDbutils extends ParameterHelper{
 	 * @param sql The named SQL string
 	 * @param params A java bean stores SQL parameters 
 	 */	
-	public int update(String sql, Object params, QueryRunner session){
-		return executeUpdateWithNamedParameters(sql, params, session);
+	public int update(String sql, Object params, QueryRunner session, Connection con){
+		return executeUpdateWithNamedParameters(sql, params, session, con);
 	}
 	
 	/**
@@ -73,14 +74,14 @@ public class OrmBasedDbutils extends ParameterHelper{
 	 * @param params A java bean stores SQL parameters 
 	 * 
 	 * */
-	public int delete(String sql, Object params, QueryRunner session){
-		return executeUpdateWithNamedParameters(sql, params, session);
+	public int delete(String sql, Object params, QueryRunner session, Connection con){
+		return executeUpdateWithNamedParameters(sql, params, session, con);
 	}
 	
 	/**
 	 * Execute batch of operations of INSERT, UPDATE or DELETE
 	 */
-	public int update(String sqlName, List<Object> params, QueryRunner session) {
+	public int update(String sqlName, List<Object> params, QueryRunner session, Connection con) {
 		var sql = getStatement(sqlName);
 		var meta = this.parseStatement(sql, 0);
 		int d0 = params.size(), d1 = meta.count();
@@ -89,7 +90,7 @@ public class OrmBasedDbutils extends ParameterHelper{
 			for(int i = 0; i < d0; i++) {
 				args[i] = meta.toParameters(params.get(i));
 			}
-			session.batch(meta.getSql(), args);
+			session.batch(con, meta.getSql(), args);
 			return 0;			
 		}catch(SQLException e) {
 			throw new DataException("Failed to execute the sql: " + sql, e);
@@ -101,7 +102,7 @@ public class OrmBasedDbutils extends ParameterHelper{
 	 * @param sql The named SQL string
 	 * @param params A java bean stores SQL parameters 
 	 */
-	public<T> T select(String sqlName, Object params, Class<T> clazz, QueryRunner session){
+	public<T> T select(String sqlName, Object params, Class<T> clazz, QueryRunner session, Connection con){
 		if(clazz == null) return null;
 		var sql = getStatement(sqlName);
 		var meta = parseStatement(sql, 0);
@@ -114,10 +115,10 @@ public class OrmBasedDbutils extends ParameterHelper{
 		}
 		try {
 			if(!meta.hasArgs()) {
-				return session.query(meta.getSql(), target);
+				return session.query(con, meta.getSql(), target);
 			}else {
 				var args = meta.toParameters(params);
-				return session.query(meta.getSql(), target, args);
+				return session.query(con, meta.getSql(), target, args);
 			}			
 		}catch(SQLException e) {
 			throw new DataException("Failed to execute the sql: " + sql, e);
@@ -129,7 +130,7 @@ public class OrmBasedDbutils extends ParameterHelper{
 	 * @param sql The named SQL string
 	 * @param params A java bean stores SQL parameters 
 	 */
-	public<T> List<T> selectAll(String sqlName, Object params, Class<T> clazz, QueryRunner session){
+	public<T> List<T> selectAll(String sqlName, Object params, Class<T> clazz, QueryRunner session, Connection con){
 		if(clazz == null) return null;
 		var sql = getStatement(sqlName);
 		var meta = parseStatement(sql, 0);
@@ -139,10 +140,10 @@ public class OrmBasedDbutils extends ParameterHelper{
 		}
 		try {
 			if(!meta.hasArgs()) {
-				return session.query(meta.getSql(), target);
+				return session.query(con, meta.getSql(), target);
 			}else {
 				var args = meta.toParameters(params);
-				return session.query(meta.getSql(), target, args);
+				return session.query(con, meta.getSql(), target, args);
 			}	
 		}catch(SQLException e) {
 			throw new DataException("Failed to execute the sql: " + sql, e);
@@ -152,32 +153,32 @@ public class OrmBasedDbutils extends ParameterHelper{
 	/**
 	 * Named Parameters
 	 */
-	private int executeUpdateWithNamedParameters(String sqlName, Object params, QueryRunner session){
+	private int executeUpdateWithNamedParameters(String sqlName, Object params, QueryRunner session, Connection con){
 		var sql = getStatement(sqlName);
 		var meta = parseStatement(sql, 0);
 		try {
 			if(!meta.hasArgs()) {
-				return session.update(meta.getSql());
+				return session.update(con, meta.getSql());
 			}else {
 				var args = meta.toParameters(params);
-				return session.update(meta.getSql(), args);
+				return session.update(con, meta.getSql(), args);
 			}
 		}catch(SQLException e) {
 			throw new DataException("Failed to execute the sql: " + sql, e);
 		}
 	}
 	
-	private long executeInsertWithNamedParameters(String sqlName, Object params, QueryRunner session){
+	private long executeInsertWithNamedParameters(String sqlName, Object params, QueryRunner session, Connection con){
 		Long result = null; //Auto-Increment ID
 		var sql = getStatement(sqlName);
 		var meta = parseStatement(sql, 0);
 		var rsh = new ScalarHandler<Long>();
 		try {
 			if(!meta.hasArgs()) {
-				result = session.insert(meta.getSql(), rsh);
+				result = session.insert(con, meta.getSql(), rsh);
 			}else {
 				var args = meta.toParameters(params);
-				result = session.insert(meta.getSql(), rsh, args);
+				result = session.insert(con, meta.getSql(), rsh, args);
 			}
 			return result != null ? result.longValue() : 0L;
 		}catch(SQLException e) {

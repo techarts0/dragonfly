@@ -66,6 +66,4 @@ public class SafeDataSource extends HikariDataSource {
 	public Connection getConnection() throws SQLException{
 		return super.getConnection();
 	}
-	
-	
 }

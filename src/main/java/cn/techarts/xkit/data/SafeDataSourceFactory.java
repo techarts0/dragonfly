@@ -42,6 +42,6 @@ public class SafeDataSourceFactory extends UnpooledDataSourceFactory {
 			ds.addDataSourceProperty("password", properties.getProperty("password"));
 		}
 		
-		//More properties...
+		//TODO More properties...
 	 }
 }

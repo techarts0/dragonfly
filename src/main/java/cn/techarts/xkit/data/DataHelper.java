@@ -2,6 +2,8 @@ package cn.techarts.xkit.data;
 
 import java.util.List;
 
+import cn.techarts.xkit.data.trans.Isolation;
+
 public interface DataHelper{
 	
 	/**
@@ -35,12 +37,12 @@ public interface DataHelper{
 	
 	
 	//Start a transaction
-	default void begin() throws DataException{}
+	public void begin(Isolation isolation, boolean readonly) throws DataException;
 	
 	//Roll-back the transaction if failed
 	public void rollback() throws DataException;
 	
-	//Clean up resources while shutdown
+	//Commit transaction and close the connection
 	public void close() throws DataException;
 	
 }

@@ -29,10 +29,10 @@ public class JPASessionFactory {
 		
         var map = Map.of("openjpa.DataCache", "true",
         				 "openjpa.QueryCache", "true",
+        				 "openjpa.TransactionMode", "false",
         		         "openjpa.ClassLoadEnhancement", "false",
         		         "openjpa.DynamicEnhancementAgent", "false",
         		         "openjpa.RuntimeUnenhancedClasses", "supported");
-        
         var provider = new PersistenceProviderImpl();
         factory = provider.createContainerEntityManagerFactory(pui, map);
     }

@@ -8,6 +8,7 @@ import cn.techarts.xkit.aop.AopException;
 import cn.techarts.xkit.aop.Bytecoder;
 import cn.techarts.xkit.aop.Enhanced;
 import cn.techarts.xkit.data.DataException;
+import cn.techarts.xkit.data.trans.Isolation;
 import cn.techarts.xkit.data.trans.Transactional;
 import cn.techarts.xkit.util.Hotpot;
 
@@ -50,8 +51,16 @@ public class ServiceEnhancer {
 		var methods = service.getDeclaredMethods();
 		if(methods == null || methods.length == 0) return;
 		var bytecoder = new Bytecoder(service);
+		var t = Transactional.class; //Target
 		for(var method : methods) {
-			if(!method.isAnnotationPresent(Transactional.class)) continue;
+			var trans = method.getAnnotation(t);
+			if(trans == null) continue; //Without
+			var level = trans.isolation();
+			var readonly = trans.readonly();
+			if(level != Isolation.NONE_TRANSACTION) {
+				var src = BGNSRC(level.getLevel(), readonly);
+				bytecoder.firstLine(method.getName(), src);
+			}
 			bytecoder.beforeReturn(method.getName(), SRC_COMMIT);
 			bytecoder.addCatch(method.getName(), SRC_ROLL, DATA_EX, "e");
 		}
@@ -59,7 +68,12 @@ public class ServiceEnhancer {
 		LOGGER.info("Enhanced the service class: " + service.getName());
 	}
 	
-	private static final String SRC_COMMIT = "super.commitAndClose();";
-	private static final String SRC_ROLL = "getDataHelper().rollback(); throw e;";
+	private static final String SRC_COMMIT = "super.closeConnection();";
+	private static final String SRC_ROLL = "super.rollbackTransaction(); throw e;";
 	private static final Class<DataException> DATA_EX = DataException.class;
+	
+	private static String BGNSRC(int level, boolean readonly) {
+		var r = readonly ? "true" : "false";
+		return "super.beginTransaction(" + level + ", " + r + ");";
+	}
 }

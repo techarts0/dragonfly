@@ -7,11 +7,10 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import com.zaxxer.hikari.HikariConfig;
-import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.SafeDataSource;
 import cn.techarts.xkit.util.Hotpot;
 
-public class QueryRunnerFactory {
+public class QueryRunnerFactory implements AutoCloseable {
 	private SafeDataSource dataSource = null;
 	private OrmBasedDbutils ormdbutils = null;	
 	private static final Logger LOGGER = Hotpot.getLogger();
@@ -25,15 +24,7 @@ public class QueryRunnerFactory {
 	 */
 	public QueryRunner openQueryRunner(){
 		if(dataSource == null) return null;
-		var result = new QueryRunner(dataSource);
-		try {
-			var con = result.getDataSource().getConnection();
-			if(con != null) con.setAutoCommit(false);
-			LOGGER.info("Got a connection wrapped in: " + result);
-		}catch(SQLException e) {
-			throw new DataException("Failed to open session.");
-		}
-		return result;
+		return new QueryRunner(dataSource);
 	}
 	
 	public QueryRunnerFactory(String driver, String url, String user, String password, int maxPoolSize) {
@@ -43,6 +34,7 @@ public class QueryRunnerFactory {
 		LOGGER.info("Connect to database with url: " + url);
 	}
 	
+	@Override
 	public void close() {
 		if(dataSource == null) {
 			this.dataSource.close();

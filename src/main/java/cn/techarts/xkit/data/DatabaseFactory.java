@@ -59,7 +59,7 @@ public class DatabaseFactory implements AutoCloseable{
 	//JPA(Default is OPENJPA)
 	private JPASessionFactory openJPAFactory;
 		
-	public static final String MYBATIS = "mybatis-config.xml";
+	private static final String MYBATIS = "mybatis-config.xml";
 	
 	private ThreadLocal<DataHelper> threadLocal = new ThreadLocal<>();
 	
@@ -139,7 +139,6 @@ public class DatabaseFactory implements AutoCloseable{
 		var result = threadLocal.get();
 		if(result == null) {
 			result = getExecutor0();
-			result.begin();//Transaction
 			this.threadLocal.set(result);
 			LOGGER.info("Obtained a connection wrapped in: " + result);
 		}
