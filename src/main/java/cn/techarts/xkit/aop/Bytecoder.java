@@ -19,13 +19,13 @@ public final class Bytecoder {
 		this(clzz.getName());
 	}
 	
-	public Bytecoder(String source) {
+	public Bytecoder(String clazz) {
 		try {
-			this.classpath = getPath(source);
+			this.classpath = getPath(clazz);
 			this.pool = ClassPool.getDefault();
-			this.target = pool.get(source); 
+			this.target = pool.get(clazz); 
 		}catch(Exception e) {
-			throw AopException.notFound(source, e);
+			throw AopException.notFound(clazz, e);
 		}
 	}
 	

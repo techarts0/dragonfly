@@ -53,7 +53,7 @@ public class JPASessionFactory {
 	private SafeDataSource prepareDataSource(String driver, String url, String user, String token, int maxPoolSize) {
 		var config = new HikariConfig();
 		//Default: Transaction Enabled
-		config.setAutoCommit(false);
+		//config.setAutoCommit(false);
 		var pw = SafeDataSource.decrypt(token);
 		if(driver.contains("Driver")) {
 			config.setJdbcUrl(url);
