@@ -32,8 +32,7 @@ public class Factory {
 	}
 	
 	public void setConfigs(Map<String, String> configs) {
-		if(configs == null) return;
-		this.configs = configs;
+		this.configs = configs == null ? Map.of() : configs;
 	}
 	
 	public Map<String, String> getConfigs() {
@@ -81,6 +80,48 @@ public class Factory {
 		LOGGER.info("Assembled " + crafts.size() + " managed objects.");
 	}
 	
+	/**
+	 * Append a managed bean instance into IOC container.
+	 */
+	public void bind(Object... beans) {
+		if(beans == null) return;
+		if(beans.length == 0) return;
+		for(var bean : beans) {
+			if(bean != null) {
+				this.register(bean);
+			}
+		}
+		assembleAndInstanceManagedCrafts();
+	}
+	
+	/**
+	 * Append a managed bean into IOC container by class.
+	 */
+	public void bind(Class<?>... beans) {
+		if(beans == null) return;
+		if(beans.length == 0) return;
+		for(var bean : beans) {
+			if(bean != null) {
+				this.register(bean);
+			}
+		}
+		assembleAndInstanceManagedCrafts();
+	}
+	
+	/**
+	 * Append a managed bean into IOC container by class name.
+	 */
+	public void bind(String... classes) {
+		if(classes == null) return;
+		if(classes.length == 0) return;
+		for(var clazz : classes) {
+			if(clazz != null) {
+				this.register(clazz);
+			}
+		}
+		assembleAndInstanceManagedCrafts();
+	}
+	
 	public void register(String clzz) {
 		var result = toCraft(clzz);
 		if(result == null) return;
@@ -88,22 +129,38 @@ public class Factory {
 		material.put(result.getName(), result);
 	}
 	
+	private void register(Object bean) {
+		if(bean == null) return;
+		var craft = toCraft(bean.getClass());
+		craft.setInstance(bean);
+		material.put(craft.getName(), craft);
+	}
+
+	public void register(Class<?> clazz) {
+		if(clazz == null) return;
+		var craft = toCraft(clazz);
+		material.put(craft.getName(), craft);
+	}
+	
 	public void register(Craft craft) {
 		material.put(craft.getName(), craft);
 	}
 	
+	private Craft toCraft(Class<?> clazz) {
+		if(!Hotpot.newable(clazz)) return null;
+		var named = clazz.getAnnotation(Named.class);
+		var s = clazz.isAnnotationPresent(Singleton.class);
+		var explicitly = named != null || s;
+		if(explicitly == false) return null;
+		//Bean id: the qualifier name is first
+		var name = named != null ? named.value() : ""; 
+		if(name.isEmpty()) name = clazz.getName();
+		return new Craft(name, clazz, s, explicitly);			
+	}
+	
 	private Craft toCraft(String className) {
 		try {
-			var obj = Class.forName(className);
-			if(!Hotpot.newable(obj)) return null;
-			var named = obj.getAnnotation(Named.class);
-			var s = obj.isAnnotationPresent(Singleton.class);
-			var explictly = named != null || s;
-			if(explictly == false) return null;
-			//Bean id: the qualifier name is first
-			var name = named != null ? named.value() : ""; 
-			if(name.isEmpty()) name = className;
-			return new Craft(name, obj, s, explictly);			
+			return toCraft(Class.forName(className));
 		}catch(ClassNotFoundException e) {
 			throw Panic.classNotFound(className, e);
 		}
@@ -194,12 +251,12 @@ public class Factory {
 		}
 	}
 	
-	private Injector xmlNode2Injector(Element node) {
+	private Injectee xmlNode2Injector(Element node) {
 		var ref = node.getAttribute("ref");
 		var key = node.getAttribute("key");
 		var val = node.getAttribute("val");
 		var type = node.getAttribute("type");
-		return Injector.of(ref, key, val, type);
+		return Injectee.of(ref, key, val, type);
 	}
 	
 	private Craft xmlBean2Craft(Node node) {

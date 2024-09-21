@@ -2,6 +2,7 @@ package cn.techarts.xkit.ioc;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
@@ -14,20 +15,23 @@ public class Craft {
 	private Object instance;
 	private boolean singleton;
 	private boolean assembled;
-	private boolean explictly;
+	private boolean explicitly;
 		
 	/** Injected or default constructor*/
 	private Constructor<?> constructor;
 	
 	/** Injected Constructor Arguments*/
-	private Map<Integer, Injector> arguments;
+	private Map<Integer, Injectee> arguments;
 	
 	/** Injected Fields(Values)*/
-	private Map<Field, Injector> properties;
+	private Map<Field, Injectee> properties;
+	
+	/** Injected Methods(setter or)*/
+	private Map<Method, Injectee[]> methods;
 	
 	public Craft(String type) {
 		this.type = type;
-		this.explictly = true;
+		this.explicitly = true;
 		this.arguments = new HashMap<>();
 		this.properties = new HashMap<>();	
 		var clazz = Hotpot.forName(type);
@@ -35,10 +39,10 @@ public class Craft {
 	}
 	
 	/**From Annotation*/
-	public Craft(String name, Class<?> clazz, boolean singleton, boolean explictly) {
+	public Craft(String name, Class<?> clazz, boolean singleton, boolean explicitly) {
 		this.name = name;
 		this.singleton = singleton;
-		this.explictly = explictly;
+		this.explicitly = explicitly;
 		this.arguments = new HashMap<>();
 		this.properties = new HashMap<>();
 		this.resolveInjectedFields(clazz);
@@ -46,7 +50,7 @@ public class Craft {
 	}
 	
 	public boolean isManaged() {
-		if(explictly) return true;
+		if(explicitly) return true;
 		if(!arguments.isEmpty()) {
 			return true;
 		}
@@ -230,13 +234,13 @@ public class Craft {
 			if(args == null || args.length == 0) break;
 			
 			for(int i = 0; i < args.length; i++) {
-				var arg = new Injector(args[i]);
+				var arg = new Injectee(args[i]);
 				arguments.put(Integer.valueOf(i), arg);
 			}
 			break; //Only ONE constructor can be injected
 		}
 		
-		if(this.constructor == null && explictly) {
+		if(this.constructor == null && explicitly) {
 			try { //Default and public constructor
 				this.constructor = clazz.getConstructor();
 			}catch(NoSuchMethodException | SecurityException es) {
@@ -251,7 +255,7 @@ public class Craft {
 		if(fs != null && fs.length != 0) {
 			for(var f : fs) {
 				if(f.isAnnotationPresent(Inject.class)) {
-					this.addProperty(f, new Injector(f));
+					this.addProperty(f, new Injectee(f));
 				}
 			}
 		}
@@ -262,7 +266,6 @@ public class Craft {
 		return type;
 	}
 
-
 	public void setType(String type) {
 		this.type = type;
 	}
@@ -271,11 +274,15 @@ public class Craft {
 		this.singleton = Converter.toBoolean(singleton);
 	}
 	
-	public void addArgument(int index, Injector arg) {
+	public void addArgument(int index, Injectee arg) {
 		this.arguments.put(index, arg);
 	}
 	
-	public void addProperty(Field field, Injector arg) {
+	public void setInstance(Object instance) {
+		this.instance = instance;
+	}
+	
+	public void addProperty(Field field, Injectee arg) {
 		if(field == null || arg == null) return;
 		arg.setType(field.getType());
 		this.properties.put(field, arg);

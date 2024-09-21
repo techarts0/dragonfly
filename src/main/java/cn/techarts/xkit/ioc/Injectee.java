@@ -7,10 +7,10 @@ import javax.inject.Named;
 import cn.techarts.xkit.util.Hotpot;
 
 /**
- * A craft(REF, KEY, VAL) needs to be inject into host craft.<p>
+ * A craft(REF, KEY, VAL) needs to be injected into host craft.<p>
  * REF: 1, KEY: 2, VAL: 3 
  */
-public class Injector {
+public class Injectee {
 	private int __t;
 	//Null means REF
 	private Type type;
@@ -20,41 +20,45 @@ public class Injector {
 	private boolean assembled;
 	
 	/**Create a REF object*/
-	public static Injector ref(String ref) {
-		return new Injector(ref, 1);
+	public static Injectee ref(String ref) {
+		return new Injectee(ref, 1);
 	}
 	
 	/**Create a KEY object*/
-	public static Injector key(String key, Class<?> t) {
-		var result = new Injector(key, 2);
+	public static Injectee key(String key, Class<?> t) {
+		var result = new Injectee(key, 2);
 		result.setType(t != null ? t : Object.class);
 		return result;
 	}
 	
 	/**Create a VAL object*/
-	public static Injector val(Object val) {
-		var result = new Injector(3);
+	public static Injectee val(Object val) {
+		var result = new Injectee(3);
 		result.setValue(val);
 		result.setType(val.getClass());
 		return result;
 	}
 	
-	Injector(int __t) {
+	Injectee(int __t) {
 		this.__t = __t;
 	}
 	
-	Injector(String name, int __t) {
+	Injectee(String name, int __t) {
 		this.__t = __t;
 		this.setName(name);
 	}
 	
-	public Injector(Parameter p) {
+	public Injectee(Parameter p) {
 		var named = p.getAnnotation(Named.class);
 		var valued = p.getAnnotation(Valued.class);
 		parseAnnotations(named, valued, p.getType());
 	}
 	
-	public Injector(Field f) {
+	public Injectee(Field f) {
+//		if(Provider.class.isAssignableFrom(f.getType())) {
+//			f.getType().getpa
+//		}
+		
 		var named = f.getAnnotation(Named.class);
 		var valued = f.getAnnotation(Valued.class);
 		parseAnnotations(named, valued, f.getType());
@@ -150,8 +154,8 @@ public class Injector {
 		this.__t = __t;
 	}
 	
-	public static Injector of(String ref, String key, String val, String type) {
-		var result = new Injector(0);
+	public static Injectee of(String ref, String key, String val, String type) {
+		var result = new Injectee(0);
 		if(ref != null && !ref.isEmpty()) {
 			result.setName(ref);
 			result.setInjectType(1);
