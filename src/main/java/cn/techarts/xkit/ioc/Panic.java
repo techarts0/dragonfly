@@ -79,10 +79,6 @@ public class Panic extends RuntimeException {
 		return new Panic("The data type [" + name + "] is unsupported.");
 	}
 	
-	public static Panic unsupportedFileType(String name) {
-		return new Panic("The config file [" + name + "] is unsupported.");
-	}
-	
 	public static Panic failed2ParseJson(String file, Throwable e) {
 		return new Panic("Failed to parse the json config: " + file, e);
 	}

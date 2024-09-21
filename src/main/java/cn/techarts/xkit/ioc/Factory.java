@@ -2,19 +2,18 @@ package cn.techarts.xkit.ioc;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
-
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.xml.parsers.DocumentBuilderFactory;
-
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import cn.techarts.xkit.util.Hotpot;
 
 public class Factory {
@@ -58,19 +57,12 @@ public class Factory {
 	private void resolveConfigBasedCrafts(String... resources) {
 		if(resources == null || resources.length == 0) return;
 		for(int i = 0; i < resources.length; i++) {
-			var file = resources[i];
-			if(file.endsWith(".xml")) {
-				this.parseAndResolveXMLCrafts(file);
-			}else if(file.endsWith(".json")) {
-				this.parseAndResolveJsonCrafts(file);
-			}else {
-				throw Panic.unsupportedFileType(file);
-			}
+			this.parseAndResolveXMLCrafts(resources[i]);
 		}
 	}
 	
 	/**
-	 * Support multiple class-paths and JSON/XML files.
+	 * Support multiple class-paths and XML files.
 	 */
 	public void start(String[] classpaths, String[] resources) {
 		this.resolveJSR330BasedCrafts(classpaths);
@@ -92,51 +84,28 @@ public class Factory {
 	public void register(String clzz) {
 		var result = toCraft(clzz);
 		if(result == null) return;
+		if(!result.isManaged()) return;
 		material.put(result.getName(), result);
 	}
 	
-	public void register(Element craft) {
-		if(craft == null) return;
-		var result = toCraft(craft);
-		if(result == null) return;
-		material.put(craft.getName(), result);
+	public void register(Craft craft) {
+		material.put(craft.getName(), craft);
 	}
 	
 	private Craft toCraft(String className) {
 		try {
 			var obj = Class.forName(className);
+			if(!Hotpot.newable(obj)) return null;
 			var named = obj.getAnnotation(Named.class);
-			if(named == null) return null; //UNMANAGED
-			var name = named.value(); //Qualifier first
-			if(name.isEmpty()) name = className;
 			var s = obj.isAnnotationPresent(Singleton.class);
-			return new Craft(name, obj, s);			
+			var explictly = named != null || s;
+			if(explictly == false) return null;
+			//Bean id: the qualifier name is first
+			var name = named != null ? named.value() : ""; 
+			if(name.isEmpty()) name = className;
+			return new Craft(name, obj, s, explictly);			
 		}catch(ClassNotFoundException e) {
 			throw Panic.classNotFound(className, e);
-		}
-	}
-	
-	private Craft toCraft(Element craft) {
-		try {
-			return new Craft(craft, craft.instance());			
-		}catch(ClassNotFoundException e) {
-			throw Panic.classNotFound(craft.getType(), e);
-		}
-	}
-	
-	/**Crafts defined in JSON file.*/
-	private void parseAndResolveJsonCrafts(String resource){
-		if(resource == null) return;
-		var parser = new ObjectMapper();
-		try {
-			var stream = new FileInputStream(resource);
-			var nodes = parser.readValue(stream, ArrayNode.class);
-			if(nodes == null || nodes.isEmpty()) return;
-			for(var node : nodes) {
-				register(parser.treeToValue(node, Element.class));
-			}
-		}catch(Exception e) {
-			throw Panic.failed2ParseJson(resource, e);
 		}
 	}
 	
@@ -150,7 +119,7 @@ public class Factory {
 	        var crafts = doc.getElementsByTagName("bean");
 	        if(crafts == null || crafts.getLength() == 0) return;
 	        for(int i = 0; i < crafts.getLength(); i++) {
-	        	register(xmlNode2Element(crafts.item(i)));
+	        	register(xmlBean2Craft(crafts.item(i)));
 	        }
 		}catch(Exception e) {
 			throw Panic.failed2ParseJson(resource, e);
@@ -195,51 +164,63 @@ public class Factory {
 		return result.toString();
 	}
 	
-	private Element xmlNode2Element(Node node) {
+	private void parseArgs(NodeList args, Craft result) {
+		if(args == null || args.getLength() != 1) return;
+		var first = (org.w3c.dom.Element)args.item(0);
+		args = first.getElementsByTagName("arg");
+		if(args == null || args.getLength() == 0) return;
+		for(int i = 0; i < args.getLength(); i++) {
+			var arg = args.item(i);
+			if(arg.getNodeType() != Node.ELEMENT_NODE) continue;
+			var injector = xmlNode2Injector((Element)arg);
+			result.addArgument(i, injector);
+		}
+	}
+	
+	private void parseProps(NodeList props, Craft result) {
+		if(props == null || props.getLength() != 1) return;
+		var first = (org.w3c.dom.Element)props.item(0);
+		props = first.getElementsByTagName("prop");
+		if(props == null || props.getLength() == 0) return;
+		var fields = new HashMap<String, Field>();
+		getFields(fields, Hotpot.forName(result.getType()));
+		for(int i = 0; i < props.getLength(); i++) {
+			var prop = props.item(i);
+			if(prop.getNodeType() != Node.ELEMENT_NODE) continue;
+			var tmp = (Element)prop;
+			var name = tmp.getAttribute("name");
+			var injector = xmlNode2Injector(tmp);
+			result.addProperty(fields.get(name), injector);
+		}
+	}
+	
+	private Injector xmlNode2Injector(Element node) {
+		var ref = node.getAttribute("ref");
+		var key = node.getAttribute("key");
+		var val = node.getAttribute("val");
+		var type = node.getAttribute("type");
+		return Injector.of(ref, key, val, type);
+	}
+	
+	private Craft xmlBean2Craft(Node node) {
 		if(node.getNodeType() != Node.ELEMENT_NODE) return null;
-		var result = new Element();
 		var craft = (org.w3c.dom.Element)node;
+		var result = new Craft(craft.getAttribute("type"));
 		result.setName(craft.getAttribute("id"));
-		result.setType(craft.getAttribute("type"));
 		result.setSingleton(craft.getAttribute("singleton"));
-		
-		var args = craft.getElementsByTagName("args");
-		if(args != null && args.getLength() == 1) {
-			var first = (org.w3c.dom.Element)args.item(0);
-			args = first.getElementsByTagName("arg");
-			if(args != null && args.getLength() > 0) {
-				for(int i = 0; i < args.getLength(); i++) {
-					var arg = args.item(i);
-					if(arg.getNodeType() == Node.ELEMENT_NODE) {
-						var tmp = (org.w3c.dom.Element)arg;
-						var ref = tmp.getAttribute("ref");
-						var key = tmp.getAttribute("key");
-						var val = tmp.getAttribute("val");
-						var type = tmp.getAttribute("type");
-						result.addArg(ref, key, val, type);
-					}
-				}
+		parseArgs(craft.getElementsByTagName("args"), result);
+		parseProps(craft.getElementsByTagName("props"), result);
+		return result.withConstructor();
+	}
+	
+	private void getFields(Map<String, Field> result, Class<?> clazz) {
+		if(clazz == null) return; //Without super class
+		var fs = clazz.getDeclaredFields();
+		if(fs != null && fs.length != 0) {
+			for(var f : fs) {
+				result.put(f.getName(), f);
 			}
 		}
-		var props = craft.getElementsByTagName("props");
-		if(props != null && props.getLength() == 1) {
-			var first = (org.w3c.dom.Element)props.item(0);
-			props = first.getElementsByTagName("prop");
-			if(props != null && props.getLength() > 0) {
-				for(int i = 0; i < props.getLength(); i++) {
-					var prop = props.item(i);
-					if(prop.getNodeType() == Node.ELEMENT_NODE) {
-						var tmp = (org.w3c.dom.Element)prop;
-						var ref = tmp.getAttribute("ref");
-						var key = tmp.getAttribute("key");
-						var val = tmp.getAttribute("val");
-						var type = tmp.getAttribute("type");
-						var name = tmp.getAttribute("name");
-						result.addProp(ref, key, val, name, type);
-					}
-				}
-			}
-		}
-		return result;
-	}	
+		getFields(result, clazz.getSuperclass());
+	}
 }

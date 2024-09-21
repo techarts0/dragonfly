@@ -11,10 +11,10 @@ public class WebListener implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent arg) {
 		var context = arg.getServletContext();
 		var classpath = this.getRootClassPath();
-		var xmlOrJson = getCraftConfiguration();
+		var xmlBeans = getCraftConfiguration();
 		var config = classpath.concat("config.properties");
 		var configs = Hotpot.resolveProperties(config);
-		Context.make(classpath, xmlOrJson, configs).cache(context);
+		Context.make(classpath, xmlBeans, configs).cache(context);
 	}
 	
 	private String getRootClassPath() {
@@ -27,9 +27,6 @@ public class WebListener implements ServletContextListener {
 	
 	private String getCraftConfiguration() {
 		var res = getClass().getResource("/beans.xml");
-		if(res == null || res.getPath() == null) {
-			res = getClass().getResource("/beans.json");
-		}
 		if(res == null || res.getPath() == null) {
 			throw new Panic("Failed to get resource path.");
 		}

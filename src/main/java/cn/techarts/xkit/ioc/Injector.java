@@ -3,15 +3,15 @@ package cn.techarts.xkit.ioc;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-
 import javax.inject.Named;
-
 import cn.techarts.xkit.util.Hotpot;
 
 /**
- * A craft(REF, KEY, VAL) needs to be inject into host craft.
+ * A craft(REF, KEY, VAL) needs to be inject into host craft.<p>
+ * REF: 1, KEY: 2, VAL: 3 
  */
 public class Injector {
+	private int __t;
 	//Null means REF
 	private Type type;
 	//Null means VAL
@@ -21,27 +21,30 @@ public class Injector {
 	
 	/**Create a REF object*/
 	public static Injector ref(String ref) {
-		return new Injector(ref);
+		return new Injector(ref, 1);
 	}
 	
 	/**Create a KEY object*/
 	public static Injector key(String key, Class<?> t) {
-		var result = new Injector(key);
+		var result = new Injector(key, 2);
 		result.setType(t != null ? t : Object.class);
 		return result;
 	}
 	
 	/**Create a VAL object*/
 	public static Injector val(Object val) {
-		var result = new Injector();
+		var result = new Injector(3);
 		result.setValue(val);
 		result.setType(val.getClass());
 		return result;
 	}
 	
-	Injector() {}
+	Injector(int __t) {
+		this.__t = __t;
+	}
 	
-	Injector(String name) {
+	Injector(String name, int __t) {
+		this.__t = __t;
 		this.setName(name);
 	}
 	
@@ -58,25 +61,28 @@ public class Injector {
 	}
 	
 	private void  parseAnnotations(Named named, Valued valued, Class<?> clazz) {
-		if(named == null && valued == null) {
-			throw Panic.annotationMissing();
-		}
 		if(named != null && valued != null) {
 			throw Panic.annotationConflicted();
 		}
-		if(valued != null) type = clazz;//NOT A REF
+		if(valued != null) type = clazz;//KEY | VAL
 		setName(clazz.getName(), named, valued);
 	}
 	
 	
 	private void setName(String t, Named n, Valued v) {
 		this.name = t; //Default Name
+		if(n == null && v == null) return; //REF
 		if(v != null) {
 			this.name = v.key();
-			if(v.val().isBlank()) return;
-			value = Hotpot.cast(type, v.val());
+			if(v.val().isBlank()) {
+				this.setInjectType(2);
+			}else {
+				this.setInjectType(3);
+				value = Hotpot.cast(type, v.val());
+			}
 		}else {
 			var tmp = n.value();
+			this.setInjectType(1); //REF
 			if(!tmp.isBlank()) this.name = tmp;
 		}
 	}
@@ -88,37 +94,44 @@ public class Injector {
 		return name;
 	}
 	
-	/**KEY or VALUE, NOT A REF*/
-	public boolean isNotREF() {
-		return this.type != null;
+	public boolean isREF() {
+		return this.__t == 1;
+	}
+	
+	public boolean isKEY() {
+		return this.__t == 2;
+	}
+	
+	public boolean isVAL() {
+		return this.__t == 3;
 	}
 	
 	public Object getValue() {
 		return value;
 	}
-
-	//Convert to the target type firstly
+	
 	public void setValue(Object value) {
-		if(value == null) {
-			if(type == null) return; //REF
-			if(this.value != null) return; //VAL
-			throw Panic.configKeyMissing(name);
-		}
 		//To avoid duplicated setting 
-		if(this.value != null) return;
-		if(type == null) { //REF
+		if(this.value == null) {
 			this.value = value;
-		}else {
-			this.value = Hotpot.cast(value, type);
 		}
 	}
 	
 	public Type getType() {
 		return type;
 	}
+	
+	public void resetValue(Object value) {
+		this.value = value;
+	}
 
 	public void setType(Type type) {
 		this.type = type;
+	}
+	
+	public String getTypeName() {
+		if(type == null) return null;
+		return this.type.getTypeName();
 	}
 	
 	public boolean completed() {
@@ -131,5 +144,28 @@ public class Injector {
 
 	public void setAssembled(boolean assembled) {
 		this.assembled = assembled;
+	}
+	
+	public void setInjectType(int __t) {
+		this.__t = __t;
+	}
+	
+	public static Injector of(String ref, String key, String val, String type) {
+		var result = new Injector(0);
+		if(ref != null && !ref.isEmpty()) {
+			result.setName(ref);
+			result.setInjectType(1);
+		}else if(key != null && !key.isEmpty()) {
+			result.setName(key);
+			result.setInjectType(2);
+		}else if(val != null && !val.isEmpty()) {
+			result.setValue(val);
+			result.setInjectType(3);
+		}
+		if(type != null && !type.isEmpty()) {
+			var ftn = Hotpot.fullTypeName(type);
+			result.setType(Hotpot.forName(ftn));
+		}
+		return result;
 	}
 }

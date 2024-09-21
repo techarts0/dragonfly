@@ -3,49 +3,54 @@ package cn.techarts.xkit.ioc;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
 import javax.inject.Inject;
-
+import cn.techarts.xkit.util.Converter;
 import cn.techarts.xkit.util.Hotpot;
 
 public class Craft {
 	private String name;
+	private String type;
 	private Object instance;
 	private boolean singleton;
 	private boolean assembled;
+	private boolean explictly;
 		
-	/**Injected or default constructor*/
+	/** Injected or default constructor*/
 	private Constructor<?> constructor;
 	
-	/**Constructor Injectors (Arguments)*/
+	/** Injected Constructor Arguments*/
 	private Map<Integer, Injector> arguments;
 	
-	/**Fields Injector(Values)*/
+	/** Injected Fields(Values)*/
 	private Map<Field, Injector> properties;
 	
+	public Craft(String type) {
+		this.type = type;
+		this.explictly = true;
+		this.arguments = new HashMap<>();
+		this.properties = new HashMap<>();	
+		var clazz = Hotpot.forName(type);
+		this.resolveInjectedFields(clazz); //Annotation
+	}
+	
 	/**From Annotation*/
-	public Craft(String name, Class<?> clazz, boolean singleton) {
+	public Craft(String name, Class<?> clazz, boolean singleton, boolean explictly) {
 		this.name = name;
 		this.singleton = singleton;
+		this.explictly = explictly;
 		this.arguments = new HashMap<>();
 		this.properties = new HashMap<>();
 		this.resolveInjectedFields(clazz);
 		this.resolveInjectedContructor(clazz);
 	}
 	
-	/**From JSON file*/
-	public Craft(Element node, Class<?> clazz) {
-		this.name = node.getName();
-		this.singleton = node.isSingleton();
-		this.arguments = new HashMap<>();
-		this.properties = new HashMap<>();
-		
-		//Allows both of annotation and JSON/XML. 
-		resolveInjectedFields(clazz); //Annotation
-		resolveInjectedFields(node.getProps(), clazz);
-		resolveInjectedContructor(node.getArgs(), clazz);
+	public boolean isManaged() {
+		if(explictly) return true;
+		if(!arguments.isEmpty()) {
+			return true;
+		}
+		return !properties.isEmpty();
 	}
 	
 	/**
@@ -62,7 +67,7 @@ public class Craft {
 		for(int i = 0; i < arguments.size(); i++) {
 			var arg = arguments.get(Integer.valueOf(i));
 			if(arg.completed()) continue; //The value set already.
-			if(arg.isNotREF()) {
+			if(arg.isKEY()) {
 				arg.setValue(configs.get(arg.getName()));
 			}else {
 				var craft = crafts.get(arg.getName());
@@ -71,11 +76,16 @@ public class Craft {
 		}
 	}
 	
+	//Set REF and KEY (VAL set already)
 	private void setPropertiesDependences(Map<String, Craft> crafts, Map<String, String> configs) {
 		for(var field : properties.values()) {
 			if(field.completed()) continue; //The value set already.
-			if(field.isNotREF()) {
-				field.setValue(configs.get(field.getName()));
+			if(field.isKEY()) { //Key here
+				var v = configs.get(field.getName());
+				if(v == null) {
+					throw Panic.configKeyMissing(field.getName());
+				}
+				field.setValue(Hotpot.cast(field.getType(), v));
 			}else {
 				var craft = crafts.get(field.getName());
 				if(craft != null) field.setValue(craft.getInstance());
@@ -176,11 +186,42 @@ public class Craft {
 		this.assembled = assembled;
 	}
 	
-	private void resolveInjectedContructor(Class<?> clazz) {
+	public Craft withConstructor() {
+		var clazz = Hotpot.forName(type);
 		var cons = clazz.getConstructors();
 		if(cons == null || cons.length == 0) {
 			throw Panic.noDefaultConstructor(clazz);
 		}
+		for(var c : cons) {
+			var parameterMatched = true;
+			var args = c.getParameters();
+			if(args.length != arguments.size()) continue;
+			
+			for(int i = 0; i < args.length; i++) {
+				var a = args[i].getType().getName();
+				var e = arguments.get(i).getTypeName();
+				if(!Hotpot.compareTypes(a, e)) {
+					parameterMatched = false; break;
+				}
+			}
+			if(parameterMatched) { 
+				this.constructor = c; break;
+			}
+		}
+		
+		if(this.constructor == null) {
+			try { //Default and public constructor
+				this.constructor = clazz.getConstructor();
+			}catch(NoSuchMethodException | SecurityException es) {
+				throw Panic.noDefaultConstructor(clazz, es);
+			}
+		}
+		return this;
+	}
+	
+	private void resolveInjectedContructor(Class<?> clazz) {
+		var cons = clazz.getConstructors();
+		if(cons == null || cons.length == 0) return;
 		
 		for(var c : cons) {
 			if(!c.isAnnotationPresent(Inject.class)) continue;
@@ -195,109 +236,12 @@ public class Craft {
 			break; //Only ONE constructor can be injected
 		}
 		
-		if(this.constructor == null) {
+		if(this.constructor == null && explictly) {
 			try { //Default and public constructor
 				this.constructor = clazz.getConstructor();
 			}catch(NoSuchMethodException | SecurityException es) {
 				throw Panic.noDefaultConstructor(clazz, es);
 			}
-		}
-	}
-	
-	private void resolveInjectedContructor(List<Object> args, Class<?> clazz) {
-		var constructors = clazz.getConstructors();
-		if(constructors == null) {
-			throw Panic.noDefaultConstructor(clazz);
-		}
-		if(args == null || args.isEmpty()) {
-			this.setDefaultConstructor(clazz); return;
-		}
-		
-		for(var c : constructors) {
-			if(constructor != null) break;
-			var params = c.getParameters();
-			if(args.size() != params.length) continue;
-			boolean parameterMatched = true;
-			for(int i = 0; i < params.length; i++) {
-				var a = getType(args.get(i));
-				var e = params[i].getType().getName();
-				if(!Hotpot.compareTypes(a, e)) {//Expect, Actual
-					parameterMatched = false; break;
-				}
-			}
-			if(parameterMatched == false) continue; //Next
-				
-			for(int i = 0; i < params.length; i++) {
-				var t = params[i].getType();
-				arguments.put(i, parse(args.get(i), t));
-			}
-			this.constructor = c; //Cache it for new instance
-		}
-		
-		if(this.constructor == null) setDefaultConstructor(clazz);
-	}
-	
-	private void setDefaultConstructor(Class<?> clazz) {
-		if(this.constructor != null) return;
-		try {
-			this.constructor = clazz.getConstructor();
-		}catch(NoSuchMethodException | SecurityException es) {
-			throw Panic.noDefaultConstructor(clazz, es);
-		}
-	}
-	
-	private void resolveInjectedFields(Map<String, Object> props, Class<?> clazz) {
-		if(clazz == null) return; //Without super class
-		if(props == null || props.isEmpty()) return;
-		var fs = clazz.getDeclaredFields();
-		if(fs != null && fs.length != 0) {
-			for(var f : fs) {
-				var val = props.get(f.getName());
-				if(val == null) continue;
-				properties.put(f, parse(val, f.getType()));
-			}
-		}
-		resolveInjectedFields(props, clazz.getSuperclass());
-	}
-	
-	/** REF:User:cn.techarts.xkit.test.User, or
-	 *  KEY:user.name:String<p>
-	 *  The data type is required in KEY and REF.
-	 */
-	private String getType(Object arg) {
-		if(!(arg instanceof String)) {
-			return arg.getClass().getName();
-		}
-		var tmp = ((String)arg).trim();
-		if(tmp.startsWith("REF:") ||
-		   tmp.startsWith("KEY:")) {
-			var idx = tmp.lastIndexOf(':');
-			if(idx == 3) { //Missing Type
-				throw Panic.typeMissing(tmp);
-			}
-			return tmp.substring(idx + 1);
-		}else {
-			return tmp.getClass().getName();
-		}
-	}
-	
-	private Injector parse(Object arg, Class<?> ft) {
-		if(!(arg instanceof String)) {
-			return Injector.val(arg);
-		}
-		var tmp = ((String)arg).trim();
-		if(tmp.startsWith("REF:")) {
-			var idx = tmp.lastIndexOf(':');
-			if(idx == 3) idx = tmp.length();
-			var val = tmp.substring(4, idx);
-			return Injector.ref(val);
-		}else if(tmp.startsWith("KEY:")) {
-			var idx = tmp.lastIndexOf(':');
-			if(idx == 3) idx = tmp.length();
-			var val = tmp.substring(4, idx);
-			return Injector.key(val, ft);
-		}else { //Default VAL
-			return Injector.val(tmp);
 		}
 	}
 	
@@ -307,10 +251,36 @@ public class Craft {
 		if(fs != null && fs.length != 0) {
 			for(var f : fs) {
 				if(f.isAnnotationPresent(Inject.class)) {
-					properties.put(f, new Injector(f));
+					this.addProperty(f, new Injector(f));
 				}
 			}
 		}
 		resolveInjectedFields(clazz.getSuperclass());
+	}
+
+	public String getType() {
+		return type;
+	}
+
+
+	public void setType(String type) {
+		this.type = type;
+	}
+	
+	public void setSingleton(String singleton) {
+		this.singleton = Converter.toBoolean(singleton);
+	}
+	
+	public void addArgument(int index, Injector arg) {
+		this.arguments.put(index, arg);
+	}
+	
+	public void addProperty(Field field, Injector arg) {
+		if(field == null || arg == null) return;
+		arg.setType(field.getType());
+		this.properties.put(field, arg);
+		var val = arg.getValue();
+		if(val == null) return; 
+		arg.resetValue(Hotpot.cast(val, field.getType()));
 	}
 }

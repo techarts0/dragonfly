@@ -15,6 +15,9 @@ import java.util.Properties;
 import java.util.logging.Logger;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.ibatis.javassist.Modifier;
+
 import cn.techarts.xkit.ioc.Panic;
 
 /**
@@ -49,6 +52,12 @@ public final class Hotpot {
 			return null;
 		}
 		return cast(t, (String)v);
+	}
+	
+	public static boolean newable(Class<?> clazz) {
+		if(clazz.isInterface()) return false;
+		if(clazz.isAnonymousClass()) return false;
+		return !Modifier.isAbstract(clazz.getModifiers());
 	}
 	
 	public static Object cast(Type t, String v) {
@@ -109,7 +118,22 @@ public final class Hotpot {
 		put("java.lang.Character", 8);    put("char",   8);
 		put("java.lang.String",    9);    put("String", 9);
 	}};
+	
+	private static final Map<String, String> SHORTNAMES = new HashMap<>() {
+		private static final long serialVersionUID = 1L;
+
+	{
+		put("int", "java.lang.Integer"); 	put("long", "java.lang.Long");
+		put("float", "java.lang.Float"); 	put("short", "java.lang.Short");
+		put("boolean", "java.lang.Boolean");put("double", "java.lang.Double");
+		put("byte", "java.lang.Byte");		put("char", "java.lang.Character");
+		put("string", "java.lang.String");
+	}};
 			
+	public static String fullTypeName(String type) {
+		var result = SHORTNAMES.get(type.toLowerCase());
+		return result != null ? result : type;
+	}
 	
 	public static boolean isPrimitive(Class<?> clazz) {
 		var name = clazz.getName();
@@ -144,6 +168,14 @@ public final class Hotpot {
 		if(name == null) return false;
 		if(name.startsWith("is")) return true;
 		return name.startsWith("get");
+	}
+	
+	public static Class<?> forName(String clazz){
+		try {
+			return Class.forName(clazz);
+		}catch(ClassNotFoundException e){
+			throw Panic.classNotFound(clazz, e);
+		}
 	}
 	
 	/**
