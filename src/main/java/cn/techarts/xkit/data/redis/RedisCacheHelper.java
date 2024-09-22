@@ -7,12 +7,15 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+
 import cn.techarts.xkit.app.Codec;
 import cn.techarts.xkit.ioc.Valued;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+@Named
 public class RedisCacheHelper implements Closeable{
 	
 	@Inject

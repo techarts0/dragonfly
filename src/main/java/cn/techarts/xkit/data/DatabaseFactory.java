@@ -6,6 +6,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -19,6 +20,7 @@ import cn.techarts.xkit.data.openjpa.OpenJPAExecutor;
 import cn.techarts.xkit.ioc.Valued;
 import cn.techarts.xkit.util.Hotpot;
 
+@Named
 public class DatabaseFactory implements AutoCloseable{
 	@Inject
 	@Valued(key="jdbc.url")

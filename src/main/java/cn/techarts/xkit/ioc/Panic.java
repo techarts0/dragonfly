@@ -32,7 +32,7 @@ public class Panic extends RuntimeException {
 	}
 	
 	public static Panic classNotFound(String name) {
-		return new Panic("Can't find the object with name [" + name + "]");
+		return new Panic("Can't find the managed object with name [" + name + "]");
 	}
 	
 	public static Panic cannotInstance(String name, Throwable e) {
@@ -64,7 +64,7 @@ public class Panic extends RuntimeException {
 	}
 	
 	public static Panic circularDependence(String name) {
-		return new Panic("Circular dependence is not allowed: " + name);
+		return new Panic("Circular dependence is detected: " + name);
 	}
 	
 	public static Panic configKeyMissing(String key) {

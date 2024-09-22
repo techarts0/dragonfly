@@ -53,19 +53,19 @@ public class Factory {
 		}
 	}
 	
-	private void resolveConfigBasedCrafts(String... resources) {
-		if(resources == null || resources.length == 0) return;
-		for(int i = 0; i < resources.length; i++) {
-			this.parseAndResolveXMLCrafts(resources[i]);
+	private void resolveConfigBasedCrafts(String... xmlResources) {
+		if(xmlResources == null || xmlResources.length == 0) return;
+		for(int i = 0; i < xmlResources.length; i++) {
+			this.parseAndResolveXMLCrafts(xmlResources[i]);
 		}
 	}
 	
 	/**
 	 * Support multiple class-paths and XML files.
 	 */
-	public void start(String[] classpaths, String[] resources) {
+	public void start(String[] classpaths, String[] xmlResources) {
 		this.resolveJSR330BasedCrafts(classpaths);
-		this.resolveConfigBasedCrafts(resources);
+		this.resolveConfigBasedCrafts(xmlResources);
 		this.assembleAndInstanceManagedCrafts();
 		LOGGER.info("Assembled " + crafts.size() + " managed objects.");
 	}
@@ -73,9 +73,22 @@ public class Factory {
 	/**
 	 * Just support single class-path and JSON/XML file.
 	 */
-	public void start(String classpath, String resource) {
+	public void start(String classpath, String xmlResource) {
 		this.resolveJSR330BasedCrafts(classpath);
-		this.resolveConfigBasedCrafts(resource);
+		this.resolveConfigBasedCrafts(xmlResource);
+		this.assembleAndInstanceManagedCrafts();
+		LOGGER.info("Assembled " + crafts.size() + " managed objects.");
+	}
+	
+	/**
+	 * Just support single class-path and JSON/XML file.
+	 */
+	public void start(String classpath, String xmlResource, String[] extras) {
+		this.resolveJSR330BasedCrafts(classpath);
+		this.resolveConfigBasedCrafts(xmlResource);
+		if(extras != null && extras.length > 0) {
+			for(var clazz : extras) register(clazz);
+		}
 		this.assembleAndInstanceManagedCrafts();
 		LOGGER.info("Assembled " + crafts.size() + " managed objects.");
 	}
@@ -168,6 +181,7 @@ public class Factory {
 	
 	/**Crafts defined in XML file.*/
 	private void parseAndResolveXMLCrafts(String resource){
+		if(resource == null|| resource.isBlank()) return;
 		try {
 			var factory = DocumentBuilderFactory.newInstance();
 			var stream = new FileInputStream(resource);

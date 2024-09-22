@@ -46,15 +46,14 @@ public class StartupListener implements ServletContextListener {
 	}
 	
 	private void initializeIocContainer(ServletContext context, String classpath, Map<String, String> configs) {
-		var xmlOrJson = getCraftConfiguration();
-		Context.make(classpath, xmlOrJson, configs).cache(context);
+		var xmlResource = getCraftConfiguration();
+		var extras = new String[] {"cn.techarts.xkit.data.DatabaseFactory", 
+							"cn.techarts.xkit.data.redis.RedisCacheHelper"};
+		Context.make(classpath, xmlResource, configs, extras).cache(context);
 	}
 	
 	private String getCraftConfiguration() {
-		var res = getClass().getResource("/beans.json");
-		if(res == null || res.getPath() == null) {
-			res = getClass().getResource("/beans.xml");
-		}
+		var res = getClass().getResource("/beans.xml");
 		if(res == null || res.getPath() == null) {
 			throw new Panic("Failed to get resource path.");
 		}

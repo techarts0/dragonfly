@@ -17,6 +17,7 @@ public class Context implements AutoCloseable{
 		return make(new String[] {base}, new String[] {path}, config);
 	}
 	
+	@Override
 	public void close() {
 		if(crafts == null) return;
 		if(crafts.isEmpty()) return;
@@ -33,32 +34,85 @@ public class Context implements AutoCloseable{
 		}
 	}
 	
-	public static Context make(String[] bases, String[] paths, String config) {
+	/**
+	 * The method will scan multiple class-paths and XML files.
+	 * @param bases The base class-path of packages.
+	 * @param xmlResources The XML beans file paths.
+	 * @param config The configuration file path.
+	 */
+	public static Context make(String[] bases, String[] xmlResources, String config) {
 		var container = new HashMap<String, Craft>(512);
 		var factory = new Factory(container);
 		var configs = Hotpot.resolveProperties(config);
 		factory.setConfigs(configs);
-		factory.start(bases, paths);
+		factory.start(bases, xmlResources);
 		return new Context(container, configs); 
 	}
 	
-	public static Context make(String[] bases, String[] paths, Map<String, String> configs) {
+	/**
+	 * The method will scan multiple class-paths and XML files.
+	 * @param bases The base class-path of packages.
+	 * @param xmlResources The XML beans file paths.
+	 */
+	public static Context make(String[] bases, String[] xmlResources, Map<String, String> configs) {
 		var container = new HashMap<String, Craft>(512);
-		var inventory = new Factory(container);
-		inventory.setConfigs(configs);
-		inventory.start(bases, paths);
+		var factory = new Factory(container);
+		factory.setConfigs(configs);
+		factory.start(bases, xmlResources);
 		return new Context(container, configs); 
 	}
-	
-	/**For test purpose only*/
-	public static Context make(String base, String path, Map<String, String> configs) {
+		
+	/**
+	 * @param base The base class-path of package.
+	 * @param xmlResource The XML beans file path.
+	 */
+	public static Context make(String base, String xmlResource, Map<String, String> configs) {
 		var container = new HashMap<String, Craft>(512);
-		var inventory = new Factory(container);
-		inventory.setConfigs(configs);
-		inventory.start(base, path);
+		var factory = new Factory(container);
+		factory.setConfigs(configs);
+		factory.start(base, xmlResource);
 		return new Context(container, configs); 
 	}
 	
+	/**
+	 * @param base The base class-path of package.
+	 * @param xmlResource The XML beans file path.
+	 */
+	public static Context make(String base, String xmlResource) {
+		var container = new HashMap<String, Craft>(512);
+		var factory = new Factory(container);
+		factory.setConfigs(Map.of());
+		factory.start(base, xmlResource);
+		return new Context(container, Map.of()); 
+	}
+	
+	/**
+	 * @param base The base class-path of package.
+	 */
+	public static Context make(String base) {
+		var container = new HashMap<String, Craft>(512);
+		var factory = new Factory(container);
+		factory.setConfigs(Map.of());
+		factory.start(base, null);
+		return new Context(container, Map.of()); 
+	}
+	
+	/**
+	 * @param base The base class-path of package.
+	 * @param xmlResource The XML beans file path.
+	 * @param extras Extra managed object class names you append manually.
+	 */
+	public static Context make(String base, String xmlResource, Map<String, String> configs, String[] extras) {
+		var container = new HashMap<String, Craft>(512);
+		var factory = new Factory(container);
+		factory.setConfigs(configs);
+		factory.start(base, xmlResource, extras);
+		return new Context(container, configs); 
+	}
+	
+	/**
+	 * Construct an empty context.
+	 */
 	public static Context make() {
 		var container = new HashMap<String, Craft>(128);
 		return new Context(container, new HashMap<>());
@@ -68,6 +122,9 @@ public class Context implements AutoCloseable{
 		return new Context(new HashMap<>(128), configs);
 	}
 	
+	/**
+	 * Retrieve the context from SERVLET context.(Web Application)
+	 */
 	public static Context from(ServletContext context) {
 		var obj = context.getAttribute(NAME);
 		if(obj == null) return null;
@@ -85,14 +142,8 @@ public class Context implements AutoCloseable{
 	 * Get the managed object from the context.
 	 */
 	public <T> T get(String name, Class<T> t) {
-		if(name == null) {
-			throw Panic.nullName();
-		}
-		var bean = crafts.get(name);
-		if(bean == null) {
-			throw Panic.classNotFound(name);
-		}
-		return t.cast(bean.getInstance());
+		var result = get(name);
+		return result != null ? t.cast(result) : null;
 	}
 	
 	/**
@@ -109,6 +160,23 @@ public class Context implements AutoCloseable{
 		return craft.getInstance();
 	}
 	
+	/**
+	 * Get the managed object without qualifier name.
+	 */
+	public<T> T get(Class<T> clazz) {
+		return get(clazz.getName(), clazz);
+	}
+	
+	/**Export the configuration the container held.*/
+	public String getConfig(String key) {
+		if(key == null) return null;
+		if(configs == null) return null;
+		return this.configs.get(key);
+	}
+	
+	/**
+	 * Appended managed object manually without qualifier name.
+	 */
 	public Context bind(Object... beans) {
 		var factory = new Factory(crafts);
 		factory.setConfigs(this.configs);
@@ -116,6 +184,9 @@ public class Context implements AutoCloseable{
 		return this;
 	}
 	
+	/**
+	 * Appended managed object manually without qualifier name.
+	 */
 	public Context bind(Class<?>... beans) {
 		var factory = new Factory(crafts);
 		factory.setConfigs(this.configs);
@@ -123,6 +194,9 @@ public class Context implements AutoCloseable{
 		return this;
 	}
 	
+	/**
+	 * Appended managed object manually without qualifier name.
+	 */
 	public Context bind(String... classes) {
 		var factory = new Factory(crafts);
 		factory.setConfigs(this.configs);
@@ -131,8 +205,7 @@ public class Context implements AutoCloseable{
 	}
 	
 	/**
-	 * Cache the IOC context into  SERVLET context, 
-	 * call the method {@link from} then to retrieve it.
+	 * Cache the IOC context into  SERVLET context.
 	 */
 	public void cache(ServletContext context) {
 		context.setAttribute(NAME, this);

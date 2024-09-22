@@ -15,11 +15,11 @@ import cn.techarts.xkit.data.trans.Isolation;
 public abstract class AbstractService 
 {
 	@Inject
-	@Named("databaseFactory")
+	@Named
 	private DatabaseFactory sqldb = null;
 	
 	@Inject
-	@Named("cacheHelper")
+	@Named
 	private RedisCacheHelper cache = null;
 		
 	/**
