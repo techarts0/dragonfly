@@ -8,7 +8,7 @@ import cn.techarts.xkit.util.Hotpot;
 
 /**
  * A craft(REF, KEY, VAL) needs to be injected into host craft.<p>
- * REF: 1, KEY: 2, VAL: 3 
+ * REF: 1, KEY: 2, VAL: 3, PROVIDER: 4 
  */
 public class Injectee {
 	private int __t;
@@ -17,6 +17,7 @@ public class Injectee {
 	//Null means VAL
 	private String name;
 	private Object value;
+	//Is it a Provider<T>?
 	private boolean assembled;
 	
 	/**Create a REF object*/
@@ -39,6 +40,21 @@ public class Injectee {
 		return result;
 	}
 	
+//	/**Create an interface of Provider*/
+//	public static Injectee prv(String name) {
+//		var result = new Injectee(4);
+//		result.setName(name);
+//		return result;
+//	}
+	
+	/**Create an interface of Provider*/
+	public static Injectee prv(Type t) {
+		var result = new Injectee(4);
+		result.setType(t);
+		result.setName(t.getTypeName());
+		return result;
+	}
+	
 	Injectee(int __t) {
 		this.__t = __t;
 	}
@@ -55,10 +71,6 @@ public class Injectee {
 	}
 	
 	public Injectee(Field f) {
-//		if(Provider.class.isAssignableFrom(f.getType())) {
-//			f.getType().getpa
-//		}
-		
 		var named = f.getAnnotation(Named.class);
 		var valued = f.getAnnotation(Valued.class);
 		parseAnnotations(named, valued, f.getType());
@@ -108,6 +120,11 @@ public class Injectee {
 	
 	public boolean isVAL() {
 		return this.__t == 3;
+	}
+	
+	/**is Provider*/
+	public boolean isPRV() {
+		return this.__t == 4;
 	}
 	
 	public Object getValue() {

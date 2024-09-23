@@ -3,9 +3,13 @@ package cn.techarts.xkit.ioc;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import cn.techarts.xkit.util.Converter;
 import cn.techarts.xkit.util.Hotpot;
 
@@ -73,16 +77,23 @@ public class Craft {
 			if(arg.completed()) continue; //The value set already.
 			if(arg.isKEY()) {
 				arg.setValue(configs.get(arg.getName()));
-			}else {
+			}else if(arg.isREF()){
 				var craft = crafts.get(arg.getName());
 				if(craft != null) arg.setValue(craft.getInstance());
+			}else {	//Provider
+				var craft = crafts.get(arg.getName());
+				if(craft != null) {
+					var type = (Class<?>)arg.getType();
+					arg.setValue(new ProviderImpl<>(type, craft));
+				}
 			}
 		}
 	}
 	
 	//Set REF and KEY (VAL set already)
 	private void setPropertiesDependences(Map<String, Craft> crafts, Map<String, String> configs) {
-		for(var field : properties.values()) {
+		for(var entity : properties.entrySet()) {
+			var field = entity.getValue();
 			if(field.completed()) continue; //The value set already.
 			if(field.isKEY()) { //Key here
 				var v = configs.get(field.getName());
@@ -90,9 +101,15 @@ public class Craft {
 					throw Panic.configKeyMissing(field.getName());
 				}
 				field.setValue(Hotpot.cast(field.getType(), v));
-			}else {
+			}else if(field.isREF()){
 				var craft = crafts.get(field.getName());
 				if(craft != null) field.setValue(craft.getInstance());
+			}else { //Provider
+				var craft = crafts.get(field.getName());
+				if(craft != null) {
+					var type = (Class<?>)getGnericType(entity.getKey());
+					field.setValue(new ProviderImpl<>(type, craft));
+				}
 			}
 		}
 	}
@@ -170,6 +187,19 @@ public class Craft {
 		return this.instance; //Just for chain-style calling
 	}
 	
+	private Type getGnericType(Field f){
+		var gt = f.getGenericType();
+		if(!(gt instanceof ParameterizedType)) return null;
+        var parameterizedType = (ParameterizedType) gt;
+        return parameterizedType.getActualTypeArguments()[0];
+	}
+	
+	private Type getGnericType(Parameter p){
+		var gt = p.getParameterizedType();
+		var parameterizedType = (ParameterizedType) gt;
+        return parameterizedType.getActualTypeArguments()[0];
+	}
+	
 	public boolean isDefaultConstructor() {
 		return arguments == null || arguments.isEmpty();
 	}
@@ -223,6 +253,7 @@ public class Craft {
 		return this;
 	}
 	
+	//TODO Provider
 	private void resolveInjectedContructor(Class<?> clazz) {
 		var cons = clazz.getConstructors();
 		if(cons == null || cons.length == 0) return;
@@ -234,8 +265,14 @@ public class Craft {
 			if(args == null || args.length == 0) break;
 			
 			for(int i = 0; i < args.length; i++) {
-				var arg = new Injectee(args[i]);
-				arguments.put(Integer.valueOf(i), arg);
+				if(!isProvider(args[i])) {
+					var arg = new Injectee(args[i]);
+					arguments.put(Integer.valueOf(i), arg);
+				}else {
+					var type = getGnericType(args[i]);
+					var arg = Injectee.prv(type);
+					arguments.put(Integer.valueOf(i), arg);
+				}
 			}
 			break; //Only ONE constructor can be injected
 		}
@@ -256,10 +293,21 @@ public class Craft {
 			for(var f : fs) {
 				if(f.isAnnotationPresent(Inject.class)) {
 					this.addProperty(f, new Injectee(f));
+				}else if(isProvider(f)) {
+					var type = getGnericType(f);
+					this.addProperty(f, Injectee.prv(type)); 
 				}
 			}
 		}
 		resolveInjectedFields(clazz.getSuperclass());
+	}
+	
+	private boolean isProvider(Field f) {
+		return Provider.class.isAssignableFrom(f.getType());
+	}
+	
+	private boolean isProvider(Parameter p) {
+		return Provider.class.isAssignableFrom(p.getType());
 	}
 
 	public String getType() {

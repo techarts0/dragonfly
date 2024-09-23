@@ -20,6 +20,7 @@ public class Factory {
 	private Map<String, Craft> crafts;
 	private Map<String, Craft> material;
 	private Map<String, String> configs;
+	
 	private static final Logger LOGGER = Hotpot.getLogger();
 	
 	public Factory(Map<String, Craft> container) {
@@ -224,6 +225,8 @@ public class Factory {
 		}
 		this.assembleAndInstanceManagedCrafts();
 	}
+	
+	
 	
 	private String dump() {
 		var result = new StringBuilder();

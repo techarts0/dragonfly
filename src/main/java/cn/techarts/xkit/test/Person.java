@@ -2,6 +2,7 @@ package cn.techarts.xkit.test;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
 @Singleton
@@ -9,11 +10,12 @@ public class Person {
 	private int id;
 	private String name;
 	
-	@Inject
-	@Named
 	private Mobile mobile;
 	
-	public Person() {}
+	@Inject
+	public Person(Provider<Mobile> mobile) {
+		this.mobile = mobile.get();
+	}
 
 	public int getId() {
 		return id;
@@ -34,9 +36,4 @@ public class Person {
 	public Mobile getMobile() {
 		return mobile;
 	}
-
-	public void setMobile(Mobile mobile) {
-		this.mobile = mobile;
-	}
-
 }
