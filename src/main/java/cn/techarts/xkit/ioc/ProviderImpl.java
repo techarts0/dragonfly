@@ -4,24 +4,21 @@ import javax.inject.Provider;
 
 public class ProviderImpl<T> implements Provider<T> {
 	
+	private Craft bean = null;
 	private Class<T> clazz = null;
-	private Craft dependence = null;
+	
 	
 	public ProviderImpl(){}
 	
-	public ProviderImpl(Class<T> clazz, Craft dependence) {
+	public ProviderImpl(Class<T> clazz, Craft bean) {
+		this.bean = bean;
 		this.clazz = clazz;
-		this.dependence = dependence;
-	}
-	
-	public void setDependence(Craft dependence) {
-		this.dependence = dependence;
 	}
 	
 	@Override
 	public T get() {
-		if(dependence == null) return null;
-		if(!dependence.isAssembled()) return null;
-		return clazz.cast(dependence.getInstance());
+		if(bean == null) return null;
+		if(!bean.isAssembled()) return null;
+		return clazz.cast(bean.getInstance());
 	}
 }
