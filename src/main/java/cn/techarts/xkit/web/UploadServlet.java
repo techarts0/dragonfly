@@ -2,7 +2,6 @@ package cn.techarts.xkit.web;
 
 import java.io.IOException;
 import java.util.logging.Logger;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -13,7 +12,7 @@ import cn.techarts.xkit.app.UploadHandler;
 import cn.techarts.xkit.ioc.Context;
 import cn.techarts.xkit.util.Hotpot;
 
-@WebServlet("/file/upload")
+@WebServlet("/ws/file/upload")
 @MultipartConfig(maxFileSize = 1024 * 1024 * 128)
 public class UploadServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -26,9 +25,8 @@ public class UploadServlet extends HttpServlet {
         if (ct == null || !ct.startsWith(CT_MULTIPART)) {
             throw new ServletException("Unsupported content type: " + ct);
         }
-		
 		var ctx = Context.from(request.getServletContext());
-		var handler = ctx.get("fileUploadHandler", UploadHandler.class);
+		var handler = ctx.get(UploadHandler.class);
 		if(handler == null) {
 			throw new ServletException("Can not find file upload handler.");
 		}

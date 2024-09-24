@@ -11,8 +11,8 @@ public class WebListener implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent arg) {
 		var context = arg.getServletContext();
 		var classpath = this.getRootClassPath();
-		var xmlBeans = getCraftConfiguration();
-		var config = classpath.concat("config.properties");
+		var xmlBeans = getResourcePath("beans.xml");
+		var config = getResourcePath("config.properties");
 		var configs = Hotpot.resolveProperties(config);
 		Context.make(classpath, xmlBeans, configs).cache(context);
 	}
@@ -25,12 +25,12 @@ public class WebListener implements ServletContextListener {
 		return result.getPath();
 	}
 	
-	private String getCraftConfiguration() {
-		var res = getClass().getResource("/beans.xml");
-		if(res == null || res.getPath() == null) {
-			throw new Panic("Failed to get resource path.");
-		}
-		return res.getPath();
+	private String getResourcePath(String resource) {
+		var result = getClass().getResource("/".concat(resource));
+		if(result != null && result.getPath() != null) return result.getPath();
+		result = getClass().getResource("/WEB-INF/".concat(resource));
+		if(result != null && result.getPath() != null) return result.getPath();
+		throw new Panic("Failed to find the resource: [" + resource + "]");
 	}
 	
 	@Override

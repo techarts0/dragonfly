@@ -10,13 +10,15 @@ import javax.inject.Named;
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.web.WebService;
 import jakarta.persistence.Entity;
-
-public class PackageScanner {
+/**
+ * Scann the packages under the given base class-path.
+ */
+public class Scanner {
 	private String base;
 	private String pkg;
 	private static final Logger LOGGER = Hotpot.getLogger();
 	
-	public PackageScanner(String base, String pkg) {
+	public Scanner(String base, String pkg) {
 		this.pkg = pkg;
 		this.base = base;
 	}

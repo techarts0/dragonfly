@@ -6,7 +6,7 @@ import org.apache.openjpa.persistence.PersistenceUnitInfoImpl;
 import com.zaxxer.hikari.HikariConfig;
 import cn.techarts.xkit.data.SafeDataSource;
 import cn.techarts.xkit.ioc.Panic;
-import cn.techarts.xkit.util.PackageScanner;
+import cn.techarts.xkit.util.Scanner;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.spi.PersistenceUnitTransactionType;
@@ -23,7 +23,7 @@ public class JPASessionFactory {
 		pui.setTransactionType(PersistenceUnitTransactionType.RESOURCE_LOCAL);
 		
 		var base = this.getRootClassPath();
-		var scanner = new PackageScanner(base, pkg);
+		var scanner = new Scanner(base, pkg);
 		var managedClasses = scanner.scanJPAEntities();
 		managedClasses.forEach(mc->pui.addManagedClassName(mc));
 		
@@ -52,8 +52,6 @@ public class JPASessionFactory {
 	
 	private SafeDataSource prepareDataSource(String driver, String url, String user, String token, int maxPoolSize) {
 		var config = new HikariConfig();
-		//Default: Transaction Enabled
-		//config.setAutoCommit(false);
 		var pw = SafeDataSource.decrypt(token);
 		if(driver.contains("Driver")) {
 			config.setJdbcUrl(url);

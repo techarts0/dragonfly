@@ -9,7 +9,7 @@ import cn.techarts.xkit.ioc.Context;
 import cn.techarts.xkit.ioc.Panic;
 import cn.techarts.xkit.util.Converter;
 import cn.techarts.xkit.util.Hotpot;
-import cn.techarts.xkit.util.PackageScanner;
+import cn.techarts.xkit.util.Scanner;
 
 public class StartupListener implements ServletContextListener {
 	public static final String CONFIG_PATH = "contextConfigLocation";
@@ -18,7 +18,7 @@ public class StartupListener implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent arg) {
 		var context = arg.getServletContext();
 		var classpath = this.getRootClassPath();
-		var config = classpath.concat("config.properties");
+		var config = getResourcePath("config.properties");
 		var configs = Hotpot.resolveProperties(config);
 		initializeIocContainer(context, classpath, configs);
 		initSessionSettings(this.getSessionConfig(configs));
@@ -39,25 +39,25 @@ public class StartupListener implements ServletContextListener {
 	
 	private String getRootClassPath() {
 		var result = getClass().getResource("/");
-		if(result == null || result.getPath() == null) {
-			throw new Panic("Failed to get resource path.");
+		if(result == null || result.getPath() == null){
+			throw new Panic("Failed to get class path.");
 		}
 		return result.getPath();
 	}
 	
+	private String getResourcePath(String resource) {
+		var result = getClass().getResource("/".concat(resource));
+		if(result != null && result.getPath() != null) return result.getPath();
+		result = getClass().getResource("/WEB-INF/".concat(resource));
+		if(result != null && result.getPath() != null) return result.getPath();
+		throw new Panic("Failed to find the resource: [" + resource + "]");
+	}
+	
 	private void initializeIocContainer(ServletContext context, String classpath, Map<String, String> configs) {
-		var xmlResource = getCraftConfiguration();
+		var xmlResource = getResourcePath("beans.xml");
 		var extras = new String[] {"cn.techarts.xkit.data.DatabaseFactory", 
 							"cn.techarts.xkit.data.redis.RedisCacheHelper"};
 		Context.make(classpath, xmlResource, configs, extras).cache(context);
-	}
-	
-	private String getCraftConfiguration() {
-		var res = getClass().getResource("/beans.xml");
-		if(res == null || res.getPath() == null) {
-			throw new Panic("Failed to get resource path.");
-		}
-		return res.getPath();
 	}
 	
 	@Override
@@ -85,7 +85,7 @@ public class StartupListener implements ServletContextListener {
 	
 	private void loadAllWebServices(ServletContext context, String pkg) {
 		var root = this.getRootClassPath();
-		var scanner = new PackageScanner(root, pkg);
+		var scanner = new Scanner(root, pkg);
 		var services = scanner.scanWebServices();
 		//There is not any service need to be exported
 		if(services == null || services.isEmpty()) return;
