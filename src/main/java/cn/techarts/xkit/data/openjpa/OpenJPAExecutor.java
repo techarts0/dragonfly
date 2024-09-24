@@ -180,7 +180,7 @@ public class OpenJPAExecutor extends ParameterHelper implements DataHelper {
 	}
 
 	@Override
-	public void close() throws DataException {
+	public void commit() throws DataException {
 		try {
 			var conn = getConnection();
 			if(!conn.getAutoCommit()) {

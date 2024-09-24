@@ -53,7 +53,7 @@ public abstract class AbstractService
 	 * 2. Close the connection. <br>
 	 * 3. Remove the connection from LocalThread.
 	 */
-	protected void closeConnection() {
+	protected void commitTransaction() {
 		this.sqldb.closeExecutor();
 	}
 	

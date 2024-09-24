@@ -96,7 +96,7 @@ public class DbutilsExecutor implements DataHelper {
 	}
 
 	@Override
-	public void close() throws DataException {
+	public void commit() throws DataException {
 		try {
 			if(!connection.getAutoCommit()) {
 				connection.commit();

@@ -178,7 +178,7 @@ public class MybatisExecutor implements DataHelper {
 	}
 
 	@Override
-	public void close() throws DataException {
+	public void commit() throws DataException {
 		try {
 			var conn = getConnection();
 			if(conn == null) return;

@@ -1,10 +1,9 @@
 package cn.techarts.xkit.data;
 
 import java.util.List;
+import cn.techarts.xkit.data.trans.TransactionManager;
 
-import cn.techarts.xkit.data.trans.Isolation;
-
-public interface DataHelper{
+public interface DataHelper extends TransactionManager{
 	
 	/**
 	 * Returns the native executor what dependents on the under-lay framework.<p>
@@ -34,15 +33,4 @@ public interface DataHelper{
 	
 	/**Get all results which matched the specified conditions*/
 	public<T> List<T> get(Class<T> t, Object parameter, String... statement) throws DataException;
-	
-	
-	//Start a transaction
-	public void begin(Isolation isolation, boolean readonly) throws DataException;
-	
-	//Roll-back the transaction if failed
-	public void rollback() throws DataException;
-	
-	//Commit transaction and close the connection
-	public void close() throws DataException;
-	
 }

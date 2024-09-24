@@ -150,7 +150,7 @@ public class DatabaseFactory implements AutoCloseable{
 	public void closeExecutor() {
 		var current = threadLocal.get();
 		if(current != null) {
-			current.close();
+			current.commit();
 			threadLocal.remove();
 		}
 		LOGGER.info("Closed the connection wrapped in: " + current);

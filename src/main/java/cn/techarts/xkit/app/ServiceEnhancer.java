@@ -68,7 +68,7 @@ public class ServiceEnhancer {
 		LOGGER.info("Enhanced the service class: " + service.getName());
 	}
 	
-	private static final String SRC_COMMIT = "super.closeConnection();";
+	private static final String SRC_COMMIT = "super.commitTransaction();";
 	private static final String SRC_ROLL = "super.rollbackTransaction(); throw e;";
 	private static final Class<DataException> DATA_EX = DataException.class;
 	
