@@ -40,15 +40,8 @@ public class Injectee {
 		return result;
 	}
 	
-//	/**Create an interface of Provider*/
-//	public static Injectee prv(String name) {
-//		var result = new Injectee(4);
-//		result.setName(name);
-//		return result;
-//	}
-	
 	/**Create an interface of Provider*/
-	public static Injectee prv(Type t) {
+	public static Injectee provider(Type t) {
 		var result = new Injectee(4);
 		result.setType(t);
 		result.setName(t.getTypeName());

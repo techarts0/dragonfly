@@ -17,6 +17,8 @@ import org.w3c.dom.NodeList;
 import cn.techarts.xkit.util.Hotpot;
 
 public class Factory {
+	
+	private boolean launched = false;
 	private Map<String, Craft> crafts;
 	private Map<String, Craft> material;
 	private Map<String, String> configs;
@@ -62,78 +64,108 @@ public class Factory {
 	}
 	
 	/**
-	 * Support multiple class-paths and XML files.
+	 * Support multiple class-paths and XML files.</p>
+	 * <b>IMPORTANT: The method can only be called ONCE!</b>
 	 */
 	public void start(String[] classpaths, String[] xmlResources) {
+		if(this.launched) {
+			throw Panic.factoryInitialized();
+		}
 		this.resolveJSR330BasedCrafts(classpaths);
 		this.resolveConfigBasedCrafts(xmlResources);
 		this.assembleAndInstanceManagedCrafts();
+		this.launched = true; //The method can only be called ONCE.
 		LOGGER.info("Assembled " + crafts.size() + " managed objects.");
 	}
 	
 	/**
-	 * Just support single class-path and JSON/XML file.
+	 * Just support single class-path and XML file.<p>
+	 * <b>IMPORTANT: The method can only be called ONCE!</b>
 	 */
 	public void start(String classpath, String xmlResource) {
+		if(this.launched) {
+			throw Panic.factoryInitialized();
+		}
 		this.resolveJSR330BasedCrafts(classpath);
 		this.resolveConfigBasedCrafts(xmlResource);
 		this.assembleAndInstanceManagedCrafts();
+		this.launched = true; //The method can only be called ONCE.
 		LOGGER.info("Assembled " + crafts.size() + " managed objects.");
 	}
 	
 	/**
-	 * Just support single class-path and JSON/XML file.
+	 * Just support single class-path and XML file.</p>
+	 * <b>IMPORTANT: The method can only be called ONCE!</b>
 	 */
 	public void start(String classpath, String xmlResource, String[] extras) {
+		if(this.launched) {
+			throw Panic.factoryInitialized();
+		}
 		this.resolveJSR330BasedCrafts(classpath);
 		this.resolveConfigBasedCrafts(xmlResource);
 		if(extras != null && extras.length > 0) {
 			for(var clazz : extras) register(clazz);
 		}
 		this.assembleAndInstanceManagedCrafts();
+		this.launched = true; //The method can only be called ONCE.
+		LOGGER.info("Assembled " + crafts.size() + " managed objects.");
+	}
+	
+	/**
+	 * Just support to bind managed beans manually.</p>
+	 * <b>IMPORTANT: The method can only be called ONCE!</b>
+	 */
+	public void start() {
+		if(this.launched) {
+			throw Panic.factoryInitialized();
+		}
+		this.assembleAndInstanceManagedCrafts();
+		this.launched = true; //The method can only be called ONCE.
 		LOGGER.info("Assembled " + crafts.size() + " managed objects.");
 	}
 	
 	/**
 	 * Append a managed bean instance into IOC container.
 	 */
-	public void bind(Object... beans) {
-		if(beans == null) return;
-		if(beans.length == 0) return;
+	public Factory bind(Object... beans) {
+		if(beans == null) return this;
+		if(beans.length == 0) return this;
 		for(var bean : beans) {
 			if(bean != null) {
 				this.register(bean);
 			}
 		}
-		assembleAndInstanceManagedCrafts();
+		return this;
+		//assembleAndInstanceManagedCrafts();
 	}
 	
 	/**
 	 * Append a managed bean into IOC container by class.
 	 */
-	public void bind(Class<?>... beans) {
-		if(beans == null) return;
-		if(beans.length == 0) return;
+	public Factory bind(Class<?>... beans) {
+		if(beans == null) return this;
+		if(beans.length == 0) return this;
 		for(var bean : beans) {
 			if(bean != null) {
 				this.register(bean);
 			}
 		}
-		assembleAndInstanceManagedCrafts();
+		return this;
 	}
 	
 	/**
 	 * Append a managed bean into IOC container by class name.
 	 */
-	public void bind(String... classes) {
-		if(classes == null) return;
-		if(classes.length == 0) return;
+	public Factory bind(String... classes) {
+		if(classes == null) return this;
+		if(classes.length == 0) return this;
 		for(var clazz : classes) {
 			if(clazz != null) {
 				this.register(clazz);
 			}
 		}
-		assembleAndInstanceManagedCrafts();
+		return this;
+		//assembleAndInstanceManagedCrafts();
 	}
 	
 	public void register(String clzz) {
@@ -207,12 +239,13 @@ public class Factory {
 		classes.forEach(clazz->this.register(clazz));
 	}
 	
+	//Lazy???
 	private void assembleAndInstanceManagedCrafts() {
 		var start = material.size();
 		if(start == 0) return; //Assemble Completed
 		for(var entry : material.entrySet()) {
 			var craft = entry.getValue();
-			craft.inject(crafts, configs);
+			craft.inject(crafts, material, configs);
 			craft.instance().assemble();
 			if(craft.isAssembled()) {
 				var key = entry.getKey();
@@ -225,8 +258,6 @@ public class Factory {
 		}
 		this.assembleAndInstanceManagedCrafts();
 	}
-	
-	
 	
 	private String dump() {
 		var result = new StringBuilder();

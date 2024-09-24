@@ -90,4 +90,8 @@ public class Panic extends RuntimeException {
 	public static Panic typeMissing(String arg) {
 		return new Panic("The constructor parameter type is required: " + arg);
 	}
+	
+	public static Panic factoryInitialized() {
+		return new Panic("The method Factory.start() can only be called ONCE.");
+	}
 }

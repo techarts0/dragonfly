@@ -175,33 +175,12 @@ public class Context implements AutoCloseable{
 	}
 	
 	/**
-	 * Appended managed object manually without qualifier name.
+	 * Create a bean factory to bind beans manually.
 	 */
-	public Context bind(Object... beans) {
-		var factory = new Factory(crafts);
-		factory.setConfigs(this.configs);
-		factory.bind(beans);
-		return this;
-	}
-	
-	/**
-	 * Appended managed object manually without qualifier name.
-	 */
-	public Context bind(Class<?>... beans) {
-		var factory = new Factory(crafts);
-		factory.setConfigs(this.configs);
-		factory.bind(beans);
-		return this;
-	}
-	
-	/**
-	 * Appended managed object manually without qualifier name.
-	 */
-	public Context bind(String... classes) {
-		var factory = new Factory(crafts);
-		factory.setConfigs(this.configs);
-		factory.bind(classes);
-		return this;
+	public Factory createFactory() {
+		var result = new Factory(crafts);
+		result.setConfigs(configs);
+		return result;
 	}
 	
 	/**

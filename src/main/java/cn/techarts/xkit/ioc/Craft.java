@@ -64,13 +64,13 @@ public class Craft {
 	/**
 	 * Set dependent crafts (REF, KEY and VAL) before assembling.
 	 */
-	public void inject(Map<String, Craft> crafts, Map<String, String> configs) {
-		setConstructorDependences(crafts, configs);
-		setPropertiesDependences(crafts, configs);
+	public void inject(Map<String, Craft> crafts, Map<String, Craft> materials, Map<String, String> configs) {
+		setConstructorDependences(crafts, materials, configs);
+		setPropertiesDependences(crafts, materials, configs);
 	}
 	
 	//If the instance is not NULL, that means the craft is assembled successfully.
-	private void setConstructorDependences(Map<String, Craft> crafts, Map<String, String> configs) {
+	private void setConstructorDependences(Map<String, Craft> crafts, Map<String, Craft> materials, Map<String, String> configs) {
 		if(instance != null) return; //Set dependences completed
 		for(int i = 0; i < arguments.size(); i++) {
 			var arg = arguments.get(Integer.valueOf(i));
@@ -82,6 +82,9 @@ public class Craft {
 				if(craft != null) arg.setValue(craft.getInstance());
 			}else {	//Provider
 				var craft = crafts.get(arg.getName());
+				if(craft == null) { //Circular dependence
+					craft = materials.get(arg.getName());
+				}
 				if(craft != null) {
 					var type = (Class<?>)arg.getType();
 					arg.setValue(new ProviderImpl<>(type, craft));
@@ -91,7 +94,7 @@ public class Craft {
 	}
 	
 	//Set REF and KEY (VAL set already)
-	private void setPropertiesDependences(Map<String, Craft> crafts, Map<String, String> configs) {
+	private void setPropertiesDependences(Map<String, Craft> crafts, Map<String, Craft> materials, Map<String, String> configs) {
 		for(var entity : properties.entrySet()) {
 			var field = entity.getValue();
 			if(field.completed()) continue; //The value set already.
@@ -106,6 +109,9 @@ public class Craft {
 				if(craft != null) field.setValue(craft.getInstance());
 			}else { //Provider
 				var craft = crafts.get(field.getName());
+				if(craft == null) {
+					craft = materials.get(field.getName());
+				}
 				if(craft != null) {
 					var type = (Class<?>)getGnericType(entity.getKey());
 					field.setValue(new ProviderImpl<>(type, craft));
@@ -136,6 +142,11 @@ public class Craft {
 		for(int i = 0; i < len; i++) {
 			var key = Integer.valueOf(i);
 			var arg = arguments.get(key);
+			if(arg == null) return null;
+//			if(arg.isPRV()) {
+//				arg.
+//			}
+			
 			if(!arg.completed()) return null;
 			result[i] = arg.getValue();
 		}
@@ -270,7 +281,7 @@ public class Craft {
 					arguments.put(Integer.valueOf(i), arg);
 				}else {
 					var type = getGnericType(args[i]);
-					var arg = Injectee.prv(type);
+					var arg = Injectee.provider(type);
 					arguments.put(Integer.valueOf(i), arg);
 				}
 			}
@@ -295,7 +306,7 @@ public class Craft {
 					this.addProperty(f, new Injectee(f));
 				}else if(isProvider(f)) {
 					var type = getGnericType(f);
-					this.addProperty(f, Injectee.prv(type)); 
+					addProperty(f, Injectee.provider(type)); 
 				}
 			}
 		}

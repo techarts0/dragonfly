@@ -5,7 +5,7 @@ import javax.inject.Singleton;
 
 @Singleton
 public class Office {
-	private int id;
+	private int id = 22;
 	private String building;
 	private Provider<Mobile> mobile;
 	
@@ -13,5 +13,13 @@ public class Office {
 	
 	public Mobile getMobile() {
 		return mobile.get();
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 }
