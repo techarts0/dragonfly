@@ -11,7 +11,7 @@ public class IocTest {
 	
 	//@Test
 	public void testDiContainer() {
-		var ctx = Context.make(BASE, XML, Map.of("zone", "+86", "user.id", "45"));
+		var ctx = Context.make(BASE, XML, Map.of("zone", "+86", "user.id", "45", "build.name", "Library"));
 		var p = ctx.get("person", Person.class);
 		var m = p.getMobile();
 		TestCase.assertEquals(p.getId(), 45);
@@ -22,17 +22,22 @@ public class IocTest {
 	
 	@Test
 	public void testProvider() {
-		var ctx = Context.make(Map.of("zone", "+86", "user.id", "45"));
+		var ctx = Context.make(Map.of("zone", "+86", "user.id", "45", "build.name", "Library"));
 		
 		var factory = ctx.createFactory();
 		factory.bind(Person.class).bind(Mobile.class).bind(Office.class).start();
 		
 		var p = ctx.get(Person.class);
-		var m = p.getMobile();
+		var m = ctx.get(Mobile.class);
+		var o = ctx.get(Office.class);
+		
 		TestCase.assertEquals("+86", m.getZone());
 		TestCase.assertEquals(45, m.getContact().getId());
 		TestCase.assertEquals(22, p.getOffice().getId());
-		var om = ctx.get(Office.class).getMobile();
-		TestCase.assertEquals("13980092699", om.getNumber());
+		TestCase.assertEquals("+86", p.getOffice().getMobile().getZone());
+		TestCase.assertEquals("13980092699", o.getMobile().getNumber());
+		TestCase.assertEquals("Library", p.getOffice().getBuilding());
+		TestCase.assertEquals("+86", p.getOffice().getMobile().getZone());
+		TestCase.assertEquals("+86", o.getAdmin().getMobile().getZone());
 	}
 }

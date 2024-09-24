@@ -1,7 +1,6 @@
 package cn.techarts.xkit.ioc;
 
 import javax.inject.Provider;
-import java.lang.reflect.*;
 
 public class ProviderImpl<T> implements Provider<T> {
 	
@@ -23,6 +22,6 @@ public class ProviderImpl<T> implements Provider<T> {
 	public T get() {
 		if(dependence == null) return null;
 		if(!dependence.isAssembled()) return null;
-		return clazz.cast(dependence.instance().getInstance());
+		return clazz.cast(dependence.getInstance());
 	}
 }

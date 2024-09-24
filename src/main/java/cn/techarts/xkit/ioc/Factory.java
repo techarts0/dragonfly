@@ -246,7 +246,7 @@ public class Factory {
 		for(var entry : material.entrySet()) {
 			var craft = entry.getValue();
 			craft.inject(crafts, material, configs);
-			craft.instance().assemble();
+			craft.construct().assemble().execute();
 			if(craft.isAssembled()) {
 				var key = entry.getKey();
 				this.crafts.put(key, craft);
@@ -315,6 +315,7 @@ public class Factory {
 		result.setSingleton(craft.getAttribute("singleton"));
 		parseArgs(craft.getElementsByTagName("args"), result);
 		parseProps(craft.getElementsByTagName("props"), result);
+		//TODO injected methods in xml??
 		return result.withConstructor();
 	}
 	

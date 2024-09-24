@@ -33,13 +33,17 @@ public class Craft {
 	/** Injected Methods(setter or)*/
 	private Map<Method, Injectee[]> methods;
 	
+	/**From XML Declaration*/
 	public Craft(String type) {
 		this.type = type;
 		this.explicitly = true;
+		this.methods = new HashMap<>();
 		this.arguments = new HashMap<>();
 		this.properties = new HashMap<>();	
 		var clazz = Hotpot.forName(type);
-		this.resolveInjectedFields(clazz); //Annotation
+		//Mixed Injection: By Annotation
+		this.resolveInjectedFields(clazz);
+		this.resoveInjectedMethods(clazz);
 	}
 	
 	/**From Annotation*/
@@ -47,9 +51,11 @@ public class Craft {
 		this.name = name;
 		this.singleton = singleton;
 		this.explicitly = explicitly;
+		this.methods = new HashMap<>();
 		this.arguments = new HashMap<>();
 		this.properties = new HashMap<>();
 		this.resolveInjectedFields(clazz);
+		this.resoveInjectedMethods(clazz);
 		this.resolveInjectedContructor(clazz);
 	}
 	
@@ -62,10 +68,11 @@ public class Craft {
 	}
 	
 	/**
-	 * Set dependent crafts (REF, KEY and VAL) before assembling.
+	 * Set dependent crafts (REF, KEY, VAL, PROVIDER) before assembling.
 	 */
 	public void inject(Map<String, Craft> crafts, Map<String, Craft> materials, Map<String, String> configs) {
 		setConstructorDependences(crafts, materials, configs);
+		setMethodsDependences(crafts, materials, configs);
 		setPropertiesDependences(crafts, materials, configs);
 	}
 	
@@ -88,6 +95,31 @@ public class Craft {
 				if(craft != null) {
 					var type = (Class<?>)arg.getType();
 					arg.setValue(new ProviderImpl<>(type, craft));
+				}
+			}
+		}
+	}
+		
+	private void setMethodsDependences(Map<String, Craft> crafts, Map<String, Craft> materials, Map<String, String> configs) {
+		for(var entity : methods.entrySet()) {
+			var args = entity.getValue();
+			if(args.length == 0) continue;
+			for(var arg : args) {
+				if(arg.completed()) continue;
+				if(arg.isKEY()) {
+					arg.setValue(configs.get(arg.getName()));
+				}else if(arg.isREF()){
+					var craft = crafts.get(arg.getName());
+					if(craft != null) arg.setValue(craft.getInstance());
+				}else {	//Provider
+					var craft = crafts.get(arg.getName());
+					if(craft == null) { //Circular dependence
+						craft = materials.get(arg.getName());
+					}
+					if(craft != null) {
+						var type = (Class<?>)arg.getType();
+						arg.setValue(new ProviderImpl<>(type, craft));
+					}
 				}
 			}
 		}
@@ -132,10 +164,13 @@ public class Craft {
 		if(singleton) {
 			return instance;
 		}else {
-			return instance().assemble();
+			return construct()
+				   .assemble()
+				   .execute();
 		}
 	}
 	
+	//Constructor Parameters
 	private Object[] toParameters() {
 		var len = arguments.size();
 		var result = new Object[len];
@@ -143,20 +178,28 @@ public class Craft {
 			var key = Integer.valueOf(i);
 			var arg = arguments.get(key);
 			if(arg == null) return null;
-//			if(arg.isPRV()) {
-//				arg.
-//			}
-			
 			if(!arg.completed()) return null;
 			result[i] = arg.getValue();
 		}
 		return result;
 	}
 	
+	//Method parameters
+	private Object[] toParameters(Method m) {
+		var args = this.methods.get(m);
+		if(args.length == 0) return new Object[0];
+		var result = new Object[args.length];
+		for(int i = 0; i < args.length; i++) {
+			result[i] = args[i].getValue();
+			if(result[i] == null) return null;
+		}
+		return result;
+	}
+	
 	/**
-	 * Create an instance but the fields are not injected.
+	 * Execute the constructor but the fields and methods are not injected.
 	 */
-	public Craft instance() {
+	public Craft construct() {
 		if(instance != null && singleton) return this;
 		try {
 			if(isDefaultConstructor()) {
@@ -174,9 +217,12 @@ public class Craft {
 		}
 	}
 	
-	public Object assemble() {
-		if(this.assembled) return instance;
-		if(instance == null) return null; //Waiting...
+	/**
+	 * Set value to injected fields.
+	 */
+	public Craft assemble() {
+		if(this.assembled) return this;
+		if(instance == null) return this; //Waiting...
 		this.assembled = true; //Suppose Completed
 		for(var entry : properties.entrySet()) {
 			var arg = entry.getValue();
@@ -195,7 +241,24 @@ public class Craft {
 				throw Panic.cannotSetFieldValue(e);
 			}
 		}
-		return this.instance; //Just for chain-style calling
+		return this; //Just for chain-style calling
+	}
+	
+	/**
+	 * Execute injected methods.
+	 */
+	public Object execute() {
+		if(instance == null) return null; //Waiting...
+		for(var entry : methods.entrySet()) {
+			var params = toParameters(entry.getKey());
+			if(params == null) continue; //Waiting...
+			try {
+				entry.getKey().invoke(instance, params);
+			}catch(Exception e) {
+				throw Panic.cannotInvoke(name, e);
+			}
+		}
+		return this.instance; //Constructed, assembled, executed.
 	}
 	
 	private Type getGnericType(Field f){
@@ -297,6 +360,32 @@ public class Craft {
 		}
 	}
 	
+	private void resoveInjectedMethods(Class<?> clazz) {
+		if(clazz == null) return;
+		var ms = clazz.getDeclaredMethods();
+		if(ms != null && ms.length != 0) {
+			for(var m : ms) {
+				if(!m.isAnnotationPresent(Inject.class)) continue;
+				var args = m.getParameters();
+				if(args == null || args.length == 0) {
+					this.methods.put(m, new Injectee[0]);
+				}else {
+					var params = new Injectee[args.length];
+					for(int i = 0; i < args.length; i++) {
+						if(!isProvider(args[i])) {
+							params[i] = new Injectee(args[i]);
+						}else {
+							var type = getGnericType(args[i]);
+							params[i] = Injectee.provider(type);
+						}
+						this.methods.put(m, params); 
+					}
+				}
+			}
+		}
+		this.resoveInjectedMethods(clazz.getSuperclass());
+	}
+	
 	private void resolveInjectedFields(Class<?> clazz) {
 		if(clazz == null) return;
 		var fs = clazz.getDeclaredFields();
@@ -320,7 +409,7 @@ public class Craft {
 	private boolean isProvider(Parameter p) {
 		return Provider.class.isAssignableFrom(p.getType());
 	}
-
+	
 	public String getType() {
 		return type;
 	}

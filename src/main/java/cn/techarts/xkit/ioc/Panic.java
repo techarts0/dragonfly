@@ -39,6 +39,10 @@ public class Panic extends RuntimeException {
 		return new Panic("Failed to call the constructor of [" + name + "]", e);
 	}
 	
+	public static Panic cannotInvoke(String name, Throwable e) {
+		return new Panic("Failed to invoke the method [" + name + "]", e);
+	}
+	
 	public static Panic noQualifier(String name) {
 		return new Panic("You must qualify the constructor parameter[" + name + "]");
 	}
