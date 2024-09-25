@@ -62,6 +62,30 @@ public class Factory {
 	}
 	
 	/**
+	 * Load and register managed beans from multiple JAR files.
+	 */
+	public Factory load(String[] jars) {
+		if(jars == null) return this;
+		if(jars.length == 0) return this;
+		for(var jar : jars) load(jar);
+		return this;
+	}
+	
+	/**
+	 * Load and register managed beans from a JAR file.
+	 */
+	public Factory load(String jar) {
+		if(jar == null) return this;
+		var classes = Scanner.scanJar(jar);
+		if(classes == null) return this;
+		if(classes.isEmpty()) return this;
+		for(var clazz : classes) {
+			this.register(clazz);
+		}
+		return this;
+	}
+	
+	/**
 	 * Scan the specified multiple class-paths to register managed objects.
 	 */
 	public Factory scan(String[] classpaths) {
@@ -201,7 +225,6 @@ public class Factory {
 		classes.forEach(clazz->this.register(clazz));
 	}
 	
-	//Lazy???
 	private void assembleAndInstanceManagedCrafts() {
 		var start = material.size();
 		if(start == 0) return; //Assemble Completed

@@ -44,7 +44,8 @@ public class IocTest {
 	//@Test
 	public void testScanJAR() {
 		var path = "d:/dragonfly.jar";
-		var classes = Scanner.scanJar(path);
-		TestCase.assertEquals(false, classes.isEmpty());
+		var ctx = Context.make();
+		var factory = ctx.createFactory();
+		factory.load(path).start();
 	}
 }
