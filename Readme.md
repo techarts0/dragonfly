@@ -136,7 +136,7 @@ Actually, you can pass multiple xml definitions to the method parse like the fol
     factory.parse("/usr/project/demo/classes/beans_1.xml", "/usr/project/demo/classes/beans_2.xml");
 ```
 
-## Usage of Provider<T>
+## 3. Usage of Provider<T>
 
 The biggest benift of Provider interface is resolved the problem of circular dependent. For example:
 ```
@@ -165,7 +165,7 @@ var name = mobile.getOwner().get().getName();
 ```
 Now, it works correctly.
 
-## Web Application
+## 4. Web Application
 
 The WebListener class provides the ability to integrate dragonfly-ioc on a web application. Please add a listener tag in web.xml:
 
@@ -183,5 +183,5 @@ var person = context.get(Person.class);
 var mobile = context.get(Mobile.class);
 ```
 
-## More Features
+## 5. More Features
 Most of java developers are familiar with spring framework or google guice, we recommend you to try dragonfly-ioc.
