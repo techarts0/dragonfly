@@ -137,6 +137,7 @@ Actually, you can pass multiple xml definitions to the method parse like the fol
 ```
 
 ## Usage of Provider<T>
+
 The biggest benift of Provider interface is resolved the problem of circular dependent. For example:
 ```
 // In class Person:
@@ -163,3 +164,24 @@ var code = person.getMobile().get().getAreaCode();
 var name = mobile.getOwner().get().getName();
 ```
 Now, it works correctly.
+
+## Web Application
+
+The WebListener class provides the ability to integrate dragonfly-ioc on a web application. Please add a listener tag in web.xml:
+
+```
+<listener>
+    <listener-class>cn.techarts.xkit.ioc.WebListener</listener-class>
+  </listener>
+```
+The IOC context is cached globally into servlet context. 
+```
+//Usage in servlet:
+var servletContext = request.getServletContext();
+var context = Conext.from(servletContext);
+var person = context.get(Person.class);
+var mobile = context.get(Mobile.class);
+```
+
+## More Features
+Most of java developers are familiar with spring framework or google guice, we recommend you to try dragonfly-ioc.
