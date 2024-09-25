@@ -3,24 +3,25 @@ package cn.techarts.xkit.ioc;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import cn.techarts.xkit.util.Hotpot;
 
 public class WebListener implements ServletContextListener {
 		
 	@Override
 	public void contextInitialized(ServletContextEvent arg) {
 		var context = arg.getServletContext();
-		var classpath = this.getRootClassPath();
-		var xmlBeans = getResourcePath("beans.xml");
 		var config = getResourcePath("config.properties");
-		var configs = Hotpot.resolveProperties(config);
-		Context.make(classpath, xmlBeans, configs).cache(context);
+		Context.make(config)
+			   .cache(context)
+			   .createFactory()
+			   .scan(getRootClassPath())
+			   .parse(getResourcePath("beans.xml"))
+			   .start();
 	}
 	
 	private String getRootClassPath() {
 		var result = getClass().getResource("/");
 		if(result == null || result.getPath() == null) {
-			throw new Panic("Failed to get resource path.");
+			throw new Panic("Failed to find the root class path.");
 		}
 		return result.getPath();
 	}

@@ -2,6 +2,8 @@ package cn.techarts.xkit.web;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.logging.Logger;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -13,6 +15,7 @@ import cn.techarts.xkit.util.Scanner;
 
 public class StartupListener implements ServletContextListener {
 	public static final String CONFIG_PATH = "contextConfigLocation";
+	private static final Logger LOGGER = Hotpot.getLogger();
 		
 	@Override
 	public void contextInitialized(ServletContextEvent arg) {
@@ -23,7 +26,8 @@ public class StartupListener implements ServletContextListener {
 		initializeIocContainer(context, classpath, configs);
 		initSessionSettings(this.getSessionConfig(configs));
 		var wsPackage = "web.service.package";//Scan the folder
-		loadAllWebServices(context, configs.remove(wsPackage));
+		int n = loadServices(context, configs.remove(wsPackage));
+		LOGGER.info("The web application is started (" + n + " web services)");
 	}
 	
 	private SessionConfig getSessionConfig(Map<String, String> configs) {
@@ -54,10 +58,14 @@ public class StartupListener implements ServletContextListener {
 	}
 	
 	private void initializeIocContainer(ServletContext context, String classpath, Map<String, String> configs) {
-		var xmlResource = getResourcePath("beans.xml");
-		var extras = new String[] {"cn.techarts.xkit.data.DatabaseFactory", 
-							"cn.techarts.xkit.data.redis.RedisCacheHelper"};
-		Context.make(classpath, xmlResource, configs, extras).cache(context);
+		Context.make(configs)
+		       .cache(context)
+		       .createFactory()
+		       .scan(classpath)
+		       .parse(getResourcePath("beans.xml"))
+		       .register("cn.techarts.xkit.data.DatabaseFactory")
+		       .register("cn.techarts.xkit.data.redis.RedisCacheHelper")
+		       .start();
 	}
 	
 	@Override
@@ -83,12 +91,12 @@ public class StartupListener implements ServletContextListener {
 		return Context.from(ctx).get(id);
 	}
 	
-	private void loadAllWebServices(ServletContext context, String pkg) {
+	private int loadServices(ServletContext context, String pkg) {
 		var root = this.getRootClassPath();
 		var scanner = new Scanner(root, pkg);
 		var services = scanner.scanWebServices();
 		//There is not any service need to be exported
-		if(services == null || services.isEmpty()) return;
+		if(services == null || services.isEmpty()) return 0;
 		var container = Context.from(context);
 		for(var service : services) {
 			var ws = container.get(service);
@@ -109,6 +117,7 @@ public class StartupListener implements ServletContextListener {
 				}
 			}
 		}
+		return services.size(); //How many web-services are found?
 	}
 	
 	private boolean checkMethodParameterType(Method m) {

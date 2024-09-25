@@ -11,7 +11,8 @@ public class IocTest {
 	
 	//@Test
 	public void testDiContainer() {
-		var ctx = Context.make(BASE, XML, Map.of("zone", "+86", "user.id", "45", "build.name", "Library"));
+		var ctx = Context.make(Map.of("zone", "+86", "user.id", "45", "build.name", "Library"));
+		ctx.createFactory().scan(BASE).parse(XML).start();
 		var p = ctx.get("person", Person.class);
 		var m = p.getMobile();
 		TestCase.assertEquals(p.getId(), 45);
@@ -23,10 +24,8 @@ public class IocTest {
 	@Test
 	public void testProvider() {
 		var ctx = Context.make(Map.of("zone", "+86", "user.id", "45", "build.name", "Library"));
-		
 		var factory = ctx.createFactory();
-		factory.bind(Person.class).bind(Mobile.class).bind(Office.class).start();
-		
+		factory.register(Person.class, Mobile.class).register(Office.class).start();
 		var p = ctx.get(Person.class);
 		var m = ctx.get(Mobile.class);
 		var o = ctx.get(Office.class);

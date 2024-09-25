@@ -13,113 +13,36 @@ public class Context implements AutoCloseable{
 	public static final String NAME = "context.dragonfly.techarts.cn";
 	private static final Logger LOGGER = Hotpot.getLogger();
 	
-	public static Context make(String base, String path, String config) {
-		return make(new String[] {base}, new String[] {path}, config);
-	}
-	
-	@Override
-	public void close() {
-		if(crafts == null) return;
-		if(crafts.isEmpty()) return;
-		for(var craft : crafts.values()) {
-			var obj = craft.getInstance();
-			if(obj == null) continue;
-			if(obj instanceof AutoCloseable) {
-				try {
-					((AutoCloseable)obj).close();
-				}catch(Exception e) {
-					LOGGER.severe("Failed to close " + craft.getName() + ": " + e.getMessage());
-				}
-			}
-		}
-	}
-	
-	/**
-	 * The method will scan multiple class-paths and XML files.
-	 * @param bases The base class-path of packages.
-	 * @param xmlResources The XML beans file paths.
-	 * @param config The configuration file path.
-	 */
-	public static Context make(String[] bases, String[] xmlResources, String config) {
-		var container = new HashMap<String, Craft>(512);
-		var factory = new Factory(container);
-		var configs = Hotpot.resolveProperties(config);
-		factory.setConfigs(configs);
-		factory.start(bases, xmlResources);
-		return new Context(container, configs); 
-	}
-	
-	/**
-	 * The method will scan multiple class-paths and XML files.
-	 * @param bases The base class-path of packages.
-	 * @param xmlResources The XML beans file paths.
-	 */
-	public static Context make(String[] bases, String[] xmlResources, Map<String, String> configs) {
-		var container = new HashMap<String, Craft>(512);
-		var factory = new Factory(container);
-		factory.setConfigs(configs);
-		factory.start(bases, xmlResources);
-		return new Context(container, configs); 
-	}
-		
-	/**
-	 * @param base The base class-path of package.
-	 * @param xmlResource The XML beans file path.
-	 */
-	public static Context make(String base, String xmlResource, Map<String, String> configs) {
-		var container = new HashMap<String, Craft>(512);
-		var factory = new Factory(container);
-		factory.setConfigs(configs);
-		factory.start(base, xmlResource);
-		return new Context(container, configs); 
-	}
-	
-	/**
-	 * @param base The base class-path of package.
-	 * @param xmlResource The XML beans file path.
-	 */
-	public static Context make(String base, String xmlResource) {
-		var container = new HashMap<String, Craft>(512);
-		var factory = new Factory(container);
-		factory.setConfigs(Map.of());
-		factory.start(base, xmlResource);
-		return new Context(container, Map.of()); 
-	}
-	
-	/**
-	 * @param base The base class-path of package.
-	 */
-	public static Context make(String base) {
-		var container = new HashMap<String, Craft>(512);
-		var factory = new Factory(container);
-		factory.setConfigs(Map.of());
-		factory.start(base, null);
-		return new Context(container, Map.of()); 
-	}
-	
-	/**
-	 * @param base The base class-path of package.
-	 * @param xmlResource The XML beans file path.
-	 * @param extras Extra managed object class names you append manually.
-	 */
-	public static Context make(String base, String xmlResource, Map<String, String> configs, String[] extras) {
-		var container = new HashMap<String, Craft>(512);
-		var factory = new Factory(container);
-		factory.setConfigs(configs);
-		factory.start(base, xmlResource, extras);
-		return new Context(container, configs); 
-	}
-	
 	/**
 	 * Construct an empty context.
 	 */
 	public static Context make() {
-		var container = new HashMap<String, Craft>(128);
-		return new Context(container, new HashMap<>());
+		var container = new HashMap<String, Craft>(256);
+		return new Context(container, Map.of());
 	}
 	
+	/**
+	 * Construct a context with configuration path.
+	 */
+	public static Context make(String config) {
+		var container = new HashMap<String, Craft>(256);
+		var configs = Hotpot.resolveProperties(config);
+		return new Context(container, configs);
+	}
+	
+	/**
+	 * Construct a context with configuration.
+	 */
 	public static Context make(Map<String, String> configs) {
-		return new Context(new HashMap<>(128), configs);
+		return new Context(new HashMap<>(256), configs);
+	}
+	
+	/**
+	 * Create a bean factory to bind beans manually.<p>
+	 * IMPORTANT: The factory will be reset if you recreate the factory object! 
+	 */
+	public Factory createFactory() {
+		return new Factory(crafts, configs);
 	}
 	
 	/**
@@ -135,7 +58,6 @@ public class Context implements AutoCloseable{
 	Context(Map<String, Craft> container, Map<String, String> configs){
 		this.configs = configs == null ? Map.of() : configs;
 		this.crafts = container == null ? Map.of() : container;
-		LOGGER.info("Initialized the IOC container successfully.");
 	}
 	
 	/**
@@ -175,18 +97,27 @@ public class Context implements AutoCloseable{
 	}
 	
 	/**
-	 * Create a bean factory to bind beans manually.
-	 */
-	public Factory createFactory() {
-		var result = new Factory(crafts);
-		result.setConfigs(configs);
-		return result;
-	}
-	
-	/**
 	 * Cache the IOC context into  SERVLET context.
 	 */
-	public void cache(ServletContext context) {
+	public Context cache(ServletContext context) {
 		context.setAttribute(NAME, this);
+		return this;
+	}
+	
+	@Override
+	public void close() {
+		if(crafts == null) return;
+		if(crafts.isEmpty()) return;
+		for(var craft : crafts.values()) {
+			var obj = craft.getInstance();
+			if(obj == null) continue;
+			if(obj instanceof AutoCloseable) {
+				try {
+					((AutoCloseable)obj).close();
+				}catch(Exception e) {
+					LOGGER.severe("Failed to close " + craft.getName() + ": " + e.getMessage());
+				}
+			}
+		}
 	}
 }

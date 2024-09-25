@@ -8,6 +8,10 @@ public class ServiceCache {
 	
 	private static Map<String, ServiceMeta> webservices = new LinkedHashMap<>(512);
 	
+	public static int size() {
+		return webservices.size();
+	}
+	
 	/**
 	 * The caller must ensure that the parameters are legal
 	 */

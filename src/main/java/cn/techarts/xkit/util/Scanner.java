@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import javax.inject.Named;
 
 import cn.techarts.xkit.data.DataException;
@@ -16,7 +15,6 @@ import jakarta.persistence.Entity;
 public class Scanner {
 	private String base;
 	private String pkg;
-	private static final Logger LOGGER = Hotpot.getLogger();
 	
 	public Scanner(String base, String pkg) {
 		this.pkg = pkg;
@@ -70,7 +68,6 @@ public class Scanner {
 				}
 				result.add(name);
 			}
-			LOGGER.info("Found " + result.size() + " web services.");
 			return result;
 		}catch(Exception e) {
 			throw new RuntimeException("Failed to scan web service.", e);

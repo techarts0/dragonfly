@@ -25,28 +25,25 @@ public class Factory {
 	
 	private static final Logger LOGGER = Hotpot.getLogger();
 	
-	public Factory(Map<String, Craft> container) {
+	public Factory(Map<String, Craft> container, Map<String, String> configs) {
 		if(container == null) {
 			throw Panic.nullContainer();
 		}
 		this.crafts = container;
-		this.configs = new HashMap<>(64);
-		material = new ConcurrentHashMap<>(512);
+		material = new ConcurrentHashMap<>(256);
+		this.configs = configs != null ? configs : Map.of();
 	}
 	
-	public void setConfigs(Map<String, String> configs) {
-		this.configs = configs == null ? Map.of() : configs;
-	}
-	
-	public Map<String, String> getConfigs() {
-		return configs;
-	}
-	
-	public String getConfig(String key) {
-		if(configs == null) return null;
-		var result = configs.get(key);
-		if(result != null) return result;
-		throw Panic.configKeyMissing(key);
+	/**
+	 * <b>IMPORTANT: The method can only be called ONCE!</b>
+	 */
+	public void start() {
+		if(this.launched) {
+			throw Panic.factoryInitialized();
+		}
+		this.assembleAndInstanceManagedCrafts();
+		this.launched = true; //The method can only be called ONCE.
+		LOGGER.info("The DI container is initialized (" + crafts.size() + " beans)");
 	}
 	
 	private void resolveJSR330BasedCrafts(String... classpath) {
@@ -64,91 +61,57 @@ public class Factory {
 	}
 	
 	/**
-	 * Support multiple class-paths and XML files.</p>
-	 * <b>IMPORTANT: The method can only be called ONCE!</b>
+	 * Scan the specified multiple class-paths to register managed objects.
 	 */
-	public void start(String[] classpaths, String[] xmlResources) {
-		if(this.launched) {
-			throw Panic.factoryInitialized();
-		}
-		this.resolveJSR330BasedCrafts(classpaths);
-		this.resolveConfigBasedCrafts(xmlResources);
-		this.assembleAndInstanceManagedCrafts();
-		this.launched = true; //The method can only be called ONCE.
-		LOGGER.info("Assembled " + crafts.size() + " managed objects.");
+	public Factory scan(String[] classpaths) {
+		resolveJSR330BasedCrafts(classpaths);
+		return this;
 	}
 	
 	/**
-	 * Just support single class-path and XML file.<p>
-	 * <b>IMPORTANT: The method can only be called ONCE!</b>
+	 * Scan the specified single class-path to register managed objects.
 	 */
-	public void start(String classpath, String xmlResource) {
-		if(this.launched) {
-			throw Panic.factoryInitialized();
-		}
-		this.resolveJSR330BasedCrafts(classpath);
-		this.resolveConfigBasedCrafts(xmlResource);
-		this.assembleAndInstanceManagedCrafts();
-		this.launched = true; //The method can only be called ONCE.
-		LOGGER.info("Assembled " + crafts.size() + " managed objects.");
+	public Factory scan(String classpath) {
+		resolveJSR330BasedCrafts(classpath);
+		return this;
 	}
 	
 	/**
-	 * Just support single class-path and XML file.</p>
-	 * <b>IMPORTANT: The method can only be called ONCE!</b>
+	 * Parse the specified multiple XML files to register managed objects.
 	 */
-	public void start(String classpath, String xmlResource, String[] extras) {
-		if(this.launched) {
-			throw Panic.factoryInitialized();
-		}
-		this.resolveJSR330BasedCrafts(classpath);
-		this.resolveConfigBasedCrafts(xmlResource);
-		if(extras != null && extras.length > 0) {
-			for(var clazz : extras) register(clazz);
-		}
-		this.assembleAndInstanceManagedCrafts();
-		this.launched = true; //The method can only be called ONCE.
-		LOGGER.info("Assembled " + crafts.size() + " managed objects.");
+	public Factory parse(String[] xmlResources) {
+		resolveConfigBasedCrafts(xmlResources);
+		return this;
 	}
 	
 	/**
-	 * Just support to bind managed beans manually.</p>
-	 * <b>IMPORTANT: The method can only be called ONCE!</b>
+	 * Parse the specified single XML file to register managed objects.
 	 */
-	public void start() {
-		if(this.launched) {
-			throw Panic.factoryInitialized();
-		}
-		this.assembleAndInstanceManagedCrafts();
-		this.launched = true; //The method can only be called ONCE.
-		LOGGER.info("Assembled " + crafts.size() + " managed objects.");
+	public Factory parse(String xmlResource) {
+		resolveConfigBasedCrafts(xmlResource);
+		return this;
 	}
 	
 	/**
 	 * Append a managed bean instance into IOC container.
 	 */
-	public Factory bind(Object... beans) {
+	public Factory register(Object... beans) {
 		if(beans == null) return this;
 		if(beans.length == 0) return this;
 		for(var bean : beans) {
-			if(bean != null) {
-				this.register(bean);
-			}
+			this.register(bean);
 		}
 		return this;
-		//assembleAndInstanceManagedCrafts();
 	}
 	
 	/**
 	 * Append a managed bean into IOC container by class.
 	 */
-	public Factory bind(Class<?>... beans) {
+	public Factory register(Class<?>... beans) {
 		if(beans == null) return this;
 		if(beans.length == 0) return this;
 		for(var bean : beans) {
-			if(bean != null) {
-				this.register(bean);
-			}
+			this.register(bean);
 		}
 		return this;
 	}
@@ -156,19 +119,17 @@ public class Factory {
 	/**
 	 * Append a managed bean into IOC container by class name.
 	 */
-	public Factory bind(String... classes) {
+	public Factory register(String... classes) {
 		if(classes == null) return this;
 		if(classes.length == 0) return this;
 		for(var clazz : classes) {
-			if(clazz != null) {
-				this.register(clazz);
-			}
+			this.register(clazz);
 		}
 		return this;
-		//assembleAndInstanceManagedCrafts();
 	}
 	
-	public void register(String clzz) {
+	private void register(String clzz) {
+		if(clzz == null) return;
 		var result = toCraft(clzz);
 		if(result == null) return;
 		if(!result.isManaged()) return;
@@ -182,13 +143,13 @@ public class Factory {
 		material.put(craft.getName(), craft);
 	}
 
-	public void register(Class<?> clazz) {
+	private void register(Class<?> clazz) {
 		if(clazz == null) return;
 		var craft = toCraft(clazz);
 		material.put(craft.getName(), craft);
 	}
 	
-	public void register(Craft craft) {
+	private void register(Craft craft) {
 		material.put(craft.getName(), craft);
 	}
 	
@@ -315,7 +276,7 @@ public class Factory {
 		result.setSingleton(craft.getAttribute("singleton"));
 		parseArgs(craft.getElementsByTagName("args"), result);
 		parseProps(craft.getElementsByTagName("props"), result);
-		//TODO injected methods in xml??
+		//XML DOES NOT SUPPORT METHOD INJECTION
 		return result.withConstructor();
 	}
 	
