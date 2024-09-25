@@ -3,7 +3,7 @@
 ## Summary
 dragonfly-ioc is a sub-project of project dragonfly. It's a lightweight IOC Container that fulfills JSR330.
 
-## Usage
+## Basic Usage
 dragonfly-ioc supports 3 ways to define the dependence of java classes.
 ### 1. JSR 330 Annotation
 
@@ -96,6 +96,8 @@ Maybe, the classes in the JAR file demo.jar and it's full path is "/usr/project/
         TestCase.assertEquals("13666666666", person.getMobile().getNumber());
     }
 ```
+### 2. XML Definition(beans.xml)
+
 If you are a spring-framework developer, the XML configuration is very familiar. dragonfly-ioc allows you define the manged beans in the XML file(beans.xml):
 ```
 `<beans>
@@ -127,4 +129,8 @@ Please note, XML does not support method rejection, because the grammar is to co
         TestCase.assertEquals("+86", mobile.getAreaCode());
         TestCase.assertEquals("13666666666", person.getMobile().getNumber());
     }
+```
+Actually, you can put multiple xml definitions to the method parse like the following:
+```
+    factory.parse("/usr/project/demo/classes/beans_1.xml", "/usr/project/demo/classes/beans_2.xml");
 ```
