@@ -5,7 +5,7 @@ dragonfly-ioc is a sub-project of project dragonfly. It's a lightweight IOC Cont
 
 ## Basic Usage
 dragonfly-ioc supports 3 ways to define the dependence of java classes.
-### 1. JSR 330 Annotation
+### A. JSR 330 Annotation
 
 ```
 package ioc.demo;
@@ -97,7 +97,7 @@ Maybe, the classes in the JAR file demo.jar and it's full path is "/usr/project/
         TestCase.assertEquals("13666666666", person.getMobile().getNumber());
     }
 ```
-### 2. XML Definition(beans.xml)
+### B. XML Definition(beans.xml)
 
 If you are a spring-framework developer, the XML configuration is very familiar. dragonfly-ioc allows you define the manged beans in the XML file(beans.xml):
 ```
