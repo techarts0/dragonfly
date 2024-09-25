@@ -113,7 +113,7 @@ If you are a spring-framework developer, the XML configuration is very familiar.
     </bean>
 </beans>` 
 ```
-
+Please note, XML does not support method rejection, because the grammar is to complex and urgly :(
 ```
     @Test
     public void testInject(){
