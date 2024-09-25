@@ -106,6 +106,7 @@ If you are a spring-framework developer, the XML configuration is very familiar.
         <props>
 	    <prop name="id" val="45" />
 	    <prop name="name" key="user.name" />
+            <prop name="mobile" ref="mobile" />
 	</props>
     </bean>
     <bean id="mobile" singleton="true" type="ico.demo.Mobile">
