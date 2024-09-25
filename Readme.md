@@ -5,9 +5,11 @@ dragonfly-ioc is a sub-project of project dragonfly. It's a lightweight IOC Cont
 
 ## Usage
 dragonfly-ioc supports 3 ways to define the dependence of java classes.
-### JSR 330 Annotation
+### 1. JSR 330 Annotation
 
 ```
+package ioc.demo;
+
 @Named
 @Singleton
 public class Person{
@@ -27,6 +29,8 @@ public class Person{
     //Getters and Setters
 }
 
+package ioc.demo;
+
 @Singleton
 public class Mobile{
     private String areaCode;
@@ -41,11 +45,17 @@ public class Mobile{
 }
 
 public class JSR330Test{
-    private static Map<String, String> configs = Map.of("user.name", "John", "mobile.area", "+86", "mobile.number", "13666666666");
+    private static Map<String, String> configs = Map.of("user.name", "John", 
+                                                        "mobile.area", "+86", 
+                                                        "mobile.number", "13666666666");
     @Test
     public void testInject(){
         var context = Context.make(configs);
-        context.createFactory().register(Person.class).register(Mobile.class).start();
+        var factory = context.createFactory();
+        factory.register(Person.class).register(Mobile.class);
+        //factory.register("ioc.demo.person").register("ioc.demo.Mobile");
+        //factory.register(Person.class, Mobile.class);
+        factory.start();
         var person = context.get(Person.class);
         var mobile = context.get(Mobile.class);
         TestCase.assertEquals("John", person.getName());
@@ -54,4 +64,67 @@ public class JSR330Test{
     }
 }
 ```
+We suppose the above 2 classes is under the folder "/usr/project/demo/classes", the framework will scan the classpath to register beans:
 
+```
+    @Test
+    public void testInject(){
+        var context = Context.make(configs);
+        var factory = context.createFactory();
+        factory.scan("/usr/project/demo/classes");
+        factory.start();
+        var person = context.get(Person.class);
+        var mobile = context.get(Mobile.class);
+        TestCase.assertEquals("John", person.getName());
+        TestCase.assertEquals("+86", mobile.getAreaCode());
+        TestCase.assertEquals("13666666666", person.getMobile().getNumber());
+    }
+```
+Maybe, the classes in the JAR file demo.jar and it's full path is "/usr/project/demo/lib/demo.jar":
+
+```
+    @Test
+    public void testInject(){
+        var context = Context.make(configs);
+        var factory = context.createFactory();
+        factory.load("/usr/project/demo/lib/demo.jar");
+        factory.start();
+        var person = context.get(Person.class);
+        var mobile = context.get(Mobile.class);
+        TestCase.assertEquals("John", person.getName());
+        TestCase.assertEquals("+86", mobile.getAreaCode());
+        TestCase.assertEquals("13666666666", person.getMobile().getNumber());
+    }
+```
+If you are a spring-framework developer, the XML configuration is very familiar. dragonfly-ioc allows you define the manged beans in the XML file(beans.xml):
+```
+`<beans>
+    <bean id="person" singleton="true" type="ico.demo.Person">
+        <props>
+	    <prop name="id" val="45" />
+	    <prop name="name" key="user.name" />
+	</props>
+    </bean>
+    <bean id="mobile" singleton="true" type="ico.demo.Mobile">
+        <args>
+	    <arg key="mobile.area" type="String" />
+	    <arg key="mobile.number" type="String" />
+	</args>
+    </bean>
+</beans>` 
+```
+
+```
+    @Test
+    public void testInject(){
+        var context = Context.make(configs);
+        var factory = context.createFactory();
+        factory.parse("/usr/project/demo/classes/beans.xml");
+        factory.start();
+        var person = context.get(Person.class);
+        var mobile = context.get(Mobile.class);
+        TestCase.assertEquals("John", person.getName());
+        TestCase.assertEquals("+86", mobile.getAreaCode());
+        TestCase.assertEquals("13666666666", person.getMobile().getNumber());
+    }
+```
