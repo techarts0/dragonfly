@@ -1,9 +1,9 @@
 # dragonfly-ioc
 
-## Summary
-dragonfly-ioc is a sub-project of project dragonfly. It's a lightweight IOC Container that fulfills JSR330.
+## 1. Summary
+dragonfly-ioc is a sub-project of project dragonfly. It's a lightweight IOC Container that fulfills JSR330. Most of java developers are familiar with spring framework or google guice, we recommend you to try dragonfly-ioc.
 
-## Basic Usage
+## 2. Basic Usage
 dragonfly-ioc supports 3 ways to define the dependence of java classes.
 ### A. JSR 330 Annotation
 
@@ -184,4 +184,4 @@ var mobile = context.get(Mobile.class);
 ```
 
 ## 5. More Features
-Most of java developers are familiar with spring framework or google guice, we recommend you to try dragonfly-ioc.
+I am writting hard...
