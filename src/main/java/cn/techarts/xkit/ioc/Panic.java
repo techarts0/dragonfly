@@ -68,7 +68,7 @@ public class Panic extends RuntimeException {
 	}
 	
 	public static Panic circularDependence(String name) {
-		return new Panic("Circular dependence is detected: " + name);
+		return new Panic("Circular dependent is detected: " + name);
 	}
 	
 	public static Panic configKeyMissing(String key) {
