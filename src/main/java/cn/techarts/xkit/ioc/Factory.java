@@ -15,6 +15,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import cn.techarts.xkit.util.Hotpot;
+import cn.techarts.xkit.util.Scanner;
 
 public class Factory {
 	
@@ -196,7 +197,7 @@ public class Factory {
 		var base = new File(classpath);//Root class-path
 		if(base == null || !base.isDirectory()) return;
 		var start = base.getAbsolutePath().length();
-		var classes = Hotpot.scanClasses(base, start);
+		var classes = Scanner.scanClasses(base, start);
 		classes.forEach(clazz->this.register(clazz));
 	}
 	

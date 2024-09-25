@@ -2,10 +2,11 @@ package cn.techarts.xkit.util;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.JarFile;
 import javax.inject.Named;
-
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.web.WebService;
 import jakarta.persistence.Entity;
@@ -71,6 +72,48 @@ public class Scanner {
 			return result;
 		}catch(Exception e) {
 			throw new RuntimeException("Failed to scan web service.", e);
+		}
+	}
+	
+	public static List<String> scanClasses(File dest, int start){
+		var result = new ArrayList<String>();
+		var tmp = dest.listFiles(new ClassFilter());
+		
+		if(tmp != null && tmp.length != 0) {
+			for(var file : tmp) {
+				if(file.isFile()) {
+					result.add(toClassName(file, start));
+				}else {
+					result.addAll(scanClasses(file, start));
+				}
+			}
+		}
+		return result;
+	}
+	
+	private static String toClassName(File file, int start) {
+		var path = file.getAbsolutePath();
+		path = path.substring(start + 1);
+		path = path.replaceAll("\\\\", ".");
+		return path.replaceAll("/", ".").replace(".class", "");
+	}
+	
+	/**List all class names in the JAR*/
+	public static List<String> scanJar(String path) {
+		var result = new ArrayList<String>();
+		try(JarFile jar = new JarFile(new File(path))) {
+	       var entries = jar.entries();
+	        if(entries == null) return result;
+	        while(entries.hasMoreElements()) {
+	            var entry = entries.nextElement();
+	            var name = entry.getName();
+	            if (!name.endsWith(".class")) continue;
+	            name = name.substring(0, name.length() - 6);
+	            result.add(name.replace('/', '.'));
+	        }
+	        return result;
+		}catch(IOException e) {
+			throw new RuntimeException("Failed to scan the jar file.", e);
 		}
 	}
 }

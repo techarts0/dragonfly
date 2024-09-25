@@ -11,6 +11,7 @@ import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.trans.Isolation;
 import cn.techarts.xkit.data.trans.Transactional;
 import cn.techarts.xkit.util.Hotpot;
+import cn.techarts.xkit.util.Scanner;
 
 /**
  * Provides transaction support for service.
@@ -44,7 +45,7 @@ public class ServiceEnhancer {
 		var base = new File(classpath);//Root class-path
 		if(base == null || !base.isDirectory()) return null;
 		var start = base.getAbsolutePath().length();
-		return Hotpot.scanClasses(base, start);
+		return Scanner.scanClasses(base, start);
 	}
 	
 	private void enhanceClassWithinTransaction(Class<?> service) {

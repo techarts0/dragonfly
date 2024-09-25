@@ -3,6 +3,7 @@ package cn.techarts.xkit.test;
 import java.util.Map;
 import org.junit.Test;
 import cn.techarts.xkit.ioc.Context;
+import cn.techarts.xkit.util.Scanner;
 import junit.framework.TestCase;
 
 public class IocTest {
@@ -38,5 +39,12 @@ public class IocTest {
 		TestCase.assertEquals("Library", p.getOffice().getBuilding());
 		TestCase.assertEquals("+86", p.getOffice().getMobile().getZone());
 		TestCase.assertEquals("+86", o.getAdmin().getMobile().getZone());
+	}
+	
+	//@Test
+	public void testScanJAR() {
+		var path = "d:/dragonfly.jar";
+		var classes = Scanner.scanJar(path);
+		TestCase.assertEquals(false, classes.isEmpty());
 	}
 }

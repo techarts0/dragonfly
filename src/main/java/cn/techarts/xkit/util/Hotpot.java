@@ -9,43 +9,18 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-
 import org.apache.ibatis.javassist.Modifier;
-
 import cn.techarts.xkit.ioc.Panic;
 
 /**
  * Various kinds of UN-classifiable helper methods
  */
 public final class Hotpot {
-	public static List<String> scanClasses(File dest, int start){
-		var result = new ArrayList<String>();
-		var tmp = dest.listFiles(new ClassFilter());
-		
-		if(tmp != null && tmp.length != 0) {
-			for(var file : tmp) {
-				if(file.isFile()) {
-					result.add(toClassName(file, start));
-				}else {
-					result.addAll(scanClasses(file, start));
-				}
-			}
-		}
-		return result;
-	}
-	
-	private static String toClassName(File file, int start) {
-		var path = file.getAbsolutePath();
-		path = path.substring(start + 1);
-		path = path.replaceAll("\\\\", ".");
-		return path.replaceAll("/", ".").replace(".class", "");
-	}
 	
 	public static Object cast(Object v, Type t) {
 		if(!(v instanceof String)) {
