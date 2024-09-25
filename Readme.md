@@ -64,6 +64,7 @@ public class JSR330Test{
     }
 }
 ```
+The @Valued is a not a JSR330 official annotation, but it's very useful.
 We suppose the above 2 classes is under the folder "/usr/project/demo/classes", the framework will scan the classpath to register beans:
 
 ```
@@ -130,7 +131,35 @@ Please note, XML does not support method rejection, because the grammar is to co
         TestCase.assertEquals("13666666666", person.getMobile().getNumber());
     }
 ```
-Actually, you can put multiple xml definitions to the method parse like the following:
+Actually, you can pass multiple xml definitions to the method parse like the following:
 ```
     factory.parse("/usr/project/demo/classes/beans_1.xml", "/usr/project/demo/classes/beans_2.xml");
 ```
+
+## Usage of Provider<T>
+The biggest benift of Provider interface is resolved the problem of circular dependent. For example:
+```
+// In class Person:
+@Inject
+private Mobile mobie;
+
+//In class Mobile
+@Inject
+private Person owner;
+
+```
+The framework will throw an exception "Circular dependent is detected". We can rewrite it using Provider:
+```
+// In class Person:
+@Inject
+private Provider<Mobile> mobile;
+
+//In class Mobile
+@Inject
+private Provider<Person> owner;
+
+//In test case:
+var code = person.getMobile().get().getAreaCode();
+var name = mobile.getOwner().get().getName();
+```
+Now, it works correctly.
