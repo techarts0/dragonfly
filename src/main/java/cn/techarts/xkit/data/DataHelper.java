@@ -1,9 +1,9 @@
 package cn.techarts.xkit.data;
 
 import java.util.List;
-import cn.techarts.xkit.data.trans.TransactionManager;
+import java.sql.Connection;
 
-public interface DataHelper extends TransactionManager{
+public interface DataHelper extends AutoCloseable{
 	
 	/**
 	 * Returns the native executor what dependents on the under-lay framework.<p>
@@ -14,6 +14,14 @@ public interface DataHelper extends TransactionManager{
 	 * You have the full permission to manipulate the database on the connection.
 	 */
 	public<T> T getExecutor();
+	
+	/**
+	 * Returns the native JDBC connection
+	 */
+	public Connection getConnection();
+	
+	@Override
+	public void close() throws DataException;
 	
 	public int save(Object parameter, String... statement) throws DataException;
 	

@@ -2,16 +2,14 @@ package cn.techarts.xkit.util;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.jar.JarFile;
 import javax.inject.Named;
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.web.WebService;
 import jakarta.persistence.Entity;
 /**
- * Scann the packages under the given base class-path.
+ * Scan the packages under the given base class-path.
  */
 public class Scanner {
 	private String base;
@@ -96,25 +94,6 @@ public class Scanner {
 		path = path.substring(start + 1);
 		path = path.replaceAll("\\\\", ".");
 		return path.replaceAll("/", ".").replace(".class", "");
-	}
-	
-	/**List all class names in the JAR*/
-	public static List<String> scanJar(String path) {
-		var result = new ArrayList<String>();
-		try(JarFile jar = new JarFile(new File(path))) {
-	       var entries = jar.entries();
-	        if(entries == null) return result;
-	        while(entries.hasMoreElements()) {
-	            var entry = entries.nextElement();
-	            var name = entry.getName();
-	            if (!name.endsWith(".class")) continue;
-	            name = name.substring(0, name.length() - 6);
-	            result.add(name.replace('/', '.'));
-	        }
-	        return result;
-		}catch(IOException e) {
-			throw new RuntimeException("Failed to scan the jar file.", e);
-		}
 	}
 }
 

@@ -5,8 +5,9 @@ import cn.techarts.xkit.data.DataException;
 public interface TransactionManager {
 	/***
 	 * Begin a transaction with specified attributes.
+	 * @param level Isolation Level. Please refer to {@link Isolation}
 	 */
-	public void begin(Isolation isolation, boolean readonly) throws DataException;
+	public void begin(int level, boolean readonly) throws DataException;
 	
 	/**
 	 * Roll-back the transaction if the DataException is threw.

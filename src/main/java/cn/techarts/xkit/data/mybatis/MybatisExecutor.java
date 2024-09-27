@@ -2,18 +2,17 @@ package cn.techarts.xkit.data.mybatis;
 
 import java.util.List;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Collection;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import cn.techarts.xkit.app.UniObject;
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.DataHelper;
-import cn.techarts.xkit.data.trans.Isolation;
 
 public class MybatisExecutor implements DataHelper {
 	
 	private SqlSession session = null;
+	private ThreadLocal<DataHelper> pool;
 	
 	@Override
 	@SuppressWarnings("unchecked")
@@ -21,7 +20,17 @@ public class MybatisExecutor implements DataHelper {
 		return this.session;
 	}
 	
+	@Override
+	public Connection getConnection(){
+		return session.getConnection();
+	}
+	
 	public MybatisExecutor(SqlSession session) {
+		this.session = session;
+	}
+	
+	public MybatisExecutor(SqlSession session, ThreadLocal<DataHelper> pool) {
+		this.pool = pool;
 		this.session = session;
 	}
 	
@@ -144,52 +153,13 @@ public class MybatisExecutor implements DataHelper {
 	}
 	
 	@Override
-	public void begin(Isolation isolation, boolean readonly) throws DataException{
-		var level = isolation.getLevel();
-		if(level == Isolation.NONE) return;
+	public void close() throws DataException{
 		try {
-			session.getConnection().setAutoCommit(false);
-			session.getConnection().setReadOnly(readonly);
-			session.getConnection().setTransactionIsolation(level);
-		}catch(SQLException e) {
-			throw new DataException("Failed to begin a transaction", e);
-		}
-	}
-	
-	private Connection getConnection() throws SQLException{
-		if(session == null) return null;
-		var result = session.getConnection();
-		if(result == null) return null;
-		return result.isClosed() ? null : result;
-	}
-	
-	@Override
-	public void rollback() throws DataException {
-		try {
-			var conn = getConnection();
-			if(conn == null) return;
-			if(!conn.getAutoCommit()) {
-				conn.rollback();
-				conn.setAutoCommit(true);
-			}
-		}catch(SQLException e) {
-			throw new DataException("Failed to rollback transaction.", e);
-		}
-	}
-
-	@Override
-	public void commit() throws DataException {
-		try {
-			var conn = getConnection();
-			if(conn == null) return;
-			if(!conn.getAutoCommit()) {
-				conn.commit();
-				conn.setAutoCommit(true);
-			}
-			conn.close(); //Return connection into pool
+			getConnection().close();
 			this.session.close();
-		}catch(SQLException e) {
-			throw new DataException("Failed to commit transaction.", e);
+			if(pool != null) pool.remove();
+		}catch(Exception e) {
+			throw new DataException("Failed to close connection.", e);
 		}
 	}
 	

@@ -66,15 +66,15 @@ public class ServiceEnhancer {
 			bytecoder.addCatch(method.getName(), SRC_ROLL, DATA_EX, "e");
 		}
 		bytecoder.save(true); //Save the enhanced class file  to recover the original
-		LOGGER.info("Enhanced the service class: " + service.getName());
+		LOGGER.info("Enhanced the transaction service class: " + service.getName());
 	}
 	
-	private static final String SRC_COMMIT = "super.commitTransaction();";
-	private static final String SRC_ROLL = "super.rollbackTransaction(); throw e;";
+	private static final String SRC_COMMIT = "getTransactionManager().commit();";
+	private static final String SRC_ROLL = "getTransactionManager().rollback(); throw e;";
 	private static final Class<DataException> DATA_EX = DataException.class;
 	
 	private static String BGNSRC(int level, boolean readonly) {
 		var r = readonly ? "true" : "false";
-		return "super.beginTransaction(" + level + ", " + r + ");";
+		return "getTransactionManager().begin(" + level + ", " + r + ");";
 	}
 }

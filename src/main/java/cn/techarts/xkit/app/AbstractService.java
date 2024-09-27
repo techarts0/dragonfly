@@ -6,59 +6,33 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import cn.techarts.xkit.data.DataHelper;
-import cn.techarts.xkit.data.DatabaseFactory;
+import cn.techarts.xkit.data.DataManager;
 import cn.techarts.xkit.data.redis.RedisCacheHelper;
-import cn.techarts.xkit.data.trans.Isolation;
+import cn.techarts.xkit.data.trans.TransactionManager;
 
 public abstract class AbstractService 
 {
 	@Inject
-	@Named
-	private DatabaseFactory sqldb = null;
+	private DataManager dataManager = null;
 	
 	@Inject
-	@Named
 	private RedisCacheHelper cache = null;
 		
 	/**
 	 * ERRID means the Id is ZERO(<b>0</b>) and it's <b>invalid</b>.
-	 * */
+	 */
 	public static final int ERRID = 0;
 	
 	/**A tiny decimal that's very near to 0*/
 	public static final double ZERO = 0.0000001D;
 	
-	/**
-	 * Within a transaction.
-	 */
-	public DataHelper getDataHelper() {
-		if(!sqldb.isInitialized()) {
-			sqldb.initializeFactory();
-		}
-		return this.sqldb.getExecutor();
+	protected TransactionManager getTransactionManager() {
+		return this.dataManager;
 	}
 	
-	/**
-	 * Begin a transaction(The service runs within a transaction)
-	 */
-	protected void beginTransaction(int level, boolean readonly) {
-		var isolation = Isolation.to(level);
-		getDataHelper().begin(isolation, readonly);
-	}
-	
-	/**
-	 * 1. Commit transaction(if enabled).<br> 
-	 * 2. Close the connection. <br>
-	 * 3. Remove the connection from LocalThread.
-	 */
-	protected void commitTransaction() {
-		this.sqldb.closeExecutor();
-	}
-	
-	protected void rollbackTransaction() {
-		this.getDataHelper().rollback();
+	protected DataHelper getDataHelper() {
+		return dataManager.getExecutor();
 	}
 	
 	protected RedisCacheHelper cache() {

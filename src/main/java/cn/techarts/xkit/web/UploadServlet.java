@@ -8,8 +8,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import cn.techarts.whale.Context;
 import cn.techarts.xkit.app.UploadHandler;
-import cn.techarts.xkit.ioc.Context;
 import cn.techarts.xkit.util.Hotpot;
 
 @WebServlet("/ws/file/upload")

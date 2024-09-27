@@ -6,7 +6,6 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,70 +13,11 @@ import java.util.Properties;
 import java.util.logging.Logger;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import org.apache.ibatis.javassist.Modifier;
-import cn.techarts.xkit.ioc.Panic;
 
 /**
  * Various kinds of UN-classifiable helper methods
  */
 public final class Hotpot {
-	
-	public static Object cast(Object v, Type t) {
-		if(!(v instanceof String)) {
-			return null;
-		}
-		return cast(t, (String)v);
-	}
-	
-	public static boolean newable(Class<?> clazz) {
-		if(clazz.isInterface()) return false;
-		if(clazz.isAnonymousClass()) return false;
-		return !Modifier.isAbstract(clazz.getModifiers());
-	}
-	
-	public static Object cast(Type t, String v) {
-		var name = t.getTypeName();
-		try {
-			switch(name) {
-				case "java.lang.String":
-					return v;
-				case "String":
-					return v;
-				case "java.lang.Integer":
-					return Integer.parseInt(v);
-				case "java.lang.Float":
-					return Float.parseFloat(v);
-				case "java.lang.Double":
-					return Double.parseDouble(v);
-				case "java.lang.Long":
-					return Long.parseLong(v);
-				case "java.lang.Boolean":
-					return Boolean.parseBoolean(v);
-				case "java.lang.Short":
-					return Short.parseShort(v);
-				case "java.lang.Byte":
-					return Byte.parseByte(v);
-				case "int":
-					return Integer.parseInt(v);
-				case "float":
-					return Float.parseFloat(v);
-				case "double":
-					return Double.parseDouble(v);
-				case "long":
-					return Long.parseLong(v);
-				case "boolean":
-					return Boolean.parseBoolean(v);
-				case "short":
-					return Short.parseShort(v);
-				case "byte":
-					return Byte.parseByte(v);
-				default:
-					throw Panic.unsupportedType(name);
-			}
-		}catch( NumberFormatException e) {
-			throw Panic.typeConvertError(name, v, e);
-		}
-	}
 	
 	private static final Map<String, Integer> PRIMITIVES = new HashMap<>() {
 		private static final long serialVersionUID = 1L;
@@ -143,14 +83,6 @@ public final class Hotpot {
 		if(name == null) return false;
 		if(name.startsWith("is")) return true;
 		return name.startsWith("get");
-	}
-	
-	public static Class<?> forName(String clazz){
-		try {
-			return Class.forName(clazz);
-		}catch(ClassNotFoundException e){
-			throw Panic.classNotFound(clazz, e);
-		}
 	}
 	
 	/**
@@ -290,7 +222,7 @@ public final class Hotpot {
 			}
 			return result;
 		}catch(IOException e) {
-			throw new Panic("Failed to load config [" + file + "]", e);
+			throw new RuntimeException("Failed to load config [" + file + "]", e);
 		}
 	}	
 	

@@ -5,7 +5,6 @@ import org.apache.openjpa.persistence.PersistenceProviderImpl;
 import org.apache.openjpa.persistence.PersistenceUnitInfoImpl;
 import com.zaxxer.hikari.HikariConfig;
 import cn.techarts.xkit.data.SafeDataSource;
-import cn.techarts.xkit.ioc.Panic;
 import cn.techarts.xkit.util.Scanner;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -40,7 +39,7 @@ public class JPASessionFactory {
 	private String getRootClassPath() {
 		var result = getClass().getResource("/");
 		if(result == null || result.getPath() == null) {
-			throw new Panic("Failed to get resource path.");
+			throw new RuntimeException("Failed to get resource path.");
 		}
 		return result.getPath();
 	}

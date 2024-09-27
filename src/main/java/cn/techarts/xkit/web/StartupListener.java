@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import cn.techarts.xkit.ioc.Context;
-import cn.techarts.xkit.ioc.Panic;
+
+import cn.techarts.whale.Context;
 import cn.techarts.xkit.util.Converter;
 import cn.techarts.xkit.util.Hotpot;
 import cn.techarts.xkit.util.Scanner;
@@ -44,7 +44,7 @@ public class StartupListener implements ServletContextListener {
 	private String getRootClassPath() {
 		var result = getClass().getResource("/");
 		if(result == null || result.getPath() == null){
-			throw new Panic("Failed to get class path.");
+			throw new RuntimeException("Failed to get class path.");
 		}
 		return result.getPath();
 	}
@@ -54,7 +54,7 @@ public class StartupListener implements ServletContextListener {
 		if(result != null && result.getPath() != null) return result.getPath();
 		result = getClass().getResource("/WEB-INF/".concat(resource));
 		if(result != null && result.getPath() != null) return result.getPath();
-		throw new Panic("Failed to find the resource: [" + resource + "]");
+		throw new RuntimeException("Failed to find the resource: [" + resource + "]");
 	}
 	
 	private void initializeIocContainer(ServletContext context, String classpath, Map<String, String> configs) {
@@ -63,7 +63,7 @@ public class StartupListener implements ServletContextListener {
 		       .createFactory()
 		       .scan(classpath)
 		       .parse(getResourcePath("beans.xml"))
-		       .register("cn.techarts.xkit.data.DatabaseFactory")
+		       .register("cn.techarts.xkit.data.DataManager")
 		       .register("cn.techarts.xkit.data.redis.RedisCacheHelper")
 		       .start();
 	}

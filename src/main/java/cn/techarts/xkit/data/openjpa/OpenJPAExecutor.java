@@ -1,13 +1,11 @@
 package cn.techarts.xkit.data.openjpa;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 import cn.techarts.xkit.app.UniObject;
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.DataHelper;
 import cn.techarts.xkit.data.ParameterHelper;
-import cn.techarts.xkit.data.trans.Isolation;
 import cn.techarts.xkit.util.Hotpot;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -15,6 +13,7 @@ import jakarta.persistence.TypedQuery;
 public class OpenJPAExecutor extends ParameterHelper implements DataHelper {
 	
 	private EntityManager session;
+	private ThreadLocal<DataHelper> pool;
 	
 	@Override
 	@SuppressWarnings("unchecked")
@@ -22,8 +21,30 @@ public class OpenJPAExecutor extends ParameterHelper implements DataHelper {
 		return this.session;
 	}
 	
+	@Override
+	public Connection getConnection() {
+		return session.unwrap(Connection.class);
+	}
+	
 	public OpenJPAExecutor(EntityManager session) {
 		this.session = session;
+		try {
+			var con = session.unwrap(Connection.class);
+			if(con != null) con.setAutoCommit(true);
+		}catch(Exception e) {
+			throw new DataException("Failed to get an OPENJPA executor.", e);
+		}
+	}
+	
+	public OpenJPAExecutor(EntityManager session, ThreadLocal<DataHelper> pool) {
+		this.pool = pool;
+		this.session = session;
+		try {
+			var con = session.unwrap(Connection.class);
+			if(con != null) con.setAutoCommit(true);
+		}catch(Exception e) {
+			throw new DataException("Failed to get an OPENJPA executor.", e);
+		}
 	}
 	
 	@Override
@@ -149,48 +170,14 @@ public class OpenJPAExecutor extends ParameterHelper implements DataHelper {
 		return result;
 	}
 	
-	private Connection getConnection() {
-		return session.unwrap(Connection.class);
-	}
-
-	public void begin(Isolation isolation, boolean readonly) throws DataException{
-		try{
-			var level = isolation.getLevel();
-			if(level == Isolation.NONE) return;
-			var conn = getConnection();
-			conn.setAutoCommit(false);
-			conn.setReadOnly(readonly);
-			conn.setTransactionIsolation(level);
-		}catch(SQLException e) {
-			throw new DataException("Failed to begin a transaction.", e);
-		}
-	}
-	
 	@Override
-	public void rollback() throws DataException {
+	public void close() throws DataException{
 		try {
-			var conn = getConnection();
-			if(!conn.getAutoCommit()) {
-				conn.rollback();
-				conn.setAutoCommit(true);
-			}
-		}catch(SQLException e) {
-			throw new DataException("Failed to rollback transaction.", e);
-		}
-	}
-
-	@Override
-	public void commit() throws DataException {
-		try {
-			var conn = getConnection();
-			if(!conn.getAutoCommit()) {
-				conn.commit();
-				conn.setAutoCommit(true);
-			}
-			conn.close(); //Return the connection into pool
-			session.close();
-		}catch(SQLException e) {
-			throw new DataException("Failed to commit transaction.", e);
+		getConnection().close();
+		session.close();
+		if(pool != null) pool.remove();
+		}catch(Exception e) {
+			throw new DataException("Failed to close connection.", e);
 		}
 	}
 }

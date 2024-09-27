@@ -7,18 +7,23 @@ import org.apache.commons.dbutils.QueryRunner;
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.DataHelper;
 import cn.techarts.xkit.data.SafeDataSource;
-import cn.techarts.xkit.data.trans.Isolation;
 import cn.techarts.xkit.util.Hotpot;
 
 public class DbutilsExecutor implements DataHelper {
 	private QueryRunner session;
 	private Connection connection;
 	private OrmBasedDbutils dbutils;
+	private ThreadLocal<DataHelper> pool;
 	
 	@Override
 	@SuppressWarnings("unchecked")
 	public QueryRunner getExecutor() {
 		return this.session;
+	}
+	
+	@Override
+	public Connection getConnection() {
+		return this.connection;
 	}
 	
 	public DbutilsExecutor(QueryRunner session, OrmBasedDbutils dbutils) {
@@ -30,9 +35,16 @@ public class DbutilsExecutor implements DataHelper {
 			if(connection == null || connection.isClosed()) {
 				throw new SQLException("Connection is null or closed.");
 			}
+			this.connection.setAutoCommit(true); //Default
 		}catch(SQLException e) {
 			throw new DataException("Failed to get connection.", e);
 		}
+	}
+	
+	public DbutilsExecutor(QueryRunner session, OrmBasedDbutils dbutils, ThreadLocal<DataHelper> pool) {
+		this(session, dbutils);
+		this.pool = pool;
+		
 	}
 	
 	@Override
@@ -84,40 +96,12 @@ public class DbutilsExecutor implements DataHelper {
 	}	
 	
 	@Override
-	public void rollback() {
+	public void close() throws DataException{
 		try {
-			if(!connection.getAutoCommit()) {
-				connection.rollback();
-				connection.setAutoCommit(true);
-			}
-		}catch(SQLException e) {
-			throw new DataException("Failed to rollback transaction.", e);
-		}
-	}
-
-	@Override
-	public void commit() throws DataException {
-		try {
-			if(!connection.getAutoCommit()) {
-				connection.commit();
-				connection.setAutoCommit(true);
-			}
-			connection.close(); //Return connection into pool
-		}catch(SQLException e) {
-			throw new DataException("Failed to commit transaction.");
-		}
-	}
-
-	@Override
-	public void begin(Isolation isolation, boolean readonly) throws DataException {
-		var level = isolation.getLevel();
-		if(level == Isolation.NONE) return;
-		try {
-			connection.setAutoCommit(false);
-			connection.setReadOnly(readonly);
-			connection.setTransactionIsolation(level);
-		}catch(SQLException e) {
-			throw new DataException("Failed to begin a transaction.", e);
+			getConnection().close();
+			if(pool != null) pool.remove();
+		}catch(Exception e) {
+			throw new DataException("Failed to close connection.", e);
 		}
 	}
 }

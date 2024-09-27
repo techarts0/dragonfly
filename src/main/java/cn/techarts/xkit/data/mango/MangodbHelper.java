@@ -9,9 +9,9 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 
+import cn.techarts.whale.Valued;
 import cn.techarts.xkit.app.UniObject;
 import cn.techarts.xkit.data.DataException;
-import cn.techarts.xkit.ioc.Valued;
 
 //TODO
 public class MangodbHelper implements AutoCloseable{
