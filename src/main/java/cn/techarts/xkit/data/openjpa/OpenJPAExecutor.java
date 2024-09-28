@@ -13,7 +13,6 @@ import jakarta.persistence.TypedQuery;
 public class OpenJPAExecutor extends ParameterHelper implements DataHelper {
 	
 	private EntityManager session;
-	private ThreadLocal<DataHelper> pool;
 	
 	@Override
 	@SuppressWarnings("unchecked")
@@ -27,17 +26,6 @@ public class OpenJPAExecutor extends ParameterHelper implements DataHelper {
 	}
 	
 	public OpenJPAExecutor(EntityManager session) {
-		this.session = session;
-		try {
-			var con = session.unwrap(Connection.class);
-			if(con != null) con.setAutoCommit(true);
-		}catch(Exception e) {
-			throw new DataException("Failed to get an OPENJPA executor.", e);
-		}
-	}
-	
-	public OpenJPAExecutor(EntityManager session, ThreadLocal<DataHelper> pool) {
-		this.pool = pool;
 		this.session = session;
 		try {
 			var con = session.unwrap(Connection.class);
@@ -173,9 +161,8 @@ public class OpenJPAExecutor extends ParameterHelper implements DataHelper {
 	@Override
 	public void close() throws DataException{
 		try {
-		getConnection().close();
-		session.close();
-		if(pool != null) pool.remove();
+			getConnection().close();
+			session.close();
 		}catch(Exception e) {
 			throw new DataException("Failed to close connection.", e);
 		}

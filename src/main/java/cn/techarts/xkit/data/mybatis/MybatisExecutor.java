@@ -12,7 +12,6 @@ import cn.techarts.xkit.data.DataHelper;
 public class MybatisExecutor implements DataHelper {
 	
 	private SqlSession session = null;
-	private ThreadLocal<DataHelper> pool;
 	
 	@Override
 	@SuppressWarnings("unchecked")
@@ -26,11 +25,6 @@ public class MybatisExecutor implements DataHelper {
 	}
 	
 	public MybatisExecutor(SqlSession session) {
-		this.session = session;
-	}
-	
-	public MybatisExecutor(SqlSession session, ThreadLocal<DataHelper> pool) {
-		this.pool = pool;
 		this.session = session;
 	}
 	
@@ -157,7 +151,6 @@ public class MybatisExecutor implements DataHelper {
 		try {
 			getConnection().close();
 			this.session.close();
-			if(pool != null) pool.remove();
 		}catch(Exception e) {
 			throw new DataException("Failed to close connection.", e);
 		}

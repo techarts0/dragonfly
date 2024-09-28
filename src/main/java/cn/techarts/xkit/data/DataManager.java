@@ -41,13 +41,16 @@ public class DataManager extends Settings implements TransactionManager, AutoClo
 	public DataManager() {}
 	
 	public DataHelper getExecutor() {
-		this.initialize(); //If not...
 		var result = threadLocal.get();
 		if(result != null) return result;
 		result = getExecutor0();
 		this.threadLocal.set(result);
 		LOGGER.info("Obtained a connection wrapped in: " + result);
 		return result; //Current Thread
+	}
+	
+	public DataHelper getExecutor(boolean transactional) {
+		return transactional ? getExecutor() : getExecutor0();
 	}
 	
 	private void initialize() {
@@ -104,16 +107,17 @@ public class DataManager extends Settings implements TransactionManager, AutoClo
 	}
 	
 	private DataHelper getExecutor0() {
+		this.initialize(); //CALL ONCE
 		if(mybatisFactory != null) {
 			var session = mybatisFactory.openSession(true);
-			return new MybatisExecutor(session, threadLocal);
+			return new MybatisExecutor(session);
 		}else if(dbutilsFactory != null) {
 			var dbutils = dbutilsFactory.getDbutils();
 			var session = dbutilsFactory.openQueryRunner();
-			return new DbutilsExecutor(session, dbutils, threadLocal);
+			return new DbutilsExecutor(session, dbutils);
 		}else if( this.openJPAFactory != null) {
 			var session = openJPAFactory.getEntityManager();
-			return new OpenJPAExecutor(session, threadLocal);
+			return new OpenJPAExecutor(session);
 		}else {
 			throw new DataException("Unsupported framework: " + framework);
 		}
@@ -182,7 +186,7 @@ public class DataManager extends Settings implements TransactionManager, AutoClo
 		}catch(Exception e) {
 			throw new DataException("Failed to commit transaction.", e);
 		}
-		//this.threadLocal.remove();
+		this.threadLocal.remove(); //It's very important
 		LOGGER.info("Closed the connection wrapped in: " + exec);
 	}
 }

@@ -31,8 +31,26 @@ public abstract class AbstractService
 		return this.dataManager;
 	}
 	
+	/**
+	 * Container manages transaction.
+	 */
 	protected DataHelper getDataHelper() {
 		return dataManager.getExecutor();
+	}
+	
+	/**
+	 * @param transactional true: the container manages transaction; 
+	 *                      false: manage transaction you manually. 
+	 * If you want to manage transaction yourself, please remember to call {@link close()} to
+	 * close the connection. We strongly suggest you using the try(resource) statement:<p><br>
+	 * <b> 
+	 * try(var helper = getDataHelper(false)){<br>
+	 * //do something here. <br>
+	 * }
+	 * </b>
+	 */
+	protected DataHelper getDataHelper(boolean transactional) {
+		return dataManager.getExecutor(transactional);
 	}
 	
 	protected RedisCacheHelper cache() {

@@ -13,7 +13,6 @@ public class DbutilsExecutor implements DataHelper {
 	private QueryRunner session;
 	private Connection connection;
 	private OrmBasedDbutils dbutils;
-	private ThreadLocal<DataHelper> pool;
 	
 	@Override
 	@SuppressWarnings("unchecked")
@@ -39,12 +38,6 @@ public class DbutilsExecutor implements DataHelper {
 		}catch(SQLException e) {
 			throw new DataException("Failed to get connection.", e);
 		}
-	}
-	
-	public DbutilsExecutor(QueryRunner session, OrmBasedDbutils dbutils, ThreadLocal<DataHelper> pool) {
-		this(session, dbutils);
-		this.pool = pool;
-		
 	}
 	
 	@Override
@@ -99,7 +92,6 @@ public class DbutilsExecutor implements DataHelper {
 	public void close() throws DataException{
 		try {
 			getConnection().close();
-			if(pool != null) pool.remove();
 		}catch(Exception e) {
 			throw new DataException("Failed to close connection.", e);
 		}
