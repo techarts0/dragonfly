@@ -49,10 +49,6 @@ public class DataManager extends Settings implements TransactionManager, AutoClo
 		return result; //Current Thread
 	}
 	
-	public DataHelper getExecutor(boolean transactional) {
-		return transactional ? getExecutor() : getExecutor0();
-	}
-	
 	private void initialize() {
 		if(this.initialized) return; //CALL ONCE
 		if("MYBATIS".equalsIgnoreCase(framework)){
@@ -175,18 +171,19 @@ public class DataManager extends Settings implements TransactionManager, AutoClo
 	 */
 	@Override
 	public void commit() throws DataException {
-		var exec = getExecutor();
-		var connection = exec.getConnection();
+		var executor = threadLocal.get();
+		if(executor == null) return; //Without
+		var connection = executor.getConnection();
 		try {
 			if(!connection.getAutoCommit()) {
 				connection.commit();
 				connection.setAutoCommit(true);
 			}
-			exec.close(); //Return the connection into pool
+			executor.close(); //Return the connection into pool
 		}catch(Exception e) {
 			throw new DataException("Failed to commit transaction.", e);
 		}
 		this.threadLocal.remove(); //It's very important
-		LOGGER.info("Closed the connection wrapped in: " + exec);
+		LOGGER.info("Closed the connection wrapped in: " + executor);
 	}
 }

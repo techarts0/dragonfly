@@ -38,21 +38,6 @@ public abstract class AbstractService
 		return dataManager.getExecutor();
 	}
 	
-	/**
-	 * @param transactional true: the container manages transaction; 
-	 *                      false: manage transaction you manually. 
-	 * If you want to manage transaction yourself, please remember to call {@link close()} to
-	 * close the connection. We strongly suggest you using the try(resource) statement:<p><br>
-	 * <b> 
-	 * try(var helper = getDataHelper(false)){<br>
-	 * //do something here. <br>
-	 * }
-	 * </b>
-	 */
-	protected DataHelper getDataHelper(boolean transactional) {
-		return dataManager.getExecutor(transactional);
-	}
-	
 	protected RedisCacheHelper cache() {
 		if(cache == null || !cache.isInitialized()) {
 			throw new RuntimeException("Redis is not enabled.");
@@ -131,7 +116,7 @@ public abstract class AbstractService
 	 * The start index is inclusive and the end index is exclusive.
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T[] slice(T[] arg, int start, int end, Class<T> clazz) {
+	protected <T> T[] slice(T[] arg, int start, int end, Class<T> clazz) {
 		if(!ok(arg) || end < start) return null;
 		var length = getEndIndex(end, arg.length) - start;
 		var result = Array.newInstance(clazz, length);

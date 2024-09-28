@@ -1,6 +1,8 @@
 package cn.techarts.xkit.app;
 
 import java.io.File;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -48,22 +50,34 @@ public class ServiceEnhancer {
 		return Scanner.scanClasses(base, start);
 	}
 	
+	private boolean isPublic(Method m) {
+		return Modifier.isPublic(m.getModifiers());
+	}
+	
 	private void enhanceClassWithinTransaction(Class<?> service) {
 		var methods = service.getDeclaredMethods();
 		if(methods == null || methods.length == 0) return;
 		var bytecoder = new Bytecoder(service);
 		var t = Transactional.class; //Target
 		for(var method : methods) {
+			if(!isPublic(method)) continue;
+			var readonly = false;
 			var trans = method.getAnnotation(t);
-			if(trans == null) continue; //Without
-			var level = trans.isolation();
-			var readonly = trans.readonly();
-			if(level != Isolation.NONE_TRANSACTION) {
+			var level = Isolation.NONE_TRANSACTION;
+			if(trans != null) {
+				level = trans.isolation();
+				readonly = trans.readonly();
+			}
+			if(level != Isolation.NONE_TRANSACTION) { //BEGIN
 				var src = BGNSRC(level.getLevel(), readonly);
 				bytecoder.firstLine(method.getName(), src);
 			}
-			bytecoder.beforeReturn(method.getName(), SRC_COMMIT);
-			bytecoder.addCatch(method.getName(), SRC_ROLL, DATA_EX, "e");
+			
+			bytecoder.beforeReturn(method.getName(), SRC_COMMIT); //ALWAYS
+			
+			if(level != Isolation.NONE_TRANSACTION) { //ROLLBACK
+				bytecoder.addCatch(method.getName(), SRC_ROLL, DATA_EX, "e");
+			}
 		}
 		bytecoder.save(true); //Save the enhanced class file  to recover the original
 		LOGGER.info("Enhanced the transaction service class: " + service.getName());
