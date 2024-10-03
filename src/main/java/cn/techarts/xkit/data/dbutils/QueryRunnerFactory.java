@@ -1,5 +1,6 @@
 package cn.techarts.xkit.data.dbutils;
 
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Logger;
@@ -27,8 +28,8 @@ public class QueryRunnerFactory implements AutoCloseable {
 		return new QueryRunner(dataSource);
 	}
 	
-	public QueryRunnerFactory(String sqls, String driver, String url, String user, String password, int maxPoolSize) {
-		this.ormdbutils = new OrmBasedDbutils(sqls);
+	public QueryRunnerFactory(InputStream stream, String driver, String url, String user, String password, int maxPoolSize) {
+		this.ormdbutils = new OrmBasedDbutils(stream);
 		int poolsize = maxPoolSize <= 0 ? 10 : maxPoolSize;
 		this.prepareDataSource(driver, url, user, password, poolsize);
 		LOGGER.info("Connect to database with url: " + url);

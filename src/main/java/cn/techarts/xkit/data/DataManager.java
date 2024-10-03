@@ -32,7 +32,8 @@ public class DataManager extends Settings implements TransactionManager, AutoClo
 	//JPA(Default is Apache OPENJPA)
 	private JPASessionFactory openJPAFactory;
 		
-	private static final String MYBATIS = "mybatis-config.xml";
+	public static final String MYBATIS = "mybatis-config.xml";
+	public static final String DBUTILS = "dbutils-config.xml";
 	
 	private ThreadLocal<DataHelper> threadLocal = new ThreadLocal<>();
 	
@@ -96,7 +97,8 @@ public class DataManager extends Settings implements TransactionManager, AutoClo
 	private void createDbutilsSessionFactory() {
 		if(this.dbutilsFactory != null) return;
 		try {
-			this.dbutilsFactory = new QueryRunnerFactory("",driver, url, user, password, capacity);
+			var config = Resources.getResourceAsStream(DBUTILS);
+			this.dbutilsFactory = new QueryRunnerFactory(config, driver, url, user, password, capacity);
 		}catch(Exception e) {
 			throw new DataException("Failed to initialize dbunits session factory.", e);
 		}

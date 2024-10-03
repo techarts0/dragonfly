@@ -1,10 +1,12 @@
 package cn.techarts.xkit.data.dbutils;
 
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
@@ -12,7 +14,9 @@ import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
+import org.apache.ibatis.io.Resources;
 import org.w3c.dom.Element;
+
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.ParameterHelper;
 import cn.techarts.xkit.util.Hotpot;
@@ -27,11 +31,36 @@ public class OrmBasedDbutils extends ParameterHelper{
 	
 	private Map<String, String> statements = null;
 	
-	private static final String SQL = "/dbutils-config.xml";
-	
-	public OrmBasedDbutils(String config) {
+	public OrmBasedDbutils(InputStream stream) {
 		super();
-		statements = this.resolveConfiguration(SQL);
+		var resources = getSQLMappers(stream);
+		statements = new HashMap<String, String>(128);
+		if(resources == null || resources.isEmpty()) return;
+		for(var resource : resources) {
+			statements.putAll(resolveConfiguration(resource));
+		}
+	}
+	
+	private List<InputStream> getSQLMappers(InputStream config){
+		try {
+			var factory = DocumentBuilderFactory.newInstance();
+		    var doc = factory.newDocumentBuilder().parse(config);
+	        doc.getDocumentElement().normalize();
+	        var nodes = doc.getElementsByTagName("mappers");
+	        var mappers = (org.w3c.dom.Element)nodes.item(0);
+	        var files = mappers.getElementsByTagName("mapper");
+	        if(files == null || files.getLength() == 0) return null;
+	        var result = new ArrayList<InputStream>();
+	        for(int i = 0; i < files.getLength(); i++) {
+	        	var file = (Element)files.item(i);
+	        	var path = file.getAttribute("resource");
+	        	var stream = Resources.getResourceAsStream(path);
+	        	if(stream != null) result.add(stream);
+	        }
+	        return result;
+        }catch(Exception e) {
+        	throw new DataException("Failed to parse the file.", e);
+        }
 	}
 	
 	public String getStatement(String key) {
@@ -185,11 +214,10 @@ public class OrmBasedDbutils extends ParameterHelper{
 		}
 	}
 	
-	private Map<String, String> resolveConfiguration(String xml){
+	private Map<String, String> resolveConfiguration(InputStream stream){
 		try {
 			var factory = DocumentBuilderFactory.newInstance();
-			var stream = getClass().getResourceAsStream(xml);
-            var doc = factory.newDocumentBuilder().parse(stream);
+		    var doc = factory.newDocumentBuilder().parse(stream);
 	        doc.getDocumentElement().normalize();
 	        var sqls = doc.getElementsByTagName("sql");
 	        var result = new HashMap<String, String>(256);
@@ -202,7 +230,7 @@ public class OrmBasedDbutils extends ParameterHelper{
 	        }
 	        return result;
         }catch(Exception e) {
-        	throw new DataException("Failed to parse the file: " + xml, e);
+        	throw new DataException("Failed to parse the file.", e);
         }
 	}
 }
