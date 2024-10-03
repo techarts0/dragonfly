@@ -27,12 +27,11 @@ public class OrmBasedDbutils extends ParameterHelper{
 	
 	private Map<String, String> statements = null;
 	
-	public OrmBasedDbutils() {
+	private static final String SQL = "/dbutils-config.xml";
+	
+	public OrmBasedDbutils(String config) {
 		super();
-		var xml = "/dbutils-config.xml";
-		//var ini = "/dbutils-config.ini";
-		statements = this.resolveConfiguration(xml);
-		//statements = Hotpot.resolveConfiguration1(ini);
+		statements = this.resolveConfiguration(SQL);
 	}
 	
 	public String getStatement(String key) {

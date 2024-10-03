@@ -1,9 +1,12 @@
 package cn.techarts.xkit.web;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,11 +24,16 @@ public class ServiceRouter extends HttpServlet{
 
 	public int authenticate(HttpServletRequest req, HttpServletResponse response, ServiceMeta service){
 		if(service == null) return NO_SUCH_API;
-		if(!UserSession.CHECK) return ALLOWED;
+		var context = req.getServletContext();
+		if(!getSessionConfig(context).check()) return ALLOWED;
 		if(!service.isPermissionRequired()) return ALLOWED;
 		String session = getSession(req), ip = getRemorteAddress(req);
 		if(session == null || session.isBlank()) return INVALID_SESSION;
-		return validate(Converter.toInt(req.getParameter("uid")), ip,  session);
+		return validate(context, req.getParameter("uid"), ip,  session);
+	}
+	
+	private SessionConfig getSessionConfig(ServletContext ctx) {
+		return (SessionConfig)ctx.getAttribute(SessionConfig.CACHE_KEY);
 	}
 	
 	public static String getRemorteAddress(HttpServletRequest request) {
@@ -34,8 +42,10 @@ public class ServiceRouter extends HttpServlet{
 		return result == null ? request.getRemoteAddr() : result;
 	} 
 	
-	public int validate(int user, String ip, String session) {
-		boolean result = UserSession.verify(ip, user, session);
+	public int validate(ServletContext context, String user, String ip, String session) {
+		var uid = Converter.toInt(user);
+		var config = getSessionConfig(context);
+		boolean result = config.verify(ip, uid, session);
 		return result ? ALLOWED : INVALID_SESSION;
 	}
 	
@@ -55,7 +65,21 @@ public class ServiceRouter extends HttpServlet{
         response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
     }
 	
-	
+	private ServiceMeta getService(ServletContext context, String uri, String method) {
+		if(uri == null || uri.isBlank()) return null;
+		var objs = context.getAttribute(WebService.CACHE_KEY);
+		if(objs == null) return null;
+		@SuppressWarnings("unchecked")
+		var webservices = (Map<String, ServiceMeta>)objs;
+		if(webservices.isEmpty()) return null;
+		if(!ServiceMeta.restful) {
+			return webservices != null ? webservices.get(uri) : null; 
+		}else {
+			var m = method.toLowerCase().concat(uri);
+			return webservices != null ? webservices.get(m) : null;
+		}
+	}
+		
 	@Override
 	public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException{
 		setCharsetEncoding(request, response);
@@ -68,7 +92,8 @@ public class ServiceRouter extends HttpServlet{
 		}
 		
 		var method = request.getMethod(); //HTTP METHOD
-		var service = ServiceCache.getService(api, method);
+		var context = request.getServletContext();
+		var service = getService(context, api, method);
 		
 		int result = authenticate(request, response, service);
 						

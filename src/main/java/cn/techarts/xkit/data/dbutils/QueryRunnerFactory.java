@@ -27,8 +27,8 @@ public class QueryRunnerFactory implements AutoCloseable {
 		return new QueryRunner(dataSource);
 	}
 	
-	public QueryRunnerFactory(String driver, String url, String user, String password, int maxPoolSize) {
-		this.ormdbutils = new OrmBasedDbutils();
+	public QueryRunnerFactory(String sqls, String driver, String url, String user, String password, int maxPoolSize) {
+		this.ormdbutils = new OrmBasedDbutils(sqls);
 		int poolsize = maxPoolSize <= 0 ? 10 : maxPoolSize;
 		this.prepareDataSource(driver, url, user, password, poolsize);
 		LOGGER.info("Connect to database with url: " + url);

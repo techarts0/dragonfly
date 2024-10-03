@@ -8,4 +8,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface WebService {
+	public static final String CACHE_KEY = "web.dragonfly.techarts";
 }

@@ -1,13 +1,12 @@
-package cn.techarts.xkit.web;
+package cn.techarts.xkit.app;
 
 import java.util.Set;
 
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import cn.techarts.xkit.app.ServiceEnhancer;
 
-public class XkitInitializer implements ServletContainerInitializer{
+public class ServiceInitializer implements ServletContainerInitializer{
 	@Override
 	public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException {
 		var classpath = this.getRootClassPath();

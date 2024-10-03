@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
-import javax.inject.Named;
 import cn.techarts.xkit.data.DataException;
-import cn.techarts.xkit.web.WebService;
 import jakarta.persistence.Entity;
 /**
  * Scan the packages under the given base class-path.
@@ -42,34 +40,6 @@ public class Scanner {
 			return result;
 		}catch(Exception e) {
 			throw new DataException("Failed to scan JPA entities.", e);
-		}
-	}
-	
-	public List<String> scanWebServices() {
-		if(pkg == null) return null;
-		if(base == null) return null;
-		var path = base.concat(pkg.replace('.', '/'));
-		var files = poll(path, ".class");
-		if(files == null || files.length == 0) return null;
-		try {
-			List<String> result = new ArrayList<>(24);
-			for(var f : files) {
-				if(f == null || !f.isFile()) continue;
-				var n = f.getName().replace(".class", "");
-				var c = Class.forName(pkg.concat(".").concat(n));
-				if(c == null) continue;
-				var named = c.getAnnotation(Named.class);
-				var ws = c.getAnnotation(WebService.class);
-				if(named == null || ws == null) continue;
-				var name = named.value();
-				if(name == null || name.isEmpty()) {
-					name = c.getName();
-				}
-				result.add(name);
-			}
-			return result;
-		}catch(Exception e) {
-			throw new RuntimeException("Failed to scan web service.", e);
 		}
 	}
 	

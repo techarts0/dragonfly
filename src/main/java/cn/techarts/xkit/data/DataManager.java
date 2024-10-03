@@ -23,13 +23,13 @@ public class DataManager extends Settings implements TransactionManager, AutoClo
 	
 	private boolean initialized;
 	
-	//MYBATIS
+	//Apache MYBATIS
 	private SqlSessionFactory mybatisFactory;
 		
-	//DBUTILS
+	//Apache DBUTILS
 	private QueryRunnerFactory dbutilsFactory;
 	
-	//JPA(Default is OPENJPA)
+	//JPA(Default is Apache OPENJPA)
 	private JPASessionFactory openJPAFactory;
 		
 	private static final String MYBATIS = "mybatis-config.xml";
@@ -44,7 +44,7 @@ public class DataManager extends Settings implements TransactionManager, AutoClo
 		var result = threadLocal.get();
 		if(result != null) return result;
 		result = getExecutor0();
-		this.threadLocal.set(result);
+		threadLocal.set(result);
 		LOGGER.info("Obtained a connection wrapped in: " + result);
 		return result; //Current Thread
 	}
@@ -96,7 +96,7 @@ public class DataManager extends Settings implements TransactionManager, AutoClo
 	private void createDbutilsSessionFactory() {
 		if(this.dbutilsFactory != null) return;
 		try {
-			this.dbutilsFactory = new QueryRunnerFactory(driver, url, user, password, capacity);
+			this.dbutilsFactory = new QueryRunnerFactory("",driver, url, user, password, capacity);
 		}catch(Exception e) {
 			throw new DataException("Failed to initialize dbunits session factory.", e);
 		}
@@ -175,6 +175,7 @@ public class DataManager extends Settings implements TransactionManager, AutoClo
 		if(executor == null) return; //Without
 		var connection = executor.getConnection();
 		try {
+			if(connection.isClosed()) return;
 			if(!connection.getAutoCommit()) {
 				connection.commit();
 				connection.setAutoCommit(true);

@@ -33,31 +33,11 @@ public final class Hotpot {
 		put("java.lang.Character", 8);    put("char",   8);
 		put("java.lang.String",    9);    put("String", 9);
 	}};
-	
-	private static final Map<String, String> SHORTNAMES = new HashMap<>() {
-		private static final long serialVersionUID = 1L;
-
-	{
-		put("int", "java.lang.Integer"); 	put("long", "java.lang.Long");
-		put("float", "java.lang.Float"); 	put("short", "java.lang.Short");
-		put("boolean", "java.lang.Boolean");put("double", "java.lang.Double");
-		put("byte", "java.lang.Byte");		put("char", "java.lang.Character");
-		put("string", "java.lang.String");
-	}};
 			
-	public static String fullTypeName(String type) {
-		var result = SHORTNAMES.get(type.toLowerCase());
-		return result != null ? result : type;
-	}
 	
 	public static boolean isPrimitive(Class<?> clazz) {
 		var name = clazz.getName();
 		return PRIMITIVES.containsKey(name);
-	}
-	
-	public static boolean compareTypes(String actual, String expect) {
-		if(expect.equals(actual)) return true;
-		return PRIMITIVES.get(actual) == PRIMITIVES.get(expect);
 	}
 	
 	private static String toFieldName(String method) {
