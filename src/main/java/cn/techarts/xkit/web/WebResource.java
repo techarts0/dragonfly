@@ -60,48 +60,6 @@ public class WebResource {
 		}
 	}
 	
-	private WebResource setServiceMeta(ServiceMeta meta) {
-		this.service = meta;
-		this.values = null;
-		return this;
-	}
-	
-	public ServiceMeta getServiceMeta(List<String> arguments) {
-		return this.service.setArguments(arguments);
-	}
-	
-	public ServiceMeta getServiceMeta() {
-		return this.service;
-	}
-	
-	private boolean wild(String locator) {
-		return locator.startsWith("{") && locator.endsWith("}");
-	}
-	
-	/**
-	 * Is wild card.
-	 */
-	public boolean isWild() {
-		return this.wildcard;
-	}
-	
-	public void put(String key, WebResource val) {
-		this.values.put(key, val);
-	}
-	
-	public WebResource get(String val) {
-		if(val == null) return null;
-		var result = values.get(val);
-		if(result != null) return result;
-		return values.get(WILDCARD);
-	}
-	
-	public boolean hasNext() {
-		if(service == null) return false;
-		if(this.values == null) return true;
-		return this.values.isEmpty();
-	}
-	
 	// Pattern: POST/authors/1/books/233
 	public ServiceMeta matches(String uri, String method) {
 		if(uri == null) return null;
@@ -126,5 +84,47 @@ public class WebResource {
 			}
 		}
 		return current.getServiceMeta(arguments);
+	}	
+	
+	private WebResource setServiceMeta(ServiceMeta meta) {
+		this.service = meta;
+		this.values = null;
+		return this;
+	}
+	
+	public ServiceMeta getServiceMeta(List<String> arguments) {
+		return this.service.setArguments(arguments);
+	}
+	
+	public ServiceMeta getServiceMeta() {
+		return this.service;
+	}
+	
+	private boolean wild(String locator) {
+		return locator.startsWith("{") && locator.endsWith("}");
+	}
+	
+	/**
+	 * Is wildcard.
+	 */
+	public boolean isWild() {
+		return this.wildcard;
+	}
+	
+	public void put(String key, WebResource val) {
+		this.values.put(key, val);
+	}
+	
+	public WebResource get(String val) {
+		if(val == null) return null;
+		var result = values.get(val);
+		if(result != null) return result;
+		return values.get(WILDCARD);
+	}
+	
+	public boolean hasNext() {
+		if(service == null) return false;
+		if(this.values == null) return true;
+		return this.values.isEmpty();
 	}
 }
