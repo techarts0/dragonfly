@@ -27,8 +27,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import cn.techarts.whale.Context;
-import cn.techarts.xkit.data.DataManager;
-import cn.techarts.xkit.data.redis.RedisCacheHelper;
+import cn.techarts.whale.core.Factory;
 import cn.techarts.xkit.util.Converter;
 import cn.techarts.xkit.util.Hotpot;
 import cn.techarts.xkit.util.Scanner;
@@ -90,14 +89,18 @@ public class StartupListener implements ServletContextListener {
 	}
 	
 	private void initWhale(ServletContext context, List<String> classes, Map<String, String> configs) {
-		Context.make(configs)
-		       .cache(context)
-		       .createFactory()
-		       .register(classes) //scan(classpath)
-		       .parse(getResourcePath("beans.xml"))
-		       .register(DataManager.class)
-		       .register(RedisCacheHelper.class)
-		       .start();
+		var factory = Context.make(configs).cache(context).createFactory();
+		factory.register(classes).parse(getResourcePath("beans.xml"));
+		registerAppModules(factory, configs.get("app.modules")).start();
+	}
+	
+	private Factory registerAppModules(Factory factory, String modules) {
+		if(modules == null || modules.isBlank()) return factory;
+		var appModules = modules.split(",");
+		for(int i = 0; i < appModules.length; i++) {
+			factory.register(appModules[i]);
+		}
+		return factory;
 	}
 	
 	@Override

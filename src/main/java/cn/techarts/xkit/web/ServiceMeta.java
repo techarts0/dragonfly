@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.techarts.xkit.web.restful.Delete;
 import cn.techarts.xkit.web.restful.Get;
+import cn.techarts.xkit.web.restful.Head;
 import cn.techarts.xkit.web.restful.Post;
 import cn.techarts.xkit.web.restful.Put;
 
@@ -73,6 +74,15 @@ public final class ServiceMeta {
 		this.method = method;
 		this.setRestful(true);
 		this.httpMethod= "DELETE";
+		this.permission = get.permission();
+	}
+	
+	public ServiceMeta(Head get, Object object, Method method) {
+		this.uri = get.uri();
+		this.object = object;
+		this.method = method;
+		this.setRestful(true);
+		this.httpMethod= "HEAD";
 		this.permission = get.permission();
 	}
 	
@@ -177,7 +187,11 @@ public final class ServiceMeta {
 		var rp = method.getAnnotation(Put.class);
 		if(rp != null && rp.uri() != null) {
 			return new ServiceMeta(rp, target, method);
-		}		
+		}
+		var hr = method.getAnnotation(Head.class);
+		if(hr != null && hr.uri() != null) {
+			return new ServiceMeta(hr, target, method);
+		}
 		var dr = method.getAnnotation(Delete.class);
 		if(dr == null || dr.uri() == null) return null;
 		return new ServiceMeta(dr, target, method);

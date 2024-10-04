@@ -35,7 +35,7 @@ import redis.clients.jedis.JedisPoolConfig;
  * @author rocwon@gmail.com
  */
 @Named
-public class RedisCacheHelper implements Closeable{
+public class RedisHelper implements Closeable{
 	
 	@Inject
 	@Valued(key="redis.port")
@@ -51,7 +51,7 @@ public class RedisCacheHelper implements Closeable{
 	private JedisPool connectionPool = null;
 	
 	
-	public RedisCacheHelper() {
+	public RedisHelper() {
 		if(host == null || port <= 0) return;
 		int max = capacity > 0 ? capacity : 20;
 		this.initConnectionPool(host, port, max);

@@ -24,7 +24,7 @@ import java.util.List;
 import javax.inject.Inject;
 import cn.techarts.xkit.data.DataHelper;
 import cn.techarts.xkit.data.DataManager;
-import cn.techarts.xkit.data.redis.RedisCacheHelper;
+import cn.techarts.xkit.data.redis.RedisHelper;
 import cn.techarts.xkit.data.trans.TransactionManager;
 
 /**
@@ -36,7 +36,7 @@ public abstract class AbstractService
 	private DataManager dataManager = null;
 	
 	@Inject
-	private RedisCacheHelper cache = null;
+	private RedisHelper redisHelper = null;
 		
 	/**
 	 * ERRID means the Id is ZERO(<b>0</b>) and it's <b>invalid</b>.
@@ -57,11 +57,11 @@ public abstract class AbstractService
 		return dataManager.getExecutor();
 	}
 	
-	protected RedisCacheHelper cache() {
-		if(cache == null || !cache.isInitialized()) {
-			throw new RuntimeException("Redis is not enabled.");
+	protected RedisHelper getRedisHelper() {
+		if(redisHelper == null || !redisHelper.isInitialized()) {
+			throw new RuntimeException("Redis helper is not enabled.");
 		}
-		return this.cache;
+		return this.redisHelper;
 	}
 	
 	/**
