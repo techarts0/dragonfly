@@ -21,12 +21,9 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import cn.techarts.xkit.util.Converter;
 
 /**
@@ -87,17 +84,9 @@ public class ServiceRouter extends HttpServlet{
 	
 	private ServiceMeta getService(ServletContext context, String uri, String method) {
 		if(uri == null || uri.isBlank()) return null;
-		var objs = context.getAttribute(WebService.CACHE_KEY);
-		if(objs == null) return null;
-		@SuppressWarnings("unchecked")
-		var webservices = (Map<String, ServiceMeta>)objs;
-		if(webservices.isEmpty()) return null;
-		if(!ServiceMeta.restful) {
-			return webservices != null ? webservices.get(uri) : null; 
-		}else {
-			var m = method.toLowerCase().concat(uri);
-			return webservices != null ? webservices.get(m) : null;
-		}
+		var rootWebLocator = context.getAttribute(WebService.CACHE_KEY);
+		if(rootWebLocator == null) return null;
+		return ((WebResource)rootWebLocator).matches(uri, method);
 	}
 		
 	@Override
@@ -118,7 +107,7 @@ public class ServiceRouter extends HttpServlet{
 		int result = authenticate(request, response, service);
 						
 		if(result == ALLOWED) {
-			service.call(request, response, method);
+			service.call(request, response);
 		}else if(result == NO_SUCH_API) {
 			handleUndefinedRequest(api, request, response);
 		}else{

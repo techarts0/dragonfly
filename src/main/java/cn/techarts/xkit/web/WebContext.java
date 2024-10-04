@@ -38,6 +38,7 @@ public class WebContext {
 	public static final String CT_JSON = "application/json;charset=UTF-8";
 	public static final String CT_FORM = "application/x-www-form-urlencoded";
 	
+	private List<String> arguments; //RESTFUL
 	private HttpServletRequest request;
 	private HttpServletResponse response;
 	private Result result = Result.ok();
@@ -45,6 +46,10 @@ public class WebContext {
 	public WebContext(HttpServletRequest request, HttpServletResponse response) {
 		this.request = request;
 		this.response = response;
+	}
+	
+	public void setRestfulArguments(List<String> arguments) {
+		this.arguments = arguments;
 	}
 	
 	public void respondAsJson(Object obj){
@@ -93,12 +98,22 @@ public class WebContext {
 					 .append("}").toString();
 	}
 	
-	@Deprecated
-	protected static Integer errno(Object content) {
-		if(content == null) return Integer.valueOf(-1); //Failure
-		if(!(content instanceof Integer)) return Integer.valueOf(0);
-		Integer result = (Integer)content;
-		return result.intValue() <= 0 ? result : Integer.valueOf(0);
+	/**
+	 * For example: the request "/users/{id}/articles/{id}"<p>
+	 * the index of first {id} is 0, and the second {id} is 1.<p>
+	 */
+	public String get(int index) {
+		if(arguments == null) return null;
+		return this.arguments.get(index);
+	}
+	
+	/**
+	 * @see get(int index)
+	 */
+	public int getInt(int index) {
+		var tmp = get(index);
+		if(tmp == null) return 0;
+		return Converter.toInt(tmp);
 	}
 	
 	public int getInt(String name) {

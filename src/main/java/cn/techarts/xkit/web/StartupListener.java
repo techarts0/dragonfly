@@ -18,7 +18,6 @@ package cn.techarts.xkit.web;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -124,10 +123,9 @@ public class StartupListener implements ServletContextListener {
 	}
 	
 	private int initWebServices(ServletContext context, List<String> classes) {
+		var webServiceCount = 0;
 		var container = Context.from(context);
-		
-		var result = new LinkedHashMap<String, ServiceMeta>(512);
-		
+		WebResource result = new WebResource(false);
 		for(var service : classes) {
 			var ws = container.silent(service);
 			if(ws == null || !isWebService(ws)) continue;
@@ -138,18 +136,12 @@ public class StartupListener implements ServletContextListener {
 				//The method is not a (or not a legal) web service
 				if(wm == null || wm.uri() == null) continue;
 				if(!checkMethodParameterType(method)) continue;
-				var s = new ServiceMeta(wm.uri(), ws, method, wm.method());
-				s.setPermissionRequired(wm.permission()); //Session
-				if(!ServiceMeta.restful) {
-					result.put(wm.uri(), s); //Without the prefix get|post 
-				}else { //With a prefix string get|post such as get/user/login
-					var tmp = wm.method().toLowerCase();
-					result.put(tmp.concat(wm.uri()), s);
-				}
+				webServiceCount++;
+				result.parse(new ServiceMeta(wm, ws, method));
 			}
-			if(!result.isEmpty()) context.setAttribute(WebService.CACHE_KEY, result);
+			context.setAttribute(WebService.CACHE_KEY, result);
 		}
-		return result.size(); //How many web-services are found?
+		return webServiceCount; //How many web-services are found?
 	}
 	
 	private boolean checkMethodParameterType(Method m) {

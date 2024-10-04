@@ -17,6 +17,8 @@
 package cn.techarts.xkit.web;
 
 import java.lang.reflect.Method;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,15 +30,18 @@ public final class ServiceMeta {
 	private Method method;
 	private String uri = null;
 	private String httpMethod;
+	private boolean restful = false;
 	private boolean permission = true;
 	
-	public static boolean restful = false;
+	private List<String> arguments;
 	
-	public ServiceMeta(String uri, Object object, Method method, String m) {
-		this.uri = uri;
-		this.httpMethod= m;
+	public ServiceMeta(WebMethod m, Object object, Method method) {
+		this.uri = m.uri();
 		this.object = object;
 		this.method = method;
+		this.setRestful(m.restful());
+		this.permission = m.permission();
+		this.httpMethod= m.method().toUpperCase();
 	}
 	
 	/**
@@ -62,11 +67,11 @@ public final class ServiceMeta {
 		this.method = method;
 	}
 	
-	public void call(HttpServletRequest request, HttpServletResponse response, String m) {
+	public void call(HttpServletRequest request, HttpServletResponse response) {
 		if(method == null || object == null) return;
-		if(restful && !httpMethod.equals(m)) return;
 		try {
 			var p = new WebContext(request, response);
+			p.setRestfulArguments(this.arguments);
 			p.respondAsJson(method.invoke(object, p));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -91,5 +96,27 @@ public final class ServiceMeta {
 
 	public void setPermissionRequired(boolean permissionRequired) {
 		this.permission = permissionRequired;
+	}
+	
+	public ServiceMeta setArguments(List<String> arguments) {
+		this.arguments = arguments;
+		return this;
+	}
+	
+	public List<String> getArguments(){
+		return this.arguments;
+	}
+
+	public boolean isRestful() {
+		return restful;
+	}
+
+	public void setRestful(boolean restful) {
+		this.restful = restful;
+	}
+	
+	public String getConcreteUri() {
+		if(!restful) return this.uri;
+		return httpMethod.concat(uri);
 	}
 }
