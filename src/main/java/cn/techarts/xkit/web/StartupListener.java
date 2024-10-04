@@ -132,19 +132,16 @@ public class StartupListener implements ServletContextListener {
 			var methods = ws.getClass().getMethods();
 			if(methods == null || methods.length == 0) continue;
 			for(var method : methods) {
-				var wm = method.getAnnotation(WebMethod.class);
-				//The method is not a (or not a legal) web service
-				if(wm == null || wm.uri() == null) continue;
-				if(!checkMethodParameterType(method)) continue;
-				webServiceCount++;
-				result.parse(new ServiceMeta(wm, ws, method));
+				if(!checkParamType(method)) continue;
+				var meta = ServiceMeta.to(method, ws);
+				webServiceCount += result.parse(meta);
 			}
 			context.setAttribute(WebService.CACHE_KEY, result);
 		}
 		return webServiceCount; //How many web-services are found?
 	}
 	
-	private boolean checkMethodParameterType(Method m) {
+	private boolean checkParamType(Method m) {
 		var pts = m.getParameterTypes();
 		if(pts == null || pts.length != 1) return false;
 		var ptn = WebContext.class.getName();

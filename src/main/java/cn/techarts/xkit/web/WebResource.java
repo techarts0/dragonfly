@@ -25,8 +25,8 @@ import java.util.List;
  * @author rocwon@gmail.com
  */
 public class WebResource {
+	private ServiceMeta meta = null;
 	private boolean wildcard = false;
-	private ServiceMeta service = null;
 	private Map<String, WebResource> values;
 	private static final String DELIMITER = "/";
 	private static final String WILDCARD = "////";
@@ -37,7 +37,8 @@ public class WebResource {
 	}
 	
 	// Pattern: POST/authors/{id}/books/{isbn}
-	public void parse(ServiceMeta meta) {
+	public int parse(ServiceMeta meta) {
+		if(meta == null) return 0;
 		var uri = meta.getConcreteUri();
 		if(!meta.isRestful()) {//Classic URL
 			var wl = new WebResource(false);
@@ -58,6 +59,7 @@ public class WebResource {
 			}
 			current.setServiceMeta(meta); //The last
 		}
+		return 1;
 	}
 	
 	// Pattern: POST/authors/1/books/233
@@ -87,17 +89,18 @@ public class WebResource {
 	}	
 	
 	private WebResource setServiceMeta(ServiceMeta meta) {
-		this.service = meta;
+		this.meta = meta;
 		this.values = null;
 		return this;
 	}
 	
 	public ServiceMeta getServiceMeta(List<String> arguments) {
-		return this.service.setArguments(arguments);
+		if(this.meta == null) return null;
+		return this.meta.setArguments(arguments);
 	}
 	
 	public ServiceMeta getServiceMeta() {
-		return this.service;
+		return this.meta;
 	}
 	
 	private boolean wild(String locator) {
@@ -123,7 +126,7 @@ public class WebResource {
 	}
 	
 	public boolean hasNext() {
-		if(service == null) return false;
+		if(meta == null) return false;
 		if(this.values == null) return true;
 		return this.values.isEmpty();
 	}

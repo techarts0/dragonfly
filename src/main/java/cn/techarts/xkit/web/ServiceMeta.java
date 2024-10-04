@@ -22,6 +22,11 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.techarts.xkit.web.restful.Delete;
+import cn.techarts.xkit.web.restful.Get;
+import cn.techarts.xkit.web.restful.Post;
+import cn.techarts.xkit.web.restful.Put;
+
 /**
  * @author rocwon@gmail.com
  */
@@ -34,6 +39,42 @@ public final class ServiceMeta {
 	private boolean permission = true;
 	
 	private List<String> arguments;
+	
+	public ServiceMeta(Get get, Object object, Method method) {
+		this.uri = get.uri();
+		this.object = object;
+		this.method = method;
+		this.setRestful(true);
+		this.httpMethod= "GET";
+		this.permission = get.permission();
+	}
+	
+	public ServiceMeta(Post get, Object object, Method method) {
+		this.uri = get.uri();
+		this.object = object;
+		this.method = method;
+		this.setRestful(true);
+		this.httpMethod= "POST";
+		this.permission = get.permission();
+	}
+	
+	public ServiceMeta(Put get, Object object, Method method) {
+		this.uri = get.uri();
+		this.object = object;
+		this.method = method;
+		this.setRestful(true);
+		this.httpMethod= "PUT";
+		this.permission = get.permission();
+	}
+	
+	public ServiceMeta(Delete get, Object object, Method method) {
+		this.uri = get.uri();
+		this.object = object;
+		this.method = method;
+		this.setRestful(true);
+		this.httpMethod= "DELETE";
+		this.permission = get.permission();
+	}
 	
 	public ServiceMeta(WebMethod m, Object object, Method method) {
 		this.uri = m.uri();
@@ -118,5 +159,27 @@ public final class ServiceMeta {
 	public String getConcreteUri() {
 		if(!restful) return this.uri;
 		return httpMethod.concat(uri);
+	}
+	
+	public static ServiceMeta to(Method method, Object target) {
+		var wm = method.getAnnotation(WebMethod.class);
+		if(wm != null && wm.uri() != null) {
+			return new ServiceMeta(wm, target, method);
+		}
+		var gr = method.getAnnotation(Get.class);
+		if(gr != null && gr.uri() != null) {
+			return new ServiceMeta(gr, target, method);
+		}
+		var pr = method.getAnnotation(Post.class);
+		if(pr != null && pr.uri() != null) {
+			return new ServiceMeta(pr, target, method);
+		}
+		var rp = method.getAnnotation(Put.class);
+		if(rp != null && rp.uri() != null) {
+			return new ServiceMeta(rp, target, method);
+		}		
+		var dr = method.getAnnotation(Delete.class);
+		if(dr == null || dr.uri() == null) return null;
+		return new ServiceMeta(dr, target, method);
 	}
 }

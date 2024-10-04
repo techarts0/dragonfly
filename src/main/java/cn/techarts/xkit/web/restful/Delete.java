@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cn.techarts.xkit.web;
+package cn.techarts.xkit.web.restful;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -24,14 +24,10 @@ import java.lang.annotation.Target;
 /**
  * @author rocwon@gmail.com
  */
+@Restful
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WebMethod {
+public @interface Delete {
 	public String uri();
-	public String method() default "POST";
-	/**
-	 * Default: Strict restful mode disabled.
-	 */
-	public boolean restful() default false;
 	public boolean permission() default true;
 }
