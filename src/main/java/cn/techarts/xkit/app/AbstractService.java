@@ -28,6 +28,8 @@ import cn.techarts.xkit.data.redis.RedisHelper;
 import cn.techarts.xkit.data.trans.TransactionManager;
 
 /**
+ * Full RDB access and Redis caching capabilities are enabled.
+ * 
  * @author rocwon@gmail.com
  */
 public abstract class AbstractService 
@@ -54,12 +56,15 @@ public abstract class AbstractService
 	 * Container manages transaction.
 	 */
 	protected DataHelper getDataHelper() {
+		if(dataManager == null) {
+			throw new RuntimeException("Data module is not enabled.");
+		}
 		return dataManager.getExecutor();
 	}
 	
 	protected RedisHelper getRedisHelper() {
 		if(redisHelper == null || !redisHelper.isInitialized()) {
-			throw new RuntimeException("Redis helper is not enabled.");
+			throw new RuntimeException("Cache module is not enabled.");
 		}
 		return this.redisHelper;
 	}

@@ -23,8 +23,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import cn.techarts.whale.Context;
 import cn.techarts.xkit.app.Codec;
 import cn.techarts.xkit.app.Result;
 import cn.techarts.xkit.app.UniObject;
@@ -98,9 +101,36 @@ public class WebContext {
 					 .append("}").toString();
 	}
 	
+	public ServletContext getServletContext() {
+		if(this.request == null) return null;
+		return this.request.getServletContext();
+	}
+	
 	/**
+	 * Retrieve managed object from DI container.
+	 */
+	public<T> T get(String name, Class<T> clazz) {
+		var ctx = getServletContext();
+		if(ctx == null) return null;
+		var context = Context.from(ctx);
+		if(context == null) return null;
+		return context.silent(name, clazz);
+	}
+	
+	/**
+	 * Retrieve managed object from DI container.
+	 */
+	public<T> T get(Class<T> clazz) {
+		var ctx = getServletContext();
+		if(ctx == null) return null;
+		var context = Context.from(ctx);
+		if(context == null) return null;
+		return context.silent(clazz);
+	}
+	
+	/**Restful URL Pattern:<br>
 	 * For example: the request "/users/{id}/articles/{id}"<p>
-	 * the index of first {id} is 0, and the second {id} is 1.<p>
+	 * the index of first {id} is 0, and the second {id} is 1.
 	 */
 	public String get(int index) {
 		if(arguments == null) return null;
