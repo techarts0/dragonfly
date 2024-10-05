@@ -65,6 +65,7 @@ public class WebResource {
 	// Pattern: POST/authors/1/books/233
 	public ServiceMeta matches(String uri, String method) {
 		if(uri == null) return null;
+		if(values == null) return null;
 		var result = values.get(uri);
 		if(result != null) {//Classic URL
 			return result.getServiceMeta();
@@ -120,6 +121,7 @@ public class WebResource {
 	
 	public WebResource get(String val) {
 		if(val == null) return null;
+		if(values == null) return null;
 		var result = values.get(val);
 		if(result != null) return result;
 		return values.get(WILDCARD);
