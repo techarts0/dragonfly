@@ -28,9 +28,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.techarts.whale.Context;
-import cn.techarts.xkit.app.Codec;
 import cn.techarts.xkit.app.Result;
 import cn.techarts.xkit.app.UniObject;
+import cn.techarts.xkit.util.Codec;
 import cn.techarts.xkit.util.Converter;
 
 /**

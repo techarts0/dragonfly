@@ -26,7 +26,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import cn.techarts.whale.Valued;
-import cn.techarts.xkit.app.Codec;
+import cn.techarts.xkit.util.Codec;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
