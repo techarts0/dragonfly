@@ -42,7 +42,7 @@ public final class ServiceMeta {
 	private List<String> arguments;
 	
 	public ServiceMeta(Get get, Object object, Method method) {
-		this.uri = get.uri();
+		this.uri = get.value();
 		this.object = object;
 		this.method = method;
 		this.setRestful(true);
@@ -51,7 +51,7 @@ public final class ServiceMeta {
 	}
 	
 	public ServiceMeta(Post get, Object object, Method method) {
-		this.uri = get.uri();
+		this.uri = get.value();
 		this.object = object;
 		this.method = method;
 		this.setRestful(true);
@@ -60,7 +60,7 @@ public final class ServiceMeta {
 	}
 	
 	public ServiceMeta(Put get, Object object, Method method) {
-		this.uri = get.uri();
+		this.uri = get.value();
 		this.object = object;
 		this.method = method;
 		this.setRestful(true);
@@ -69,7 +69,7 @@ public final class ServiceMeta {
 	}
 	
 	public ServiceMeta(Delete get, Object object, Method method) {
-		this.uri = get.uri();
+		this.uri = get.value();
 		this.object = object;
 		this.method = method;
 		this.setRestful(true);
@@ -78,7 +78,7 @@ public final class ServiceMeta {
 	}
 	
 	public ServiceMeta(Head get, Object object, Method method) {
-		this.uri = get.uri();
+		this.uri = get.value();
 		this.object = object;
 		this.method = method;
 		this.setRestful(true);
@@ -177,23 +177,23 @@ public final class ServiceMeta {
 			return new ServiceMeta(wm, target, method);
 		}
 		var gr = method.getAnnotation(Get.class);
-		if(gr != null && gr.uri() != null) {
+		if(gr != null && gr.value() != null) {
 			return new ServiceMeta(gr, target, method);
 		}
 		var pr = method.getAnnotation(Post.class);
-		if(pr != null && pr.uri() != null) {
+		if(pr != null && pr.value() != null) {
 			return new ServiceMeta(pr, target, method);
 		}
 		var rp = method.getAnnotation(Put.class);
-		if(rp != null && rp.uri() != null) {
+		if(rp != null && rp.value() != null) {
 			return new ServiceMeta(rp, target, method);
 		}
 		var hr = method.getAnnotation(Head.class);
-		if(hr != null && hr.uri() != null) {
+		if(hr != null && hr.value() != null) {
 			return new ServiceMeta(hr, target, method);
 		}
 		var dr = method.getAnnotation(Delete.class);
-		if(dr == null || dr.uri() == null) return null;
+		if(dr == null || dr.value() == null) return null;
 		return new ServiceMeta(dr, target, method);
 	}
 }

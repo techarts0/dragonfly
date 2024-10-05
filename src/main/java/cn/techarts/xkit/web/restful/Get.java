@@ -28,6 +28,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Get {
-	public String uri();
+	public String value(); //URL
 	public boolean permission() default true;
 }
