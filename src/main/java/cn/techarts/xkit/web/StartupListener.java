@@ -51,7 +51,7 @@ public class StartupListener implements ServletContextListener {
 		this.getSessionConfig(context, configs);
 		this.initWhale(context, classes, configs);
 		int n = initWebServices(context, classes);
-		LOGGER.info("The web application is started: (" + n + " web services)");
+		LOGGER.info("The web application has been started successfully. (" + n + " web services)");
 	}
 	
 	private List<String> scanClasses(String classpath){
