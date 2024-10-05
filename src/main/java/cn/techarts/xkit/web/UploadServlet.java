@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.techarts.whale.Context;
-import cn.techarts.xkit.app.UploadHandler;
 import cn.techarts.xkit.util.Hotpot;
 
 /**

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cn.techarts.xkit.app;
+package cn.techarts.xkit.web;
 
 import java.io.InputStream;
 
@@ -22,16 +22,15 @@ import java.io.InputStream;
  * The implementation needs to be managed by IoC container using the annotation @Named(UploadHandler.ID)<p>
  * For example:<p>
  * 
- * @Named(FileUploader.ID)<br>
- * public class FileUploadService extends AbstractService implements FileUploadService, UploadHandler{<br>
+ * @Bind(UploadHandler.class, YourServiceImpl.class)<p>
+ * @Named
+ * public class YourServiceImpl extends AbstractService implements YourService, UploadHandler{<br>
  *     //Implementations ...<br>
  * }
  * 
  * @author rocwon@gmail.com
  */
 public interface UploadHandler {
-	public static final String ID = "cn.techarts.xkit.app.UploadHandler";
-	
 	/**
 	 * @param name The original file name which you uploaded.
 	 */
