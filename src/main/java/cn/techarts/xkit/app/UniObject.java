@@ -20,6 +20,8 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import cn.techarts.xkit.web.Result;
+
 /**
  * Generally, a POJO should derived from the class {@link UniObject} especially mapping on an entity in database.<p>
  * An instance of a subclass derived from {@link UniObject} owns a unique id(an integer) and supports serialization.<p>
@@ -29,7 +31,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * 
  * @author rocwon@gmail.com
  */
-public class UniObject implements Serializable {
+public class UniObject extends Result implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -41,14 +43,6 @@ public class UniObject implements Serializable {
 	protected int id;
 	
 	private String name;
-	
-	//Error Code
-	@JsonIgnore
-	private int code;
-	
-	//Cause Description
-	@JsonIgnore
-	private String text;
 		
 	//The page number
 	@JsonIgnore
@@ -86,26 +80,6 @@ public class UniObject implements Serializable {
 		this.name = name;
 	}
 	
-	public int getCode() {
-		return code;
-	}
-
-	public void setCode(int code) {
-		this.code = code;
-	}
-
-	public String getText() {
-		if(code == 0) {
-			return "OK";
-		}else {
-			return text;
-		}
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-	
 	public int getPage() {
 		return this.page;
 	}
@@ -135,11 +109,11 @@ public class UniObject implements Serializable {
 	
 	@JsonIgnore
 	public Result toResult() {
-		return new Result(code, text);
+		return (Result)this;
 	}
 	
 	public void error(int code, String text) {
-		this.code = code;
-		this.text = text;
+		this.setCode(code);
+		this.setText(text);
 	}
 }

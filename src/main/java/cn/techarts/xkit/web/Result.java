@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cn.techarts.xkit.app;
+package cn.techarts.xkit.web;
 
 import java.io.Serializable;
 
@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 /**
  * @author rocwon@gmail.com
  */
-public final class Result implements Serializable{
+public class Result implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	@JsonIgnore
@@ -45,7 +45,11 @@ public final class Result implements Serializable{
 		this.code = code;
 	}
 	public String getText() {
-		return text;
+		if(code == 0) {
+			return "OK";
+		}else {
+			return text;
+		}
 	}
 	public void setText(String text) {
 		this.text = text;

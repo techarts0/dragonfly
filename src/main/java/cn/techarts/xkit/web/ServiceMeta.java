@@ -125,7 +125,7 @@ public final class ServiceMeta {
 			p.setRestfulArguments(this.arguments);
 			p.respondAsJson(method.invoke(object, p));
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("Failed to execute the web service.",  e);
 		}
 	}
 
@@ -172,28 +172,29 @@ public final class ServiceMeta {
 	}
 	
 	public static ServiceMeta to(Method method, Object target) {
-		var wm = method.getAnnotation(WebMethod.class);
-		if(wm != null && wm.uri() != null) {
-			return new ServiceMeta(wm, target, method);
+		var result = method.getDeclaredAnnotations();
+		if(result == null || result.length == 0) return null;
+		for(var annotation : result) {
+			if(annotation instanceof WebMethod) {
+				var tmp = (WebMethod)annotation;
+				return new ServiceMeta(tmp, target, method);
+			}else if(annotation instanceof Get) {
+				var tmp = (Get)annotation;
+				return new ServiceMeta(tmp, target, method);
+			}else if(annotation instanceof Post) {
+				var tmp = (Post)annotation;
+				return new ServiceMeta(tmp, target, method);
+			}else if(annotation instanceof Put) {
+				var tmp = (Put)annotation;
+				return new ServiceMeta(tmp, target, method);
+			}else if(annotation instanceof Delete) {
+				var tmp = (Delete)annotation;
+				return new ServiceMeta(tmp, target, method);
+			}else if(annotation instanceof Head) {
+				var tmp = (Head)annotation;
+				return new ServiceMeta(tmp, target, method);
+			}
 		}
-		var gr = method.getAnnotation(Get.class);
-		if(gr != null && gr.value() != null) {
-			return new ServiceMeta(gr, target, method);
-		}
-		var pr = method.getAnnotation(Post.class);
-		if(pr != null && pr.value() != null) {
-			return new ServiceMeta(pr, target, method);
-		}
-		var rp = method.getAnnotation(Put.class);
-		if(rp != null && rp.value() != null) {
-			return new ServiceMeta(rp, target, method);
-		}
-		var hr = method.getAnnotation(Head.class);
-		if(hr != null && hr.value() != null) {
-			return new ServiceMeta(hr, target, method);
-		}
-		var dr = method.getAnnotation(Delete.class);
-		if(dr == null || dr.value() == null) return null;
-		return new ServiceMeta(dr, target, method);
+		return null; // :( The method is not a web service.
 	}
 }

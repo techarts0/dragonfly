@@ -33,7 +33,7 @@ public interface UploadHandler {
 	public static final String ID = "cn.techarts.xkit.app.UploadHandler";
 	
 	/**
-	 * @param name The original file name you uploaded.
+	 * @param name The original file name which you uploaded.
 	 */
 	public void handle(String name, String type, long size, InputStream content);
 }

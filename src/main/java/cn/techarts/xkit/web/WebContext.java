@@ -22,14 +22,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import cn.techarts.whale.Context;
-import cn.techarts.xkit.app.Result;
-import cn.techarts.xkit.app.UniObject;
 import cn.techarts.xkit.util.Codec;
 import cn.techarts.xkit.util.Converter;
 
@@ -60,9 +56,6 @@ public class WebContext {
 			if(!result.mark()) {
 				result = Result.unknown();
 			}
-		}else if(obj instanceof UniObject){
-			var tmp = (UniObject)obj;
-			this.result = tmp.toResult();
 		}else if(obj instanceof Result) {
 			this.result = (Result)obj;
 		}
