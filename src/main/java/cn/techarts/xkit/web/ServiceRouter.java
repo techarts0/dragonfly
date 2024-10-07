@@ -113,7 +113,7 @@ public class ServiceRouter extends HttpServlet{
 		}else{
 			var code = INVALID_SESSION;
 			var msg = "Error: an invalid session.";
-			WebContext.respondAsJson(response, result, code, msg);
+			WebContext.respondMessage(response, code, msg);
 		}
 	}
 	
@@ -138,6 +138,6 @@ public class ServiceRouter extends HttpServlet{
 	}
 	
 	protected void handleUndefinedRequest(String api, HttpServletRequest request, HttpServletResponse response) {
-		WebContext.respondAsJson(response, null, NO_SUCH_API, "No such API.");
+		WebContext.respondMessage(response, NO_SUCH_API, "No such API.");
 	}
 }

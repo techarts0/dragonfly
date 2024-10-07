@@ -121,12 +121,6 @@ public abstract class AbstractService
 		return arg == null || arg.getId() == ERRID ? false : true;
 	}
 	
-	protected<T extends UniObject> T error(T arg, int code, String text){
-		if(arg == null) return null;
-		arg.error(code, text);
-		return arg;
-	}
-	
 	/**
 	 * Get the first item from the variable arguments.
 	 */

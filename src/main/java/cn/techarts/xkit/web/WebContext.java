@@ -52,46 +52,33 @@ public class WebContext {
 	}
 	
 	public void respondAsJson(Object obj){
-		if(obj == null) {
+		if(obj != null) {
+			this.result.setData(obj);
+		}else {
 			if(!result.mark()) {
 				result = Result.unknown();
 			}
-		}else if(obj instanceof Result) {
-			this.result = (Result)obj;
 		}
-		
-		response.setContentType(CT_JSON);
-		var content = Codec.toJson(obj);
-		content = wrap(content, result);
-		try{
-			response.getWriter().write(content);
-			response.getWriter().flush();
-		}catch(IOException e){ 
-			e.printStackTrace();
-		}
-	}
-	
-	public static void respondAsJson(HttpServletResponse response, Object result, int code, String msg){
 		response.setContentType(CT_JSON);
 		var content = Codec.toJson(result);
-		content = wrap(content, new Result(code, msg));
 		try{
 			response.getWriter().write(content);
 			response.getWriter().flush();
 		}catch(IOException e){ 
-			e.printStackTrace();
+			throw new RuntimeException("Failed to response.", e);
 		}
 	}
 	
-	protected static String wrap(String data, Result result) {
-		return new StringBuilder(1024)
-					 .append("{\"code\":")
-			 		 .append(result.getCode())
-					 .append(",\"text\":\"")
-					 .append(result.getText())
-					 .append("\",\"data\":")
-					 .append(data)
-					 .append("}").toString();
+	public static void respondMessage(HttpServletResponse response, int code, String msg){
+		response.setContentType(CT_JSON);
+		var info = new Result(code, msg);
+		var content = Codec.toJson(info);
+		try{
+			response.getWriter().write(content);
+			response.getWriter().flush();
+		}catch(IOException e){ 
+			throw new RuntimeException("Failed to response.", e);
+		}
 	}
 	
 	public ServletContext getServletContext() {
@@ -127,7 +114,11 @@ public class WebContext {
 	 */
 	public String get(int index) {
 		if(arguments == null) return null;
-		return this.arguments.get(index);
+		var tmp = arguments.get(index);
+		if(tmp != null) return tmp;
+		var size = arguments.size() - 1;
+		var bound = "(0 - " + size + ")";
+		throw new RuntimeException("Out of boundary:" + bound);
 	}
 	
 	/**

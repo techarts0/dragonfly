@@ -17,21 +17,17 @@
 package cn.techarts.xkit.app;
 
 import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import cn.techarts.xkit.web.Result;
 
 /**
  * Generally, a POJO should derived from the class {@link UniObject} especially mapping on an entity in database.<p>
  * An instance of a subclass derived from {@link UniObject} owns a unique id(an integer) and supports serialization.<p>
  * The class contains below state properties:<br>
- * 1. error-code and error-cause<br>
- * 2. page-number and page-size
+ * 1. page-number and page-size
  * 
  * @author rocwon@gmail.com
  */
-public class UniObject extends Result implements Serializable {
+public class UniObject implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -105,15 +101,5 @@ public class UniObject extends Result implements Serializable {
 	 */
 	public void setSize(int size) {
 		this.size = size;
-	}
-	
-	@JsonIgnore
-	public Result toResult() {
-		return (Result)this;
-	}
-	
-	public void error(int code, String text) {
-		this.setCode(code);
-		this.setText(text);
 	}
 }

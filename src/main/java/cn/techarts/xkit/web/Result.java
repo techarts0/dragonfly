@@ -26,16 +26,21 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Result implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
-	@JsonIgnore
+	
 	private int code;
-	@JsonIgnore
 	private String text;
+	private Object data;
 	
 	public Result() {}
 	
 	public Result(int code, String text) {
 		this.code = code;
 		this.text = text;
+	}
+	
+	public Result(int code, String text, Object data) {
+		this(code, text);
+		this.data = data;
 	}
 	
 	public int getCode() {
@@ -64,5 +69,13 @@ public class Result implements Serializable{
 	
 	public static Result unknown() {
 		return new Result(-1, "Unknown exception");
+	}
+
+	public Object getData() {
+		return data;
+	}
+
+	public void setData(Object data) {
+		this.data = data;
 	}
 }
