@@ -41,70 +41,44 @@ public final class ServiceMeta {
 	
 	private List<String> arguments;
 	
-	public ServiceMeta(Get get, Object object, Method method) {
-		this.uri = get.value();
-		this.object = object;
-		this.method = method;
-		this.setRestful(true);
+	public ServiceMeta(Get m, Object obj, Method method) {
 		this.httpMethod= "GET";
-		this.permission = get.permission();
+		setAttrs(obj, method, m.value(), m.permission());
 	}
 	
-	public ServiceMeta(Post get, Object object, Method method) {
-		this.uri = get.value();
-		this.object = object;
-		this.method = method;
-		this.setRestful(true);
+	public ServiceMeta(Post m, Object obj, Method method) {
 		this.httpMethod= "POST";
-		this.permission = get.permission();
+		setAttrs(obj, method, m.value(), m.permission());
 	}
 	
-	public ServiceMeta(Put get, Object object, Method method) {
-		this.uri = get.value();
-		this.object = object;
-		this.method = method;
-		this.setRestful(true);
+	public ServiceMeta(Put m, Object obj, Method method) {
 		this.httpMethod= "PUT";
-		this.permission = get.permission();
+		setAttrs(obj, method, m.value(), m.permission());
 	}
 	
-	public ServiceMeta(Delete get, Object object, Method method) {
-		this.uri = get.value();
-		this.object = object;
-		this.method = method;
-		this.setRestful(true);
+	public ServiceMeta(Delete m, Object obj, Method method) {
 		this.httpMethod= "DELETE";
-		this.permission = get.permission();
+		setAttrs(obj, method, m.value(), m.permission());
 	}
 	
-	public ServiceMeta(Head get, Object object, Method method) {
-		this.uri = get.value();
-		this.object = object;
-		this.method = method;
-		this.setRestful(true);
+	public ServiceMeta(Head m, Object obj, Method method) {
 		this.httpMethod= "HEAD";
-		this.permission = get.permission();
+		setAttrs(obj, method, m.value(), m.permission());
 	}
 	
-	public ServiceMeta(WebMethod m, Object object, Method method) {
-		this.uri = m.uri();
+	public ServiceMeta(WebMethod m, Object obj, Method method) {
+		setAttrs(obj, method, m.uri(), m.permission());
+		this.restful = m.restful(); //Reset it
+		this.httpMethod= m.method().toUpperCase();
+	}	
+	
+	private void setAttrs(Object object, Method method, String uri, boolean permission) {
+		this.uri = uri;
+		this.restful = true;
 		this.object = object;
 		this.method = method;
-		this.setRestful(m.restful());
-		this.permission = m.permission();
-		this.httpMethod= m.method().toUpperCase();
-	}
-	
-	/**
-	 * Get the last part of the whole URI
-	 */
-	public static String extractName(String uri) {
-		if(uri == null) return null;
-		if(uri.indexOf('/') <= 0) return uri;
-		var pathes = uri.split("/");
-		return pathes[pathes.length - 1];
-	}
-	
+		this.permission = permission;
+	}	
 	public Object getObject() {
 		return object;
 	}
