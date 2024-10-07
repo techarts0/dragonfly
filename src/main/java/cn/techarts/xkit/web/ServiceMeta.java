@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import cn.techarts.xkit.web.restful.Delete;
 import cn.techarts.xkit.web.restful.Get;
 import cn.techarts.xkit.web.restful.Head;
+import cn.techarts.xkit.web.restful.Patch;
 import cn.techarts.xkit.web.restful.Post;
 import cn.techarts.xkit.web.restful.Put;
 
@@ -39,7 +40,7 @@ public final class ServiceMeta {
 	private boolean restful = false;
 	private boolean permission = true;
 	
-	private List<String> arguments;
+	private List<String> arguments = null;
 	
 	public ServiceMeta(Get m, Object obj, Method method) {
 		this.httpMethod= "GET";
@@ -53,6 +54,11 @@ public final class ServiceMeta {
 	
 	public ServiceMeta(Put m, Object obj, Method method) {
 		this.httpMethod= "PUT";
+		setAttrs(obj, method, m.value(), m.permission());
+	}
+	
+	public ServiceMeta(Patch m, Object obj, Method method) {
+		this.httpMethod= "PATCH";
 		setAttrs(obj, method, m.value(), m.permission());
 	}
 	
@@ -167,8 +173,11 @@ public final class ServiceMeta {
 			}else if(annotation instanceof Head) {
 				var tmp = (Head)annotation;
 				return new ServiceMeta(tmp, target, method);
+			}else if(annotation instanceof Patch) {
+				var tmp = (Patch)annotation;
+				return new ServiceMeta(tmp, target, method);
 			}
 		}
-		return null; // :( The method is not a web service.
+		return null; // :( The method is not a web service or unsupported HTTP method.
 	}
 }
