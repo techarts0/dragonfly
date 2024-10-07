@@ -67,9 +67,9 @@ public final class ServiceMeta {
 	}
 	
 	public ServiceMeta(WebMethod m, Object obj, Method method) {
-		setAttrs(obj, method, m.uri(), m.permission());
-		this.restful = m.restful(); //Reset it
 		this.httpMethod= m.method().toUpperCase();
+		setAttrs(obj, method, m.uri(), m.permission());
+		this.restful = m.restful(); //Recover the default value.
 	}	
 	
 	private void setAttrs(Object object, Method method, String uri, boolean permission) {
