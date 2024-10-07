@@ -156,26 +156,19 @@ public final class ServiceMeta {
 		if(result == null || result.length == 0) return null;
 		for(var annotation : result) {
 			if(annotation instanceof WebMethod) {
-				var tmp = (WebMethod)annotation;
-				return new ServiceMeta(tmp, target, method);
+				return new ServiceMeta((WebMethod)annotation, target, method);
 			}else if(annotation instanceof Get) {
-				var tmp = (Get)annotation;
-				return new ServiceMeta(tmp, target, method);
+				return new ServiceMeta((Get)annotation, target, method);
 			}else if(annotation instanceof Post) {
-				var tmp = (Post)annotation;
-				return new ServiceMeta(tmp, target, method);
+				return new ServiceMeta((Post)annotation, target, method);
 			}else if(annotation instanceof Put) {
-				var tmp = (Put)annotation;
-				return new ServiceMeta(tmp, target, method);
+				return new ServiceMeta((Put)annotation, target, method);
 			}else if(annotation instanceof Delete) {
-				var tmp = (Delete)annotation;
-				return new ServiceMeta(tmp, target, method);
+				return new ServiceMeta((Delete)annotation, target, method);
 			}else if(annotation instanceof Head) {
-				var tmp = (Head)annotation;
-				return new ServiceMeta(tmp, target, method);
+				return new ServiceMeta((Head)annotation, target, method);
 			}else if(annotation instanceof Patch) {
-				var tmp = (Patch)annotation;
-				return new ServiceMeta(tmp, target, method);
+				return new ServiceMeta((Patch)annotation, target, method);
 			}
 		}
 		return null; // :( The method is not a web service or unsupported HTTP method.
