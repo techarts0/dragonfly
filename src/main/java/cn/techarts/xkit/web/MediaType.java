@@ -21,7 +21,12 @@ package cn.techarts.xkit.web;
  * @author rocwon@gmail.com
  */
 public enum MediaType {
+	NONE(null),
 	TEXT("text/plain"),
+	HTML("text/html"),
+	PNG("image/png"),
+	JPEG("image/jpeg"),
+	XML("application/xml"),
 	JSON("application/json;charset=UTF-8"),
 	FORM("application/x-www-form-urlencoded");
 	

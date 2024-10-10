@@ -86,7 +86,7 @@ public class ServiceRouter extends HttpServlet{
 		if(uri == null || uri.isBlank()) return null;
 		var rootWebLocator = context.getAttribute(WebService.CACHE_KEY);
 		if(rootWebLocator == null) return null;
-		return ((WebResource)rootWebLocator).matches(uri, method);
+		return ((WebLocator)rootWebLocator).matches(uri, method);
 	}
 		
 	@Override
@@ -138,6 +138,6 @@ public class ServiceRouter extends HttpServlet{
 	}
 	
 	protected void handleUndefinedRequest(String api, HttpServletRequest request, HttpServletResponse response) {
-		WebContext.respondMessage(response, NO_SUCH_API, "No such API.");
+		WebContext.respondMessage(response, NO_SUCH_API, "Not found");
 	}
 }

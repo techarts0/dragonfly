@@ -24,14 +24,14 @@ import java.util.List;
 /**
  * @author rocwon@gmail.com
  */
-public class WebResource {
+public class WebLocator {
 	private ServiceMeta meta = null;
 	private boolean wildcard = false;
-	private Map<String, WebResource> values;
+	private Map<String, WebLocator> values;
 	private static final String DELIMITER = "/";
 	private static final String WILDCARD = "////";
 	
-	public WebResource(boolean wildcard) {
+	public WebLocator(boolean wildcard) {
 		this.wildcard = wildcard;
 		this.values = new HashMap<>(32);
 	}
@@ -41,18 +41,18 @@ public class WebResource {
 		if(meta == null) return 0;
 		var uri = meta.getConcreteUri();
 		if(!meta.isRestful()) {//Classic URL
-			var wl = new WebResource(false);
+			var wl = new WebLocator(false);
 			values.put(uri, wl.setServiceMeta(meta));
 		}else { //Restful Pattern URL
 			var locators = uri.split(DELIMITER);
 			var length = locators.length;
-			WebResource current = this; //First Locator
+			WebLocator current = this; //First Locator
 			for(int i = 0; i < length; i++) {
 				var wc  = wild(locators[i]);
 				var loc = wc ? WILDCARD : locators[i];
 				var next = current.get(loc);
 				if(next == null) {
-					next = new WebResource(wc);
+					next = new WebLocator(wc);
 					current.put(loc, next);
 				}
 				current = next; //Skip to next
@@ -89,7 +89,7 @@ public class WebResource {
 		return current.getServiceMeta(arguments);
 	}	
 	
-	private WebResource setServiceMeta(ServiceMeta meta) {
+	private WebLocator setServiceMeta(ServiceMeta meta) {
 		this.meta = meta;
 		this.values = null;
 		return this;
@@ -115,11 +115,11 @@ public class WebResource {
 		return this.wildcard;
 	}
 	
-	public void put(String key, WebResource val) {
+	public void put(String key, WebLocator val) {
 		this.values.put(key, val);
 	}
 	
-	public WebResource get(String val) {
+	public WebLocator get(String val) {
 		if(val == null) return null;
 		if(values == null) return null;
 		var result = values.get(val);

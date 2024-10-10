@@ -132,7 +132,7 @@ public class StartupListener implements ServletContextListener {
 	private int initWebServices(ServletContext context, List<String> classes) {
 		var webServiceCount = 0;
 		var container = Context.from(context);
-		WebResource result = new WebResource(false);
+		WebLocator result = new WebLocator(false);
 		for(var service : classes) {
 			var ws = container.silent(service);
 			if(ws == null) continue;

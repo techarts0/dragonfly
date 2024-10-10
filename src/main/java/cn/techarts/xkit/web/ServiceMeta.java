@@ -39,59 +39,61 @@ public final class ServiceMeta {
 	private String httpMethod;
 	private boolean restful = false;
 	private boolean permission = true;
-	private MediaType mediaType = MediaType.JSON;
+	private MediaType produce = MediaType.JSON;
+	private MediaType consume = MediaType.FORM;
 	
 	private List<String> arguments = null;
 	
 	public ServiceMeta(Get m, Object obj, Method method, String prefix) {
 		this.httpMethod= "GET";
 		var uri = prefix.concat(m.value());
-		setAttrs(obj, method, uri, m.permission(), m.media());
+		setAttrs(obj, method, uri, m.permission(), m.produces(), m.consumes());
 	}
 	
 	public ServiceMeta(Post m, Object obj, Method method, String prefix) {
 		this.httpMethod= "POST";
 		var uri = prefix.concat(m.value());
-		setAttrs(obj, method, uri, m.permission(), m.media());
+		setAttrs(obj, method, uri, m.permission(), m.produces(), m.consumes());
 	}
 	
 	public ServiceMeta(Put m, Object obj, Method method, String prefix) {
 		this.httpMethod= "PUT";
 		var uri = prefix.concat(m.value());
-		setAttrs(obj, method, uri, m.permission(), m.media());
+		setAttrs(obj, method, uri, m.permission(), m.produces(), m.consumes());
 	}
 	
 	public ServiceMeta(Patch m, Object obj, Method method, String prefix) {
 		this.httpMethod= "PATCH";
 		var uri = prefix.concat(m.value());
-		setAttrs(obj, method, uri, m.permission(), m.media());
+		setAttrs(obj, method, uri, m.permission(), m.produces(), m.consumes());
 	}
 	
 	public ServiceMeta(Delete m, Object obj, Method method, String prefix) {
 		this.httpMethod= "DELETE";
 		var uri = prefix.concat(m.value());
-		setAttrs(obj, method, uri, m.permission(), m.media());
+		setAttrs(obj, method, uri, m.permission(), m.produces(), m.consumes());
 	}
 	
 	public ServiceMeta(Head m, Object obj, Method method, String prefix) {
 		this.httpMethod= "HEAD";
 		var uri = prefix.concat(m.value());
-		setAttrs(obj, method, uri, m.permission(), m.media());
+		setAttrs(obj, method, uri, m.permission(), m.produces(), m.consumes());
 	}
 	
 	public ServiceMeta(WebMethod m, Object obj, Method method, String prefix) {
 		this.httpMethod= m.method().toUpperCase();
 		var uri = prefix.concat(m.uri());
-		setAttrs(obj, method, uri, m.permission(), m.media());
+		setAttrs(obj, method, uri, m.permission(), m.produces(), m.consumes());
 		this.restful = m.restful(); //Recover the default value.
 	}	
 	
-	private void setAttrs(Object object, Method method, String uri, boolean permission, MediaType type) {
+	private void setAttrs(Object object, Method method, String uri, boolean permission, MediaType produce, MediaType consume) {
 		this.uri = uri;
 		this.restful = true;
 		this.object = object;
 		this.method = method;
-		this.mediaType = type;
+		this.produce = produce;
+		this.consume = consume;
 		this.permission = permission;
 	}	
 	public Object getObject() {
@@ -110,9 +112,14 @@ public final class ServiceMeta {
 	public void call(HttpServletRequest request, HttpServletResponse response) {
 		if(method == null || object == null) return;
 		try {
+			var expect = consume.value();
+			var type = request.getContentType();
+			if(expect != null && !expect.equals(type)) {
+				throw new RuntimeException("Content types mismatched on request.");
+			}
 			var p = new WebContext(request, response);
 			p.setRestfulArguments(this.arguments);
-			p.respondAsJson(method.invoke(object, p), mediaType);
+			p.respondAsJson(method.invoke(object, p), produce);
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to execute the web service.",  e);
 		}
@@ -181,13 +188,5 @@ public final class ServiceMeta {
 			}
 		}
 		return null; // :( The method is not a web service or unsupported HTTP method.
-	}
-
-	public MediaType getMediaType() {
-		return mediaType;
-	}
-
-	public void setMediaType(MediaType mediaType) {
-		this.mediaType = mediaType;
-	}
+	}	
 }

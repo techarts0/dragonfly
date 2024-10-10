@@ -33,5 +33,8 @@ import cn.techarts.xkit.web.MediaType;
 public @interface Get {
 	public String value(); //URL
 	public boolean permission() default true;
-	public MediaType media() default MediaType.JSON;
+	//JSR370: @Produces
+	public MediaType produces() default MediaType.JSON;
+	//JSR370: @Consumes
+	public MediaType consumes() default MediaType.NONE;
 }

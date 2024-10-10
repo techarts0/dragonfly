@@ -34,5 +34,8 @@ public @interface WebMethod {
 	 */
 	public boolean restful() default false;
 	public boolean permission() default true;
-	public MediaType media() default MediaType.JSON;
+	//JSR370: @Produces
+	public MediaType produces() default MediaType.JSON;
+	//JSR370: @Consumes
+	public MediaType consumes() default MediaType.NONE;
 }
