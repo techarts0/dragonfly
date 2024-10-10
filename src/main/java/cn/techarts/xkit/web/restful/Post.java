@@ -27,7 +27,6 @@ import cn.techarts.xkit.web.MediaType;
  * The annotation is the same as @Post in JSR370.
  * @author rocwon@gmail.com
  */
-@Restful
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Post {

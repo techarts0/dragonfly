@@ -31,7 +31,7 @@ import cn.techarts.whale.core.Factory;
 import cn.techarts.xkit.util.Converter;
 import cn.techarts.xkit.util.Hotpot;
 import cn.techarts.xkit.util.Scanner;
-import cn.techarts.xkit.web.restful.Resource;
+import cn.techarts.xkit.web.restful.Restful;
 
 /**
  * @author rocwon@gmail.com
@@ -123,7 +123,7 @@ public class StartupListener implements ServletContextListener {
 	private String getWebService(Object obj) {
 		if(obj == null) return null;
 		var clazz = obj.getClass();
-		var resource = clazz.getAnnotation(Resource.class);
+		var resource = clazz.getAnnotation(Restful.class);
 		if(resource != null) return resource.value();
 		var service = clazz.getAnnotation(WebService.class);
 		return service == null ? null : service.value();
