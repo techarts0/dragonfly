@@ -31,6 +31,7 @@ import cn.techarts.whale.core.Factory;
 import cn.techarts.xkit.util.Converter;
 import cn.techarts.xkit.util.Hotpot;
 import cn.techarts.xkit.util.Scanner;
+import cn.techarts.xkit.web.restful.Resource;
 
 /**
  * @author rocwon@gmail.com
@@ -119,10 +120,13 @@ public class StartupListener implements ServletContextListener {
 		return Context.from(ctx).get(id);
 	}
 	
-	private boolean isWebService(Object obj) {
-		if(obj == null) return false;
+	private String getWebService(Object obj) {
+		if(obj == null) return null;
 		var clazz = obj.getClass();
-		return clazz.isAnnotationPresent(WebService.class);
+		var resource = clazz.getAnnotation(Resource.class);
+		if(resource != null) return resource.value();
+		var service = clazz.getAnnotation(WebService.class);
+		return service == null ? null : service.value();
 	}
 	
 	private int initWebServices(ServletContext context, List<String> classes) {
@@ -131,12 +135,14 @@ public class StartupListener implements ServletContextListener {
 		WebResource result = new WebResource(false);
 		for(var service : classes) {
 			var ws = container.silent(service);
-			if(ws == null || !isWebService(ws)) continue;
+			if(ws == null) continue;
+			var prefix = getWebService(ws);
+			if(prefix == null) continue;
 			var methods = ws.getClass().getMethods();
 			if(methods == null || methods.length == 0) continue;
 			for(var method : methods) {
 				if(!checkParamType(method)) continue;
-				var meta = ServiceMeta.to(method, ws);
+				var meta = ServiceMeta.to(method, ws, prefix);
 				webServiceCount += result.parse(meta);
 			}
 			context.setAttribute(WebService.CACHE_KEY, result);

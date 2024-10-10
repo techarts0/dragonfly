@@ -21,7 +21,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.techarts.xkit.web.MediaType;
+
 /**
+ * The annotation is the same as @DELETE in JSR370.
  * @author rocwon@gmail.com
  */
 @Restful
@@ -30,4 +33,5 @@ import java.lang.annotation.Target;
 public @interface Delete {
 	public String value(); //URL
 	public boolean permission() default true;
+	public MediaType media() default MediaType.JSON;
 }

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package cn.techarts.xkit.web.restful;
 
 import java.lang.annotation.ElementType;
@@ -21,17 +20,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.techarts.xkit.web.MediaType;
-
 /**
- * The annotation is the same as @PUT in JSR370.
+ * The annotation is the same as @Path in JSR370.
  * @author rocwon@gmail.com
  */
 @Restful
-@Target(ElementType.METHOD)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Put {
-	public String value(); //URL
-	public boolean permission() default true;
-	public MediaType media() default MediaType.JSON;
+public @interface Resource {
+	public String value() default "";
 }

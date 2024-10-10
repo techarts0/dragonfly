@@ -33,10 +33,6 @@ import cn.techarts.xkit.util.Converter;
  * @author rocwon@gmail.com
  */
 public class WebContext {
-	
-	public static final String CT_JSON = "application/json;charset=UTF-8";
-	public static final String CT_FORM = "application/x-www-form-urlencoded";
-	
 	private List<String> arguments; //RESTFUL
 	private HttpServletRequest request;
 	private HttpServletResponse response;
@@ -51,7 +47,7 @@ public class WebContext {
 		this.arguments = arguments;
 	}
 	
-	public void respondAsJson(Object obj){
+	public void respondAsJson(Object obj, MediaType type){
 		if(obj != null) {
 			this.result.setData(obj);
 		}else {
@@ -59,7 +55,7 @@ public class WebContext {
 				result = Result.unknown();
 			}
 		}
-		response.setContentType(CT_JSON);
+		response.setContentType(type.value());
 		var content = Codec.toJson(result);
 		try{
 			response.getWriter().write(content);
@@ -70,7 +66,8 @@ public class WebContext {
 	}
 	
 	public static void respondMessage(HttpServletResponse response, int code, String msg){
-		response.setContentType(CT_JSON);
+		var type = MediaType.JSON;
+		response.setContentType(type.value());
 		var info = new Result(code, msg);
 		var content = Codec.toJson(info);
 		try{
@@ -108,9 +105,13 @@ public class WebContext {
 		return context.silent(clazz);
 	}
 	
-	/**Restful URL Pattern:<br>
+	/**Get path parameter in restful URL pattern:<br>
 	 * For example: the request "/users/{id}/articles/{id}"<p>
-	 * the index of first {id} is 0, and the second {id} is 1.
+	 * the index of first {id} is 0, and the second {id} is 1.<p>
+	 * 
+	 * Dragonfly does not support annotation mode, but<br>
+	 * in JSR370, the annotation is @PathParam, <br>
+	 * in Spring-MVC, the annotation is @PathVariable
 	 */
 	public String get(int index) {
 		if(arguments == null) return null;
@@ -239,6 +240,13 @@ public class WebContext {
 	 */
 	public String ua() {
 		return request.getHeader("user-agent");
+	}
+	
+	/**
+	 * Return the parameter in HTTP header.
+	 */
+	public String head(String name) {
+		return request.getHeader(name);
 	}
 	
 	/**

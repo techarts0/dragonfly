@@ -39,50 +39,59 @@ public final class ServiceMeta {
 	private String httpMethod;
 	private boolean restful = false;
 	private boolean permission = true;
+	private MediaType mediaType = MediaType.JSON;
 	
 	private List<String> arguments = null;
 	
-	public ServiceMeta(Get m, Object obj, Method method) {
+	public ServiceMeta(Get m, Object obj, Method method, String prefix) {
 		this.httpMethod= "GET";
-		setAttrs(obj, method, m.value(), m.permission());
+		var uri = prefix.concat(m.value());
+		setAttrs(obj, method, uri, m.permission(), m.media());
 	}
 	
-	public ServiceMeta(Post m, Object obj, Method method) {
+	public ServiceMeta(Post m, Object obj, Method method, String prefix) {
 		this.httpMethod= "POST";
-		setAttrs(obj, method, m.value(), m.permission());
+		var uri = prefix.concat(m.value());
+		setAttrs(obj, method, uri, m.permission(), m.media());
 	}
 	
-	public ServiceMeta(Put m, Object obj, Method method) {
+	public ServiceMeta(Put m, Object obj, Method method, String prefix) {
 		this.httpMethod= "PUT";
-		setAttrs(obj, method, m.value(), m.permission());
+		var uri = prefix.concat(m.value());
+		setAttrs(obj, method, uri, m.permission(), m.media());
 	}
 	
-	public ServiceMeta(Patch m, Object obj, Method method) {
+	public ServiceMeta(Patch m, Object obj, Method method, String prefix) {
 		this.httpMethod= "PATCH";
-		setAttrs(obj, method, m.value(), m.permission());
+		var uri = prefix.concat(m.value());
+		setAttrs(obj, method, uri, m.permission(), m.media());
 	}
 	
-	public ServiceMeta(Delete m, Object obj, Method method) {
+	public ServiceMeta(Delete m, Object obj, Method method, String prefix) {
 		this.httpMethod= "DELETE";
-		setAttrs(obj, method, m.value(), m.permission());
+		var uri = prefix.concat(m.value());
+		setAttrs(obj, method, uri, m.permission(), m.media());
 	}
 	
-	public ServiceMeta(Head m, Object obj, Method method) {
+	public ServiceMeta(Head m, Object obj, Method method, String prefix) {
 		this.httpMethod= "HEAD";
-		setAttrs(obj, method, m.value(), m.permission());
+		var uri = prefix.concat(m.value());
+		setAttrs(obj, method, uri, m.permission(), m.media());
 	}
 	
-	public ServiceMeta(WebMethod m, Object obj, Method method) {
+	public ServiceMeta(WebMethod m, Object obj, Method method, String prefix) {
 		this.httpMethod= m.method().toUpperCase();
-		setAttrs(obj, method, m.uri(), m.permission());
+		var uri = prefix.concat(m.uri());
+		setAttrs(obj, method, uri, m.permission(), m.media());
 		this.restful = m.restful(); //Recover the default value.
 	}	
 	
-	private void setAttrs(Object object, Method method, String uri, boolean permission) {
+	private void setAttrs(Object object, Method method, String uri, boolean permission, MediaType type) {
 		this.uri = uri;
 		this.restful = true;
 		this.object = object;
 		this.method = method;
+		this.mediaType = type;
 		this.permission = permission;
 	}	
 	public Object getObject() {
@@ -103,7 +112,7 @@ public final class ServiceMeta {
 		try {
 			var p = new WebContext(request, response);
 			p.setRestfulArguments(this.arguments);
-			p.respondAsJson(method.invoke(object, p));
+			p.respondAsJson(method.invoke(object, p), mediaType);
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to execute the web service.",  e);
 		}
@@ -151,26 +160,34 @@ public final class ServiceMeta {
 		return httpMethod.concat(uri);
 	}
 	
-	public static ServiceMeta to(Method method, Object target) {
+	public static ServiceMeta to(Method method, Object target, String prefix) {
 		var result = method.getDeclaredAnnotations();
 		if(result == null || result.length == 0) return null;
 		for(var annotation : result) {
 			if(annotation instanceof WebMethod) {
-				return new ServiceMeta((WebMethod)annotation, target, method);
+				return new ServiceMeta((WebMethod)annotation, target, method, prefix);
 			}else if(annotation instanceof Get) {
-				return new ServiceMeta((Get)annotation, target, method);
+				return new ServiceMeta((Get)annotation, target, method, prefix);
 			}else if(annotation instanceof Post) {
-				return new ServiceMeta((Post)annotation, target, method);
+				return new ServiceMeta((Post)annotation, target, method, prefix);
 			}else if(annotation instanceof Put) {
-				return new ServiceMeta((Put)annotation, target, method);
+				return new ServiceMeta((Put)annotation, target, method, prefix);
 			}else if(annotation instanceof Delete) {
-				return new ServiceMeta((Delete)annotation, target, method);
+				return new ServiceMeta((Delete)annotation, target, method, prefix);
 			}else if(annotation instanceof Head) {
-				return new ServiceMeta((Head)annotation, target, method);
+				return new ServiceMeta((Head)annotation, target, method, prefix);
 			}else if(annotation instanceof Patch) {
-				return new ServiceMeta((Patch)annotation, target, method);
+				return new ServiceMeta((Patch)annotation, target, method, prefix);
 			}
 		}
 		return null; // :( The method is not a web service or unsupported HTTP method.
+	}
+
+	public MediaType getMediaType() {
+		return mediaType;
+	}
+
+	public void setMediaType(MediaType mediaType) {
+		this.mediaType = mediaType;
 	}
 }

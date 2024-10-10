@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package cn.techarts.xkit.web.restful;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import cn.techarts.xkit.web.MediaType;
+package cn.techarts.xkit.web;
 
 /**
- * The annotation is the same as @PUT in JSR370.
+ * The annotation is the same as @MediaType in JSR370.
  * @author rocwon@gmail.com
  */
-@Restful
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Put {
-	public String value(); //URL
-	public boolean permission() default true;
-	public MediaType media() default MediaType.JSON;
+public enum MediaType {
+	TEXT("text/plain"),
+	JSON("application/json;charset=UTF-8"),
+	FORM("application/x-www-form-urlencoded");
+	
+	private String contentType;
+	
+	MediaType(String contentType){
+		this.contentType = contentType;
+	}
+
+	public String value() {
+		return contentType;
+	}	
 }
