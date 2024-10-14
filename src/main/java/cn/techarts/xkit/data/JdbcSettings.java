@@ -23,7 +23,7 @@ import cn.techarts.whale.Valued;
 /**
  * @author rocwon@gmail.com
  */
-public class Settings {
+public class JdbcSettings {
 	@Inject
 	@Valued(key="jdbc.url")
 	protected String url;

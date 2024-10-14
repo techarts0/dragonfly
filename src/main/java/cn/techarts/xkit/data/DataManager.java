@@ -20,7 +20,7 @@ import cn.techarts.xkit.data.trans.TransactionManager;
 import cn.techarts.xkit.util.Hotpot;
 
 @Named
-public class DataManager extends Settings implements TransactionManager, AutoCloseable{
+public class DataManager extends JdbcSettings implements TransactionManager, AutoCloseable{
 	
 	private boolean initialized;
 	
