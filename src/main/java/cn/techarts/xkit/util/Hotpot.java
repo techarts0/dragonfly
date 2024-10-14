@@ -24,6 +24,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -261,6 +262,26 @@ public final class Hotpot {
 		}catch(IOException e){
 			throw new RuntimeException("Fail to load the ini file", e);
 		}
+	}
+	
+	public static boolean orNull(Object arg0, Object arg1) {
+		return arg0 == null || arg1 == null;
+	}
+	
+	public static boolean isNull(String arg) {
+		return arg == null || arg.isBlank();
+	}
+	
+	public static boolean isNull(Object[] arg) {
+		return arg == null || arg.length == 0;
+	}
+	
+	public static boolean isNull(Map<?, ?> arg) {
+		return arg == null || arg.isEmpty();
+	}
+	
+	public static boolean isNull(List<?> arg) {
+		return arg == null || arg.isEmpty();
 	}
 }
 

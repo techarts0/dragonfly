@@ -1,5 +1,6 @@
 package cn.techarts.xkit.data;
 
+import java.util.Objects;
 import java.util.logging.Logger;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -123,7 +124,7 @@ public class DataManager extends Settings implements TransactionManager, AutoClo
 	
 	@Override
 	public void close() {
-		if(threadLocal == null) return;
+		if(Objects.isNull(threadLocal)) return;
 		this.threadLocal.remove();
 		this.threadLocal = null;
 		if(dbutilsFactory != null) {
@@ -143,7 +144,7 @@ public class DataManager extends Settings implements TransactionManager, AutoClo
 		if(level == Isolation.NONE) return;
 		var connection = getExecutor().getConnection();
 		try {
-			if(connection == null) return;
+			if(Objects.isNull(connection)) return;
 			if(connection.isClosed()) return;
 			connection.setAutoCommit(false);
 			connection.setReadOnly(readonly);
@@ -174,7 +175,7 @@ public class DataManager extends Settings implements TransactionManager, AutoClo
 	@Override
 	public void commit() throws DataException {
 		var executor = threadLocal.get();
-		if(executor == null) return; //Without
+		if(Objects.isNull(executor)) return; //Without
 		var connection = executor.getConnection();
 		try {
 			if(connection.isClosed()) return;

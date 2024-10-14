@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import cn.techarts.xkit.data.DataException;
 import jakarta.persistence.Entity;
 /**
@@ -43,14 +45,14 @@ public class Scanner {
 	public List<String> scanJPAEntities() {
 		var path = base.concat(pkg.replace('.', '/'));
 		var files = poll(path, ".class");
-		if(files == null || files.length == 0) return null;
+		if(Hotpot.isNull(files)) return null;
 		try {
 			List<String> result = new ArrayList<>(24);
 			for(var f : files) {
-				if(f == null || !f.isFile()) continue;
+				if(Objects.isNull(f) || !f.isFile()) continue;
 				var n = f.getName().replace(".class", "");
 				var c = Class.forName(pkg.concat(".").concat(n));
-				if(c == null) continue;
+				if(Objects.isNull(c)) continue;
 				if(!c.isAnnotationPresent(Entity.class)) continue;
 				result.add(c.getName());
 			}
@@ -88,16 +90,14 @@ class XFileFilter implements FileFilter
 {
 	private String type = null;
 	
-	public XFileFilter( String fileType)
-	{
+	public XFileFilter( String fileType){
 		this.type = fileType;
 	}
 	
 	@Override
-	public boolean accept( File file)
-	{
-		if( file == null) return false;
-		if( this.type == null || this.type.isEmpty()) return true;
+	public boolean accept( File file){
+		if( Objects.isNull(file)) return false;
+		if(Hotpot.isNull(this.type)) return true;
 		return file.isFile() && file.getName().endsWith( this.type);
 	}
 }

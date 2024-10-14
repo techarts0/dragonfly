@@ -17,6 +17,7 @@
 package cn.techarts.xkit.web;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -41,12 +42,12 @@ public class UploadServlet extends HttpServlet {
 	@Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		var ct = request.getContentType();
-        if (ct == null || !ct.startsWith(CT_MULTIPART)) {
+        if (Objects.isNull(ct) || !ct.startsWith(CT_MULTIPART)) {
             throw new ServletException("Unsupported content type: " + ct);
         }
 		var ctx = Context.from(request.getServletContext());
 		var handler = ctx.get(UploadHandler.class);
-		if(handler == null) {
+		if(Objects.isNull(handler)) {
 			throw new ServletException("Can not find file upload handler.");
 		}
 		

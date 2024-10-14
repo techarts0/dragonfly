@@ -17,11 +17,14 @@
 package cn.techarts.xkit.app;
 
 import java.util.Map;
+import java.util.Objects;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import cn.techarts.whale.util.Hotpot;
 import cn.techarts.xkit.data.DataHelper;
 import cn.techarts.xkit.data.DataManager;
 import cn.techarts.xkit.data.redis.RedisHelper;
@@ -56,14 +59,14 @@ public abstract class AbstractService
 	 * Container manages transaction.
 	 */
 	protected DataHelper getDataHelper() {
-		if(dataManager == null) {
+		if(Objects.isNull(dataManager)) {
 			throw new RuntimeException("Data module is not enabled.");
 		}
 		return dataManager.getExecutor();
 	}
 	
 	protected RedisHelper getRedisHelper() {
-		if(redisHelper == null || !redisHelper.isInitialized()) {
+		if(Objects.isNull(redisHelper) || !redisHelper.isInitialized()) {
 			throw new RuntimeException("Cache module is not enabled.");
 		}
 		return this.redisHelper;
@@ -88,9 +91,8 @@ public abstract class AbstractService
 	/**
 	 * Returns true if the parameter objects is not null and contains at least 1 item.
 	 */
-	protected<T extends Object> boolean ok( T[] objects)
-	{
-		return objects != null && objects.length > 0 ? true : false; 
+	protected<T extends Object> boolean ok(T[] objects){
+		return !Hotpot.isNull(objects);
 	}
 	
 	/**
@@ -125,8 +127,7 @@ public abstract class AbstractService
 	 * Get the first item from the variable arguments.
 	 */
 	protected<T> T getFirst/**Of Variable Arguments*/(T[] objects) {
-		if(objects == null) return null;
-		if(objects.length == 0) return null;
+		if(Hotpot.isNull(objects)) return null;
 		return objects[0]; //Note: maybe null here
 	}
 	

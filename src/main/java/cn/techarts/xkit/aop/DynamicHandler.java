@@ -19,6 +19,7 @@ package cn.techarts.xkit.aop;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 /**
  * @author rocwon@gmail.com
@@ -31,7 +32,7 @@ public class DynamicHandler implements InvocationHandler {
 	private Advice[] befores;	//Initialize Context
 	
 	public DynamicHandler(Object target, Advice[] beforeAdvices, Advice[] afterAdvices, Advice finalAdvice, Advice throwAdvice) {
-		if(target == null) {
+		if(Objects.isNull(target)) {
 			throw AopException.nullTarget();
 		}
 		this.target = target;

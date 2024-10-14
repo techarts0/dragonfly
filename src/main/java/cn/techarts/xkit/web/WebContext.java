@@ -22,6 +22,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -79,7 +81,7 @@ public class WebContext {
 	}
 	
 	public ServletContext getServletContext() {
-		if(this.request == null) return null;
+		if(Objects.isNull(request)) return null;
 		return this.request.getServletContext();
 	}
 	
@@ -88,9 +90,9 @@ public class WebContext {
 	 */
 	public<T> T get(String name, Class<T> clazz) {
 		var ctx = getServletContext();
-		if(ctx == null) return null;
+		if(Objects.isNull(ctx)) return null;
 		var context = Context.from(ctx);
-		if(context == null) return null;
+		if(Objects.isNull(context)) return null;
 		return context.silent(name, clazz);
 	}
 	
@@ -99,9 +101,9 @@ public class WebContext {
 	 */
 	public<T> T get(Class<T> clazz) {
 		var ctx = getServletContext();
-		if(ctx == null) return null;
+		if(Objects.isNull(ctx)) return null;
 		var context = Context.from(ctx);
-		if(context == null) return null;
+		if(Objects.isNull(context)) return null;
 		return context.silent(clazz);
 	}
 	
@@ -114,7 +116,7 @@ public class WebContext {
 	 * in Spring-MVC, the annotation is @PathVariable
 	 */
 	public String get(int index) {
-		if(arguments == null) return null;
+		if(Objects.isNull(arguments)) return null;
 		var tmp = arguments.get(index);
 		if(tmp != null) return tmp;
 		var size = arguments.size() - 1;
@@ -127,7 +129,7 @@ public class WebContext {
 	 */
 	public int getInt(int index) {
 		var tmp = get(index);
-		if(tmp == null) return 0;
+		if(Objects.isNull(tmp)) return 0;
 		return Converter.toInt(tmp);
 	}
 	
@@ -162,7 +164,7 @@ public class WebContext {
 	
 	public List<String> toList(String name, String separator){
 		var tmp = request.getParameter(name);
-		if(tmp == null) return List.of();
+		if(Objects.isNull(tmp)) return List.of();
 		return Arrays.asList(tmp.split(separator));
 	}
 	
@@ -193,7 +195,7 @@ public class WebContext {
 	/**Get Time Parameter: yyyy/MM/dd HH:mm:ss*/
 	public Date time(String name){
 		var p = request.getParameter(name);
-		if(p == null) return null;
+		if(Objects.isNull(p)) return null;
 		int length = p.length();
 		if(length < 10) return null;
 		if(length == 16) p += ":00";
@@ -204,7 +206,7 @@ public class WebContext {
 	/**Get Date Parameter: yyyy/MM/dd*/
 	public Date date(String name){
 		var p = request.getParameter(name);
-		if(p == null) return null;
+		if(Objects.isNull(p)) return null;
 		int length = p.length();
 		if(length < 10) return null;
 		if(length > 10) {
@@ -219,8 +221,8 @@ public class WebContext {
 	
 	public static String getClientAddress(HttpServletRequest request) {
 		var result = request.getHeader("x-forwarded-for");
-		if(result == null) result = request.getHeader("X-Real-IP");
-		return result == null ? request.getRemoteAddr() : result;
+		if(Objects.isNull(result)) result = request.getHeader("X-Real-IP");
+		return Objects.isNull(result) ? request.getRemoteAddr() : result;
 	}
 	
 	public String ip() {
@@ -283,16 +285,15 @@ public class WebContext {
 	 * only the JDK built-in types and their object wrappers (e.g. long and Long)are supported.
 	 */
 	public<T> T toBean(T bean) {
-		if(bean == null) return null;
+		if(Objects.isNull(bean)) return null;
 		var clz = bean.getClass();
 		var methods = clz.getMethods();
-		if(methods == null) return bean;
 		if(methods.length == 0) return bean;
 		for(var m : methods) {
 			var name = m.getName();
 			if(!name.startsWith("set")) continue;
 			var ps = m.getParameterTypes();
-			if(ps == null || ps.length != 1) continue;
+			if(ps.length != 1) continue;
 			var cs = name.substring(3).toCharArray();
 			cs[0] += 32; //Convert the upper to lower
 			setProperty(bean, m, ps[0],String.valueOf(cs));
@@ -301,7 +302,7 @@ public class WebContext {
 	}
 	
 	private void setProperty(Object pojo, Method m, Class<?> type, String name) {
-		if(type == null) return;
+		if(Objects.isNull(type)) return;
 		var typeName = type.getSimpleName();
 		var val = request.getParameter(name);
 		try {

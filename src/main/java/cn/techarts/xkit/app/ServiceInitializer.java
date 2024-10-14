@@ -16,6 +16,7 @@
 
 package cn.techarts.xkit.app;
 
+import java.util.Objects;
 import java.util.Set;
 
 import javax.servlet.ServletContainerInitializer;
@@ -34,7 +35,7 @@ public class ServiceInitializer implements ServletContainerInitializer{
 	
 	private String getRootClassPath() {
 		var result = getClass().getResource("/");
-		if(result == null || result.getPath() == null) {
+		if(Objects.isNull(result) || result.getPath() == null) {
 			throw new RuntimeException("Failed to get resource path.");
 		}
 		return result.getPath(); //Usually, it is WEB-INF/classes

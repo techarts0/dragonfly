@@ -22,6 +22,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.techarts.whale.util.Hotpot;
 import cn.techarts.xkit.web.restful.Delete;
 import cn.techarts.xkit.web.restful.Get;
 import cn.techarts.xkit.web.restful.Head;
@@ -81,8 +82,8 @@ public final class ServiceMeta {
 	}
 	
 	public ServiceMeta(WebMethod m, Object obj, Method method, String prefix) {
-		this.httpMethod= m.method().toUpperCase();
 		var uri = prefix.concat(m.uri());
+		this.httpMethod= m.method().toUpperCase();
 		setAttrs(obj, method, uri, m.permission(), m.produces(), m.consumes());
 		this.restful = m.restful(); //Recover the default value.
 	}	
@@ -110,12 +111,12 @@ public final class ServiceMeta {
 	}
 	
 	public void call(HttpServletRequest request, HttpServletResponse response) {
-		if(method == null || object == null) return;
+		if(Hotpot.orNull(method, object)) return;
 		try {
 			var expect = consume.value();
 			var type = request.getContentType();
 			if(expect != null && !expect.equals(type)) {
-				throw new RuntimeException("Content types mismatched on request.");
+				throw new RuntimeException("The content types mismatched.");
 			}
 			var p = new WebContext(request, response);
 			p.setRestfulArguments(this.arguments);
@@ -169,7 +170,7 @@ public final class ServiceMeta {
 	
 	public static ServiceMeta to(Method method, Object target, String prefix) {
 		var result = method.getDeclaredAnnotations();
-		if(result == null || result.length == 0) return null;
+		if(result.length == 0) return null;
 		for(var annotation : result) {
 			if(annotation instanceof WebMethod) {
 				return new ServiceMeta((WebMethod)annotation, target, method, prefix);

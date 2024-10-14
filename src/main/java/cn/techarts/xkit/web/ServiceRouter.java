@@ -21,10 +21,13 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Objects;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import cn.techarts.xkit.util.Converter;
+import cn.techarts.xkit.util.Hotpot;
 
 /**
  * @author rocwon@gmail.com
@@ -83,9 +86,9 @@ public class ServiceRouter extends HttpServlet{
     }
 	
 	private ServiceMeta getService(ServletContext context, String uri, String method) {
-		if(uri == null || uri.isBlank()) return null;
+		if(Hotpot.isNull(uri)) return null;
 		var rootWebLocator = context.getAttribute(WebService.CACHE_KEY);
-		if(rootWebLocator == null) return null;
+		if(Objects.isNull(rootWebLocator)) return null;
 		return ((WebLocator)rootWebLocator).matches(uri, method);
 	}
 		
@@ -138,6 +141,6 @@ public class ServiceRouter extends HttpServlet{
 	}
 	
 	protected void handleUndefinedRequest(String api, HttpServletRequest request, HttpServletResponse response) {
-		WebContext.respondMessage(response, NO_SUCH_API, "Not found");
+		WebContext.respondMessage(response, NO_SUCH_API, "No such API");
 	}
 }

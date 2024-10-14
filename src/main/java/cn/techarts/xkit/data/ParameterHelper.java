@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Logger;
 import cn.techarts.xkit.util.Hotpot;
 
@@ -38,7 +39,7 @@ public class ParameterHelper {
 	protected SqlMeta parseStatement(String sql, int type) {
 		var key = Integer.valueOf(sql.hashCode());
 		var result = this.cachedStatements.get(key);
-		if(result == null) {
+		if(Objects.isNull(result)) {
 			if(type == 0) { //DBUTILS
 				result = parseNamedParameters(sql);
 			}else {			//OPENJPA
@@ -46,7 +47,7 @@ public class ParameterHelper {
 			}
 			if(result != null) cachedStatements.put(key, result);
 		}
-		if(result == null || !result.check()) {
+		if(Objects.isNull(result) || !result.check()) {
 			throw new DataException("Could not find the sql: " + sql);
 		}
 		LOGGER.info("Executing the SQL statement: " + result.getSql());
@@ -54,7 +55,7 @@ public class ParameterHelper {
 	}
 	
 	public static SqlMeta parseNamedParameters(String sql) {
-		if(sql == null || sql.isBlank()) return null;
+		if(Hotpot.isNull(sql)) return null;
 		var chars = sql.toCharArray();
 		var length = chars.length;
 		var matched = false;
@@ -83,7 +84,7 @@ public class ParameterHelper {
 	}
 		
 	public static SqlMeta parseHjqlNamedParameters(String sql) {
-		if(sql == null || sql.isBlank()) return null;
+		if(Hotpot.isNull(sql)) return null;
 		var chars = sql.toCharArray();
 		var length = chars.length;
 		var matched = false;
@@ -183,12 +184,12 @@ public class ParameterHelper {
 		
 		
 		private Object getValue(Object obj, String field) {
-			if(obj == null || field == null) return null;
+			if(Hotpot.orNull(obj, field)) return null;
 			var method = toMethodName("get", field);
 			try {
 				var raw = obj.getClass();
 				var getter = raw.getMethod(method);
-				if(getter == null) return null;
+				if(Objects.isNull(getter)) return null;
 				return getter.invoke(obj);
 			}catch(Exception e) {
 				throw new DataException("Failed to get value.", e);

@@ -17,6 +17,10 @@
 package cn.techarts.xkit.web;
 
 import java.util.Map;
+import java.util.Objects;
+
+import cn.techarts.whale.util.Hotpot;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +42,7 @@ public class WebLocator {
 	
 	// Pattern: POST/authors/{id}/books/{isbn}
 	public int parse(ServiceMeta meta) {
-		if(meta == null) return 0;
+		if(Objects.isNull(meta)) return 0;
 		var uri = meta.getConcreteUri();
 		if(!meta.isRestful()) {//Classic URL
 			var wl = new WebLocator(false);
@@ -51,7 +55,7 @@ public class WebLocator {
 				var wc  = wild(locators[i]);
 				var loc = wc ? WILDCARD : locators[i];
 				var next = current.get(loc);
-				if(next == null) {
+				if(Objects.isNull(next)) {
 					next = new WebLocator(wc);
 					current.put(loc, next);
 				}
@@ -64,8 +68,7 @@ public class WebLocator {
 	
 	// Pattern: POST/authors/1/books/233
 	public ServiceMeta matches(String uri, String method) {
-		if(uri == null) return null;
-		if(values == null) return null;
+		if(Hotpot.orNull(uri, values)) return null;
 		var result = values.get(uri);
 		if(result != null) {//Classic URL
 			return result.getServiceMeta();
@@ -96,7 +99,7 @@ public class WebLocator {
 	}
 	
 	public ServiceMeta getServiceMeta(List<String> arguments) {
-		if(this.meta == null) return null;
+		if(Objects.isNull(meta)) return null;
 		return this.meta.setArguments(arguments);
 	}
 	
@@ -120,8 +123,7 @@ public class WebLocator {
 	}
 	
 	public WebLocator get(String val) {
-		if(val == null) return null;
-		if(values == null) return null;
+		if(Hotpot.orNull(val, values)) return null;
 		var result = values.get(val);
 		if(result != null) return result;
 		return values.get(WILDCARD);
@@ -129,7 +131,7 @@ public class WebLocator {
 	
 	public boolean hasNext() {
 		if(meta == null) return false;
-		if(this.values == null) return true;
+		if(values == null) return true;
 		return this.values.isEmpty();
 	}
 }

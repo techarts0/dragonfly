@@ -16,6 +16,8 @@
 
 package cn.techarts.xkit.aop;
 
+import java.util.Objects;
+
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.bytecode.AnnotationsAttribute;
@@ -103,7 +105,7 @@ public final class Bytecoder {
 		var cp = file.getConstPool();
 		var at = AnnotationsAttribute.visibleTag;
 		var attr = (AnnotationsAttribute) file.getAttribute(at);
-        if (attr == null) {
+        if(Objects.isNull(attr)) {
         	attr = new AnnotationsAttribute(cp, at);
         }
         attr.addAnnotation(new Annotation(ENHANCED, cp));

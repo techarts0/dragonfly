@@ -16,6 +16,7 @@
 
 package cn.techarts.xkit.data;
 
+import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
@@ -32,7 +33,7 @@ public class SafeDataSourceFactory extends UnpooledDataSourceFactory {
 	}
 	
 	private int parseCapacity(String capacity) {
-		if(capacity == null) return 10; //Default;
+		if(Objects.isNull(capacity)) return 10; //Default;
 		try {
 			return Converter.toInt(capacity);
 		}catch(NumberFormatException e) {

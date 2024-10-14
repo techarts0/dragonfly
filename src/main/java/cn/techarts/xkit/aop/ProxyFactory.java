@@ -18,6 +18,8 @@ package cn.techarts.xkit.aop;
 
 import java.lang.reflect.Proxy;
 
+import cn.techarts.xkit.util.Hotpot;
+
 /**
  * @author rocwon@gmail.com
  */
@@ -45,7 +47,7 @@ public class ProxyFactory {
 										 finalAdvice);
 		
 		var interfaces = target.getClass().getInterfaces();
-		if(interfaces == null || interfaces.length == 0)return target;
+		if(Hotpot.isNull(interfaces))return target;
 		return t.cast(Proxy.newProxyInstance(cl, interfaces, handler));
 	}
 	
@@ -67,7 +69,7 @@ public class ProxyFactory {
 								 finalAdvice);
 		
 		var interfaces = target.getClass().getInterfaces();
-		if(interfaces == null || interfaces.length == 0)return target;
+		if(Hotpot.isNull(interfaces))return target;
 		return t.cast(Proxy.newProxyInstance(cl, interfaces, handler));
 	}
 	
@@ -88,7 +90,7 @@ public class ProxyFactory {
 						 null);
 		
 		var interfaces = target.getClass().getInterfaces();
-		if(interfaces == null || interfaces.length == 0)return target;
+		if(Hotpot.isNull(interfaces))return target;
 		return t.cast(Proxy.newProxyInstance(cl, interfaces, handler));
 	}
 	
@@ -107,7 +109,7 @@ public class ProxyFactory {
 						 null, null);
 		
 		var interfaces = target.getClass().getInterfaces();
-		if(interfaces == null || interfaces.length == 0)return target;
+		if(Hotpot.isNull(interfaces))return target;
 		return t.cast(Proxy.newProxyInstance(cl, interfaces, handler));
 	}
 	
@@ -124,7 +126,7 @@ public class ProxyFactory {
 						 null, null, null);
 		
 		var interfaces = target.getClass().getInterfaces();
-		if(interfaces == null || interfaces.length == 0)return target;
+		if(Hotpot.isNull(interfaces))return target;
 		return t.cast(Proxy.newProxyInstance(cl, interfaces, handler));
 	}
 }

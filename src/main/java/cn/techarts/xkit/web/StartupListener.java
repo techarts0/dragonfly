@@ -20,6 +20,7 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
@@ -45,7 +46,7 @@ public class StartupListener implements ServletContextListener {
 		var context = arg.getServletContext();
 		var classpath = this.getRootClassPath();
 		var classes = this.scanClasses(classpath);
-		if(classes == null || classes.isEmpty()) return;
+		if(Hotpot.isNull(classes)) return;
 		var config = getResourcePath("config.properties");
 		var configs = Hotpot.resolveProperties(config);
 		
@@ -57,7 +58,7 @@ public class StartupListener implements ServletContextListener {
 	
 	private List<String> scanClasses(String classpath){
 		var base = new File(classpath);//Root class-path
-		if(base == null || !base.isDirectory()) return null;
+		if(!base.isDirectory()) return null;
 		var start = base.getAbsolutePath().length();
 		return Scanner.scanClasses(base, start);
 	}
@@ -75,7 +76,7 @@ public class StartupListener implements ServletContextListener {
 	
 	private String getRootClassPath() {
 		var result = getClass().getResource("/");
-		if(result == null || result.getPath() == null){
+		if(Objects.isNull(result) || result.getPath() == null){
 			throw new RuntimeException("Failed to get class path.");
 		}
 		return result.getPath();
@@ -96,7 +97,7 @@ public class StartupListener implements ServletContextListener {
 	}
 	
 	private Factory registerAppModules(Factory factory, String modules) {
-		if(modules == null || modules.isBlank()) return factory;
+		if(Hotpot.isNull(modules)) return factory;
 		var appModules = modules.split(",");
 		for(int i = 0; i < appModules.length; i++) {
 			factory.register(appModules[i]);
@@ -121,12 +122,12 @@ public class StartupListener implements ServletContextListener {
 	}
 	
 	private String getWebService(Object obj) {
-		if(obj == null) return null;
+		if(Objects.isNull(obj)) return null;
 		var clazz = obj.getClass();
 		var resource = clazz.getAnnotation(Restful.class);
 		if(resource != null) return resource.value();
 		var service = clazz.getAnnotation(WebService.class);
-		return service == null ? null : service.value();
+		return Objects.isNull(service) ? null : service.value();
 	}
 	
 	private int initWebServices(ServletContext context, List<String> classes) {
@@ -135,11 +136,11 @@ public class StartupListener implements ServletContextListener {
 		WebLocator result = new WebLocator(false);
 		for(var service : classes) {
 			var ws = container.silent(service);
-			if(ws == null) continue;
+			if(Objects.isNull(ws)) continue;
 			var prefix = getWebService(ws);
-			if(prefix == null) continue;
+			if(Objects.isNull(prefix)) continue;
 			var methods = ws.getClass().getMethods();
-			if(methods == null || methods.length == 0) continue;
+			if(methods.length == 0) continue;
 			for(var method : methods) {
 				if(!checkParamType(method)) continue;
 				var meta = ServiceMeta.to(method, ws, prefix);
@@ -152,7 +153,7 @@ public class StartupListener implements ServletContextListener {
 	
 	private boolean checkParamType(Method m) {
 		var pts = m.getParameterTypes();
-		if(pts == null || pts.length != 1) return false;
+		if(pts.length != 1) return false;
 		var ptn = WebContext.class.getName();
 		return ptn.equals(pts[0].getName());
 	}	

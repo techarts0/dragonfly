@@ -19,6 +19,7 @@ package cn.techarts.xkit.data.mybatis;
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.io.UnsupportedEncodingException;
@@ -52,7 +53,7 @@ public class BlobTypeHandler extends BaseTypeHandler<String> {
 	} 
 	
 	private String getStringResult(Blob blob) throws SQLException{
-		if(blob == null || blob.length() == 0) return null;
+		if(Objects.isNull(blob) || blob.length() == 0) return null;
         try {
         	 var result = blob.getBytes(1, (int) blob.length());  
         	 return new String(result, DEFAULT_CHARSET);

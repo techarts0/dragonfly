@@ -46,7 +46,7 @@ public class ServiceEnhancer {
 	public void start() {
 		var cfs = this.scanClasses();
 		var obj = AbstractService.class;
-		if(cfs == null || cfs.isEmpty()) return;
+		if(Hotpot.isNull(cfs)) return;
 		try {
 			for(var cf : cfs) {
 				var clzz = Class.forName(cf);
@@ -73,7 +73,7 @@ public class ServiceEnhancer {
 	
 	private void enhanceClassWithinTransaction(Class<?> service) {
 		var methods = service.getDeclaredMethods();
-		if(methods == null || methods.length == 0) return;
+		if(methods.length == 0) return;
 		var bytecoder = new Bytecoder(service);
 		var t = Transactional.class; //Target
 		for(var method : methods) {

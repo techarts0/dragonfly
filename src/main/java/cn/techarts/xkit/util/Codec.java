@@ -16,6 +16,8 @@
 
 package cn.techarts.xkit.util;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -36,7 +38,7 @@ public class Codec {
 	}
 	
 	public static String toJson(Object src)  throws RuntimeException{
-		if(src == null) return null;
+		if(Objects.isNull(src)) return null;
 		try{
 			return jcodec.writeValueAsString(src);
 		}catch( Exception e){
@@ -48,7 +50,7 @@ public class Codec {
 	 * Encodes to JSON and ignores all properties which value is NULL or 0 to reduce the size. 
 	 */
 	public static String toCompactJson(Object src)  throws RuntimeException{
-		if(src == null) return null;
+		if(Objects.isNull(src)) return null;
 		jcodec.setSerializationInclusion(Include.NON_DEFAULT);
 		try{
 			return jcodec.writeValueAsString(src);
