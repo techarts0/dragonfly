@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-package cn.techarts.xkit.web;
+package cn.techarts.xkit.web.restful;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.techarts.xkit.web.MediaType;
 
 /**
- * The annotation is the same as @Path in JSR370.<br>
- * And, it is same as @Controller in JSR371
+ * Ignored HTTP methods. That means the service is able to handle any request methods.
  * @author rocwon@gmail.com
  */
-@Target(ElementType.TYPE)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WebService {
-	public String value() default "";
-	
-	public static final String CACHE_KEY = "web.dragonfly.techarts";
+public @interface Any {
+	public String value(); //URL
+	public boolean permission() default true;
+	//JSR370: @Produces
+	public MediaType produces() default MediaType.JSON;
+	//JSR370: @Consumes
+	public MediaType consumes() default MediaType.NONE;
 }

@@ -127,13 +127,15 @@ public class StartupListener implements ServletContextListener {
 		var resource = clazz.getAnnotation(Restful.class);
 		if(resource != null) return resource.value();
 		var service = clazz.getAnnotation(WebService.class);
-		return Objects.isNull(service) ? null : service.value();
+		if(service != null) return service.value();
+		var jsr371 = clazz.getAnnotation(Controller.class);
+		return Objects.isNull(jsr371) ? null : jsr371.value();
 	}
 	
 	private int initWebServices(ServletContext context, List<String> classes) {
 		var webServiceCount = 0;
+		var result = new WebLocator(false);
 		var container = Context.from(context);
-		WebLocator result = new WebLocator(false);
 		for(var service : classes) {
 			var ws = container.silent(service);
 			if(Objects.isNull(ws)) continue;

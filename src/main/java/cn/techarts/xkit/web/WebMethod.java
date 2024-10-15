@@ -22,6 +22,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Please refer to {@link Get}, 
+ * 				   {@link Post}, 
+ *                 {@link Put}, 
+ *                 {@link Delete}, 
+ *                 {@link Head},
+ *                 {@link Patch}
  * @author rocwon@gmail.com
  */
 @Target(ElementType.METHOD)

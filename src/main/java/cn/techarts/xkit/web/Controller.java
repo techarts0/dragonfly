@@ -23,14 +23,13 @@ import java.lang.annotation.Target;
 
 
 /**
- * The annotation is the same as @Path in JSR370.<br>
- * And, it is same as @Controller in JSR371
+ * An alias of {@link WebService}<br>
+ * It is same as @Path in JSR370<br>
+ * It is same as @Controller in JSR371
  * @author rocwon@gmail.com
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WebService {
+public @interface Controller {
 	public String value() default "";
-	
-	public static final String CACHE_KEY = "web.dragonfly.techarts";
 }

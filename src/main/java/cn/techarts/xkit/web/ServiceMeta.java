@@ -16,13 +16,14 @@
 
 package cn.techarts.xkit.web;
 
-import java.lang.reflect.Method;
 import java.util.List;
+import java.lang.reflect.Method;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.techarts.whale.util.Hotpot;
+import cn.techarts.xkit.web.restful.Any;
 import cn.techarts.xkit.web.restful.Delete;
 import cn.techarts.xkit.web.restful.Get;
 import cn.techarts.xkit.web.restful.Head;
@@ -77,6 +78,12 @@ public final class ServiceMeta {
 	
 	public ServiceMeta(Head m, Object obj, Method method, String prefix) {
 		this.httpMethod= "HEAD";
+		var uri = prefix.concat(m.value());
+		setAttrs(obj, method, uri, m.permission(), m.produces(), m.consumes());
+	}
+	
+	public ServiceMeta(Any m, Object obj, Method method, String prefix) {
+		this.httpMethod= "";
 		var uri = prefix.concat(m.value());
 		setAttrs(obj, method, uri, m.permission(), m.produces(), m.consumes());
 	}
@@ -182,6 +189,8 @@ public final class ServiceMeta {
 				return new ServiceMeta((Put)annotation, target, method, prefix);
 			}else if(annotation instanceof Delete) {
 				return new ServiceMeta((Delete)annotation, target, method, prefix);
+			}else if(annotation instanceof Any) {
+				return new ServiceMeta((Any)annotation, target, method, prefix);
 			}else if(annotation instanceof Head) {
 				return new ServiceMeta((Head)annotation, target, method, prefix);
 			}else if(annotation instanceof Patch) {

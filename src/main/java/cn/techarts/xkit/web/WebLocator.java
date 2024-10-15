@@ -35,10 +35,24 @@ public class WebLocator {
 	private static final String DELIMITER = "/";
 	private static final String WILDCARD = "////";
 	
+//	private Map<String, Integer> pathParams;
+//	private int currentPathParamIndex = 0;
+	
 	public WebLocator(boolean wildcard) {
 		this.wildcard = wildcard;
-		this.values = new HashMap<>(32);
+		this.values = new HashMap<>(8);
+		//if(!wildcard || locator == null) return;
+		//this.pathParams = new HashMap<>(4);
+		//var end = locator.length() - 1;
+		//var loc = locator.substring(1, end); // {XXX}
+		//pathParams.put(loc, currentPathParamIndex++);
 	}
+	
+//	public int getPathParamIndex(String name) {
+//		if(pathParams == null) return -1;
+//		var result = pathParams.get(name);
+//		return result == null ? -1 : result.intValue();
+//	}
 	
 	// Pattern: POST/authors/{id}/books/{isbn}
 	public int parse(ServiceMeta meta) {
