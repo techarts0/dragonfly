@@ -273,13 +273,6 @@ public class WebContext {
 	}
 	
 	/**
-	 * An alias of the method {@link toBean}
-	 */
-	public<T> T fillBean(T bean) {
-		return toBean(bean);
-	}
-	
-	/**
 	 * Fills the properties of java POJO with the request parameters automatically.<br>
 	 * IMPORTANT: the property name MUST be same to the parameter name. And, <br>
 	 * only the JDK built-in types and their object wrappers (e.g. long and Long)are supported.
