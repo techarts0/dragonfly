@@ -34,6 +34,8 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
+ * Internal utility.
+ * 
  * Various kinds of UN-classifiable helper methods
  * @author rocwon@gmail.com
  */

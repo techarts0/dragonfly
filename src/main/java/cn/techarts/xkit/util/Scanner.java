@@ -25,6 +25,8 @@ import java.util.Objects;
 import cn.techarts.xkit.data.DataException;
 import jakarta.persistence.Entity;
 /**
+ * Internal utility.
+ * 
  * Scan the packages under the given base class-path.
  * @author rocwon@gmail.com
  */
