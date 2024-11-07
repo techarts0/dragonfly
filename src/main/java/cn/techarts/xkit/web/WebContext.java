@@ -251,6 +251,18 @@ public class WebContext {
 		return request.getHeader(name);
 	}
 	
+	public String getSession(String userId) {
+		var ctx = this.request.getServletContext();
+		var obj = ctx.getAttribute(SessionConfig.CACHE_KEY);
+		if(obj == null) return null; //ERROR
+		var sessionConfig = (SessionConfig)obj;
+		return sessionConfig.generate(ip(), userId);
+	}
+	
+	public String getSession(int userId) {
+		return this.getSession(Integer.toString(userId));
+	}
+	
 	/**
 	 * If the content-type of request is application/json, returns the whole content string. 
 	 */

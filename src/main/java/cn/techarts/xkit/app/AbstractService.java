@@ -23,8 +23,7 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
-
-import cn.techarts.whale.util.Hotpot;
+import cn.techarts.xkit.util.Hotpot;
 import cn.techarts.xkit.data.DataHelper;
 import cn.techarts.xkit.data.DataManager;
 import cn.techarts.xkit.data.redis.RedisHelper;
@@ -154,5 +153,22 @@ public abstract class AbstractService
 	
 	private int getEndIndex(int end, int length) {
 		return end < length ? end : length - 1;
+	}
+	
+	public static String md5(String source){
+		return Hotpot.encrypt(source, "MD5");
+	}
+	
+	public static String sha1( String source){
+		return Hotpot.encrypt( source, "SHA-1");
+	}
+	
+	public static String sha256(String source) {
+		return Hotpot.encrypt(source, "SHA-256");
+	}
+		
+	public static int random(int seed){
+		seed = 214013 * seed + 2531011;
+		return (seed >> 16) & 0x7FFF;
 	}
 }

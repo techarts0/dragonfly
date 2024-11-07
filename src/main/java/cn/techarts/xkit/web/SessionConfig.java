@@ -26,6 +26,8 @@ public class SessionConfig {
 	
 	public static final String CACHE_KEY = "config.session.techarts";
 	
+	private String uidProperty;
+	
 	private String sessionKey;
 	
 	private String sessionSalt;
@@ -59,10 +61,16 @@ public class SessionConfig {
 	public void setSessionKey(String sessionKey) {
 		this.sessionKey = sessionKey;
 	}
+	public String getUidProperty() {
+		return uidProperty;
+	}
+	public void setUidProperty(String uidProperty) {
+		this.uidProperty = uidProperty;
+	}
 	
 	//////////////////////////////////////////////////
 	
-	public boolean verify(String ip, int userId, String session) {
+	public boolean verify(String ip, String userId, String session) {
 		var tmp = Hotpot.decrypt(session, Hotpot.toBytes(sessionKey));
 		if(tmp == null) return false; //An invalid session
 		var bgn = Converter.toInt(tmp.substring(0, 8));
@@ -71,7 +79,7 @@ public class SessionConfig {
 		return result != null ? result.equals(tmp.substring(8)) : false;
 	}
 	
-	public String generate(String ip, int userId) {
+	public String generate(String ip, String userId) {
 		var result = (ip != null ? ip : "0000") + userId;
 		var minutes = String.valueOf(minutes());
 		result = minutes.concat(result).concat(sessionSalt);

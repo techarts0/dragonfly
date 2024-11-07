@@ -22,6 +22,7 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -198,6 +199,18 @@ public final class Hotpot {
 		var encrypted = result.toString();
 		return upperCase ? encrypted.toUpperCase() : encrypted;
     }
+	
+	public static String encrypt(String source, String algorithm){
+		try{
+			if(isNull(source)) return null;
+			var mda = MessageDigest.getInstance(algorithm);
+			byte[] original = source.getBytes("utf-8");
+			mda.update(original);
+			return toHex(mda.digest(original), false);
+		}catch( Exception e){
+			throw new RuntimeException( "Fail to encrypt [" + source + "].", e);
+		}
+	}
 	
 	public static Logger getLogger() {
 		return Logger.getGlobal();

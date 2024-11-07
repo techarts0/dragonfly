@@ -26,7 +26,6 @@ import java.util.Objects;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import cn.techarts.xkit.util.Converter;
 import cn.techarts.xkit.util.Hotpot;
 
 /**
@@ -45,11 +44,13 @@ public class ServiceRouter extends HttpServlet{
 	public int authenticate(HttpServletRequest req, HttpServletResponse response, ServiceMeta service){
 		if(service == null) return NO_SUCH_API;
 		var context = req.getServletContext();
-		if(!getSessionConfig(context).check()) return ALLOWED;
+		var sessionConfig = this.getSessionConfig(context);
+		if(!sessionConfig.check()) return ALLOWED;
 		if(!service.isPermissionRequired()) return ALLOWED;
 		String session = getSession(req), ip = getRemorteAddress(req);
 		if(session == null || session.isBlank()) return INVALID_SESSION;
-		return validate(context, req.getParameter("uid"), ip,  session);
+		var uid = req.getParameter(sessionConfig.getUidProperty());
+		return this.validate(context, uid, ip,  session);
 	}
 	
 	private SessionConfig getSessionConfig(ServletContext ctx) {
@@ -63,9 +64,8 @@ public class ServiceRouter extends HttpServlet{
 	} 
 	
 	public int validate(ServletContext context, String user, String ip, String session) {
-		var uid = Converter.toInt(user);
 		var config = getSessionConfig(context);
-		boolean result = config.verify(ip, uid, session);
+		var result = config.verify(ip, user, session);
 		return result ? ALLOWED : INVALID_SESSION;
 	}
 	
@@ -124,7 +124,7 @@ public class ServiceRouter extends HttpServlet{
 	 * You can put the session in request header with a customized name "x:session".
 	 */
 	private String getSession(HttpServletRequest request) {
-		var result = request.getHeader("x:session");
+		var result = request.getHeader("x-session");
 		if(result == null) {
 			result = request.getParameter("session");
 		}

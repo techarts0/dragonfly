@@ -24,7 +24,8 @@ import java.lang.annotation.Target;
 import cn.techarts.xkit.web.MediaType;
 
 /**
- * Ignored HTTP methods. That means the service is able to handle any request methods.
+ * Ignored HTTP methods. 
+ * That means the service is able to handle any request methods.
  * @author rocwon@gmail.com
  */
 @Target(ElementType.METHOD)

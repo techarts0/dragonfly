@@ -33,7 +33,7 @@ public class WebLocator {
 	private boolean wildcard = false;
 	private Map<String, WebLocator> values;
 	private static final String DELIMITER = "/";
-	private static final String WILDCARD = "////";
+	private static final String WILDCARD = "///";
 	
 //	private Map<String, Integer> pathParams;
 //	private int currentPathParamIndex = 0;
@@ -91,16 +91,13 @@ public class WebLocator {
 		var arguments = new ArrayList<String>();
 		var parts = url.split(DELIMITER);
 		var len = parts.length - 1;
-		var current = this; //First Locator
+		var current = this; //Root Locator
 		for(int i = 0; i <= len; i++) {
 			var next = current.get(parts[i]);
-			if(next == null && i != len) {
-				return null; //Could not find
-			}else {
-				current = next; //To the next
-				if(current.isWild()) {
-					arguments.add(parts[i]);
-				}
+			if(next == null) return null; //Could not find, if(i != len) 
+			current = next; //To the next
+			if(current.isWild()) {
+				arguments.add(parts[i]);
 			}
 		}
 		return current.getServiceMeta(arguments);
@@ -133,6 +130,7 @@ public class WebLocator {
 	}
 	
 	public void put(String key, WebLocator val) {
+		if(values == null) return;
 		this.values.put(key, val);
 	}
 	
