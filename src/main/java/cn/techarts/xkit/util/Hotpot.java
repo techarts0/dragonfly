@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
@@ -209,6 +210,20 @@ public final class Hotpot {
 			return toHex(mda.digest(original), false);
 		}catch( Exception e){
 			throw new RuntimeException( "Fail to encrypt [" + source + "].", e);
+		}
+	}
+	
+	/**
+	 * Supported Algorithm: AES<p>
+	 * @return Returns the generated key as hex string
+	 */
+	public static String getHexKey() {
+		try {
+			var gen = KeyGenerator.getInstance("AES");
+			gen.init(128);
+			return toHex(gen.generateKey().getEncoded(), false);
+		}catch(Exception e) {
+			throw new RuntimeException("Failed to generate a key", e);
 		}
 	}
 	

@@ -115,7 +115,7 @@ public class ServiceRouter extends HttpServlet{
 			handleUndefinedRequest(api, request, response);
 		}else{
 			var code = INVALID_SESSION;
-			var msg = "Error: an invalid session.";
+			var msg = "Session is invalid.";
 			WebContext.respondMessage(response, code, msg);
 		}
 	}
