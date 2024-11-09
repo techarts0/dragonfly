@@ -149,7 +149,18 @@ public class MybatisExecutor implements DataHelper {
 	}
 	
 	@Override
-	public <T> List<T> get(Class<T> t, Object parameter, String... statement) throws DataException {
+	public <T> List<T> getAll(Object parameter, Class<T> t, String... statement) throws DataException {
+		return select(getStatement(statement), parameter, null);
+	}
+	
+	@Override
+	public <T> List<T> getAll(Class<T> t, String... statement) throws DataException {
+		return select(getStatement(statement), null, null);
+	}
+	
+	@Deprecated
+	@Override
+	public<T> List<T> get(Class<T> t, Object parameter, String... statement) throws DataException{
 		return select(getStatement(statement), parameter, null);
 	}
 	

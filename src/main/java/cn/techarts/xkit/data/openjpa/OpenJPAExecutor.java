@@ -148,8 +148,35 @@ public class OpenJPAExecutor extends ParameterHelper implements DataHelper {
 	}
 
 	@Override
-	public <T> List<T> get(Class<T> t, Object parameter, String... statement) throws DataException {
+	public <T> List<T> getAll(Object parameter, Class<T> t, String... statement) throws DataException {
 		if(parameter == null || t == null) return null;
+		var jpql = Hotpot.getFirst(statement);
+		var meta = this.getSqlMeta(jpql);
+		try {
+			var query = this.session.createQuery(jpql, t);
+			this.setParameters(query, meta, parameter);
+			return query.getResultList();
+		}catch(Exception e) {
+			throw new DataException("Failed to execute the jpql: " + jpql, e);
+		}
+	}
+	
+	@Override
+	public <T> List<T> getAll(Class<T> t, String... statement) throws DataException {
+		if(t == null) return null;
+		var jpql = Hotpot.getFirst(statement);
+		try {
+			var query = this.session.createQuery(jpql, t);
+			return query.getResultList();
+		}catch(Exception e) {
+			throw new DataException("Failed to execute the jpql: " + jpql, e);
+		}
+	}
+	
+	@Deprecated
+	@Override
+	public<T> List<T> get(Class<T> t, Object parameter, String... statement) throws DataException{
+		if(t == null) return null;
 		var jpql = Hotpot.getFirst(statement);
 		var meta = this.getSqlMeta(jpql);
 		try {

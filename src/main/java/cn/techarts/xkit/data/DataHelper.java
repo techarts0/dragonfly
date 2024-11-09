@@ -58,6 +58,13 @@ public interface DataHelper extends AutoCloseable{
 	
 	public String getString(Object parameter, String... statement) throws DataException;
 	
-	/**Get all results which matched the specified conditions*/
+	/**Please call the method getAll instead.*/
+	@Deprecated
 	public<T> List<T> get(Class<T> t, Object parameter, String... statement) throws DataException;
+	
+	/**Get all results which matched the specified conditions*/
+	public<T> List<T> getAll(Object parameter, Class<T> t, String... statement) throws DataException;
+	
+	/**Get all results without conditions(like SELECT * FROM TABLE)*/
+	public<T> List<T> getAll(Class<T> t, String... statement) throws DataException;
 }

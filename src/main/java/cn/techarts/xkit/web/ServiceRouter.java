@@ -40,7 +40,7 @@ public class ServiceRouter extends HttpServlet{
 	public static final int ALLOWED = 0; //OK
 	public static final int NO_SUCH_API = -10086;
 	public static final int INVALID_SESSION = -10000;
-
+	
 	public int authenticate(HttpServletRequest req, HttpServletResponse response, ServiceMeta service){
 		if(service == null) return NO_SUCH_API;
 		var context = req.getServletContext();
@@ -87,7 +87,7 @@ public class ServiceRouter extends HttpServlet{
 	
 	private ServiceMeta getService(ServletContext context, String uri, String method) {
 		if(Hotpot.isNull(uri)) return null;
-		var rootWebLocator = context.getAttribute(WebService.CACHE_KEY);
+		var rootWebLocator = context.getAttribute(WebLocator.CACHE_KEY);
 		if(Objects.isNull(rootWebLocator)) return null;
 		return ((WebLocator)rootWebLocator).matches(uri, method);
 	}

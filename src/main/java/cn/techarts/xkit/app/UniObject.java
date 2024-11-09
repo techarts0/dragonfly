@@ -17,6 +17,8 @@
 package cn.techarts.xkit.app;
 
 import java.io.Serializable;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
@@ -101,5 +103,10 @@ public class UniObject implements Serializable {
 	 */
 	public void setSize(int size) {
 		this.size = size;
+	}
+	
+	//TODO for PseduQL
+	public Map<String, Object> filter(String pql){
+		return null;
 	}
 }
