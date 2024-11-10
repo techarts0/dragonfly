@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 /**
+ * Internal utility.
+ * 
  * @author rocwon@gmail.com
  */
 public class Codec {

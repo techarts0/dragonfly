@@ -72,7 +72,7 @@ public class StartupListener implements ServletContextListener {
 		var permission = configs.remove("session.check");
 		result.setSessionCheck(Converter.toBoolean(permission));
 		var uid = configs.remove("session.uidProperty");
-		result.setUidProperty(uid == null ? "id" : uid);
+		result.setUidProperty(uid == null ? "uid" : uid);
 		context.setAttribute(SessionConfig.CACHE_KEY, result);
 	}
 	
