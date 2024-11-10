@@ -34,6 +34,7 @@ public class WebLocator {
 	private Map<String, WebLocator> values;
 	private static final String DELIMITER = "/";
 	private static final String WILDCARD = "///";
+	public static final String CACHE_KEY = WebLocator.class.getName();
 	
 //	private Map<String, Integer> pathParams;
 //	private int currentPathParamIndex = 0;

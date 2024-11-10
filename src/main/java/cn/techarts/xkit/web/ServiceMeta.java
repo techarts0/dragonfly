@@ -86,14 +86,8 @@ public final class ServiceMeta {
 		this.httpMethod= "";
 		var uri = prefix.concat(m.value());
 		setAttrs(obj, method, uri, m.permission(), m.produces(), m.consumes());
+		this.restful = false; //Recover the value to ignore the HTTP methods
 	}
-	
-	public ServiceMeta(WebMethod m, Object obj, Method method, String prefix) {
-		var uri = prefix.concat(m.uri());
-		this.httpMethod= m.method().toUpperCase();
-		setAttrs(obj, method, uri, m.permission(), m.produces(), m.consumes());
-		this.restful = m.restful(); //Recover the default value.
-	}	
 	
 	private void setAttrs(Object object, Method method, String uri, boolean permission, MediaType produce, MediaType consume) {
 		this.uri = uri;
@@ -179,8 +173,8 @@ public final class ServiceMeta {
 		var result = method.getDeclaredAnnotations();
 		if(result.length == 0) return null;
 		for(var annotation : result) {
-			if(annotation instanceof WebMethod) {
-				return new ServiceMeta((WebMethod)annotation, target, method, prefix);
+			if(annotation instanceof Any) {
+				return new ServiceMeta((Any)annotation, target, method, prefix);
 			}else if(annotation instanceof Get) {
 				return new ServiceMeta((Get)annotation, target, method, prefix);
 			}else if(annotation instanceof Post) {
@@ -189,8 +183,6 @@ public final class ServiceMeta {
 				return new ServiceMeta((Put)annotation, target, method, prefix);
 			}else if(annotation instanceof Delete) {
 				return new ServiceMeta((Delete)annotation, target, method, prefix);
-			}else if(annotation instanceof Any) {
-				return new ServiceMeta((Any)annotation, target, method, prefix);
 			}else if(annotation instanceof Head) {
 				return new ServiceMeta((Head)annotation, target, method, prefix);
 			}else if(annotation instanceof Patch) {

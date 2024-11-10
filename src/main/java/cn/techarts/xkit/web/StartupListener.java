@@ -128,8 +128,6 @@ public class StartupListener implements ServletContextListener {
 		var clazz = obj.getClass();
 		var resource = clazz.getAnnotation(Restful.class);
 		if(resource != null) return resource.value();
-		var service = clazz.getAnnotation(WebService.class);
-		if(service != null) return service.value();
 		var jsr371 = clazz.getAnnotation(Controller.class);
 		return Objects.isNull(jsr371) ? null : jsr371.value();
 	}
@@ -150,7 +148,7 @@ public class StartupListener implements ServletContextListener {
 				var meta = ServiceMeta.to(method, ws, prefix);
 				webServiceCount += result.parse(meta);
 			}
-			context.setAttribute(WebService.CACHE_KEY, result);
+			context.setAttribute(WebLocator.CACHE_KEY, result);
 		}
 		return webServiceCount; //How many web-services are found?
 	}
