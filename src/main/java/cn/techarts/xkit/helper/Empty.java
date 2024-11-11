@@ -20,7 +20,6 @@ import java.util.Set;
  */
 public final class Empty {
 	
-	
 	/**
 	 * @return Returns true if the value of input parameter is 0, 0f, 0l or 0d 
 	 */
@@ -153,6 +152,10 @@ public final class Empty {
 	
 	public static boolean is(Map<?, ?> arg) {
 		return (arg == null || arg.isEmpty());
+	}
+	
+	public static boolean or(Object arg0, Object arg1) {
+		return arg0 == null || arg1 == null;
 	}
 	
 	//----------------------------------------------------------------------------------------

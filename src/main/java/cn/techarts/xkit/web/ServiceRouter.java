@@ -26,7 +26,7 @@ import java.util.Objects;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import cn.techarts.xkit.util.Hotpot;
+import cn.techarts.xkit.helper.Empty;
 
 /**
  * @author rocwon@gmail.com
@@ -86,7 +86,7 @@ public class ServiceRouter extends HttpServlet{
     }
 	
 	private ServiceMeta getService(ServletContext context, String uri, String method) {
-		if(Hotpot.isNull(uri)) return null;
+		if(Empty.is(uri)) return null;
 		var rootWebLocator = context.getAttribute(WebLocator.CACHE_KEY);
 		if(Objects.isNull(rootWebLocator)) return null;
 		return ((WebLocator)rootWebLocator).matches(uri, method);

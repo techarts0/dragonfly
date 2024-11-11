@@ -16,8 +16,8 @@
 
 package cn.techarts.xkit.web;
 
-import cn.techarts.xkit.util.Converter;
-import cn.techarts.xkit.util.Hotpot;
+import cn.techarts.xkit.helper.Converter;
+import cn.techarts.xkit.helper.Cryptor;
 
 /**
  * @author rocwon@gmail.com
@@ -71,7 +71,7 @@ public class SessionConfig {
 	//////////////////////////////////////////////////
 	
 	public boolean verify(String ip, String userId, String session) {
-		var tmp = Hotpot.decrypt(session, Hotpot.toBytes(sessionKey));
+		var tmp = Cryptor.decrypt(session, Cryptor.toBytes(sessionKey));
 		if(tmp == null) return false; //An invalid session
 		var bgn = Converter.toInt(tmp.substring(0, 8));
 		if(minutes() - bgn > sessionDuration) return false;
@@ -83,7 +83,7 @@ public class SessionConfig {
 		var result = (ip != null ? ip : "0000") + userId;
 		var minutes = String.valueOf(minutes());
 		result = minutes.concat(result).concat(sessionSalt);
-		return Hotpot.encrypt(result, Hotpot.toBytes(sessionKey));
+		return Cryptor.encrypt(result, Cryptor.toBytes(sessionKey));
 	}
 	
 	public static int minutes() {

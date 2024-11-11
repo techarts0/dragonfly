@@ -29,7 +29,8 @@ import javax.servlet.ServletContextListener;
 
 import cn.techarts.whale.Context;
 import cn.techarts.whale.core.Factory;
-import cn.techarts.xkit.util.Converter;
+import cn.techarts.xkit.helper.Converter;
+import cn.techarts.xkit.helper.Empty;
 import cn.techarts.xkit.util.Hotpot;
 import cn.techarts.xkit.util.Scanner;
 import cn.techarts.xkit.web.restful.Restful;
@@ -49,7 +50,7 @@ public class StartupListener implements ServletContextListener {
 		var context = arg.getServletContext();
 		var classpath = this.getRootClassPath();
 		var classes = this.scanClasses(classpath);
-		if(Hotpot.isNull(classes)) return;
+		if(Empty.is(classes)) return;
 		var config = getResourcePath("config.properties");
 		var configs = Hotpot.resolveProperties(config);
 		this.getSessionConfig(context, configs);
@@ -110,7 +111,7 @@ public class StartupListener implements ServletContextListener {
 	}
 	
 	private Factory registerAppModules(Factory factory, String modules) {
-		if(Hotpot.isNull(modules)) return factory;
+		if(Empty.is(modules)) return factory;
 		var appModules = modules.split(",");
 		for(int i = 0; i < appModules.length; i++) {
 			factory.register(appModules[i]);

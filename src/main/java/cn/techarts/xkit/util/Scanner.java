@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 import cn.techarts.xkit.data.DataException;
+import cn.techarts.xkit.helper.Empty;
 import jakarta.persistence.Entity;
 /**
  * Internal utility.
@@ -47,7 +48,7 @@ public class Scanner {
 	public List<String> scanJPAEntities() {
 		var path = base.concat(pkg.replace('.', '/'));
 		var files = poll(path, ".class");
-		if(Hotpot.isNull(files)) return null;
+		if(Empty.is(files)) return null;
 		try {
 			List<String> result = new ArrayList<>(24);
 			for(var f : files) {
@@ -99,7 +100,7 @@ class XFileFilter implements FileFilter
 	@Override
 	public boolean accept( File file){
 		if( Objects.isNull(file)) return false;
-		if(Hotpot.isNull(this.type)) return true;
+		if(Empty.is(this.type)) return true;
 		return file.isFile() && file.getName().endsWith( this.type);
 	}
 }

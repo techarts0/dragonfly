@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.techarts.xkit.util.Hotpot;
+import cn.techarts.xkit.helper.Empty;
 import cn.techarts.xkit.web.restful.Any;
 import cn.techarts.xkit.web.restful.Delete;
 import cn.techarts.xkit.web.restful.Get;
@@ -112,7 +112,7 @@ public final class ServiceMeta {
 	}
 	
 	public void call(HttpServletRequest request, HttpServletResponse response) {
-		if(Hotpot.orNull(method, object)) return;
+		if(Empty.or(method, object)) return;
 		try {
 			var expect = consume.value();
 			var type = request.getContentType();

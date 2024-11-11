@@ -22,16 +22,13 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.spec.SecretKeySpec;
+
+import cn.techarts.xkit.helper.Slicer;
 
 /**
  * Internal utility.
@@ -66,19 +63,7 @@ public final class Hotpot {
 		var chars = method.toCharArray();
 		var idx = method.startsWith("is") ? 2 : 3;
 		chars[idx] = (char)(chars[idx] + 32); //To lower-case
-		return new String(slice(chars, idx, 100));
-	}
-	
-	private static char[] slice(char[] arg, int start, int end) {
-		if(arg == null || end < start) return null;
-		var endIndex = getEndIndex(end, arg.length);
-		var result = new char[endIndex - start + 1];
-		System.arraycopy(arg, start, result, 0, result.length);
-		return result;
-	}
-	
-	private static int getEndIndex(int end, int length) {
-		return end < length ? end : length - 1;
+		return new String(Slicer.slice(chars, idx, 100));
 	}
 	
 	private static boolean isGetter(String name) {
@@ -136,96 +121,6 @@ public final class Hotpot {
 			return result;
 		}catch(Exception e) {
 			throw new RuntimeException("Failed to dump the values to map", e);
-		}
-	}
-	
-	/**
-	 * Supported Algorithm: AES
-	 * @return Returns null if the key is invalid
-	 */
-	public static String decrypt(String target, byte[] key) {
-		if(target == null || key == null) return null;
-		try {
-			var secretKey = new SecretKeySpec(key, "AES");
-			Cipher cipher = Cipher.getInstance("AES");
-			cipher.init(Cipher.DECRYPT_MODE, secretKey);
-			return new String(cipher.doFinal(toBytes(target)));
-		}catch(Exception e) {
-			throw new RuntimeException("Failed to decrypt [" + target + "]", e);
-		}
-	}
-	
-	/**
-	 * Convert a hex string to bytes array
-	 */
-	public static byte[] toBytes(String hex) {
-        if(hex == null) return null;
-        var hexLength = hex.length();
-        var chars = hex.toCharArray();
-        var result = new byte[hexLength / 2];
-        for(int i = 0; i < result.length; i++) {
-        	var hc = String.valueOf(chars[i * 2]);
-        	var lc = String.valueOf(chars[i * 2 + 1]);
-        	var hi = Integer.parseInt(hc, 16);
-        	var li = Integer.parseInt(lc, 16);
-        	result[i] = (byte)(hi * 16 + li);
-        }
-        return result;
-	}
-	
-	/**
-	 * Supported Algorithm: AES
-	 * @return Returns null if the key is invalid
-	 */
-	public static String encrypt(String source, byte[] key) {
-		if(source == null || key == null) return null;
-		try {
-			var secretKey = new SecretKeySpec(key, "AES");
-			Cipher cipher = Cipher.getInstance("AES");
-			cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-			return toHex(cipher.doFinal(source.getBytes()), false);
-		}catch(Exception e) {
-			throw new RuntimeException("Failed to encrypt [" + source + "]", e);
-		}
-	}
-	
-	/**
-	 *Convert bytes array to a hex string 
-	 */
-	public static String toHex(byte[] source, boolean upperCase) {
-		var result = new StringBuilder(32);
-		for(byte b : source) {
-			int val = ((int)b) & 0xFF;
-			if (val < 16) result.append("0");
-			result.append(Integer.toHexString(val));
-		}
-		var encrypted = result.toString();
-		return upperCase ? encrypted.toUpperCase() : encrypted;
-    }
-	
-	public static String encrypt(String source, String algorithm){
-		try{
-			if(isNull(source)) return null;
-			var mda = MessageDigest.getInstance(algorithm);
-			byte[] original = source.getBytes("utf-8");
-			mda.update(original);
-			return toHex(mda.digest(original), false);
-		}catch( Exception e){
-			throw new RuntimeException( "Fail to encrypt [" + source + "].", e);
-		}
-	}
-	
-	/**
-	 * Supported Algorithm: AES<p>
-	 * @return Returns the generated key as hex string
-	 */
-	public static String getHexKey() {
-		try {
-			var gen = KeyGenerator.getInstance("AES");
-			gen.init(128);
-			return toHex(gen.generateKey().getEncoded(), false);
-		}catch(Exception e) {
-			throw new RuntimeException("Failed to generate a key", e);
 		}
 	}
 	
@@ -292,26 +187,6 @@ public final class Hotpot {
 		}catch(IOException e){
 			throw new RuntimeException("Fail to load the ini file", e);
 		}
-	}
-	
-	public static boolean orNull(Object arg0, Object arg1) {
-		return arg0 == null || arg1 == null;
-	}
-	
-	public static boolean isNull(String arg) {
-		return arg == null || arg.isBlank();
-	}
-	
-	public static boolean isNull(Object[] arg) {
-		return arg == null || arg.length == 0;
-	}
-	
-	public static boolean isNull(Map<?, ?> arg) {
-		return arg == null || arg.isEmpty();
-	}
-	
-	public static boolean isNull(List<?> arg) {
-		return arg == null || arg.isEmpty();
 	}
 }
 

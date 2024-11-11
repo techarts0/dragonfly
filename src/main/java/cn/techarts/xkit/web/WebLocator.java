@@ -19,7 +19,7 @@ package cn.techarts.xkit.web;
 import java.util.Map;
 import java.util.Objects;
 
-import cn.techarts.xkit.util.Hotpot;
+import cn.techarts.xkit.helper.Empty;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,7 +83,7 @@ public class WebLocator {
 	
 	// Pattern: POST/authors/1/books/233
 	public ServiceMeta matches(String uri, String method) {
-		if(Hotpot.orNull(uri, values)) return null;
+		if(Empty.or(uri, values)) return null;
 		var result = values.get(uri);
 		if(result != null) {//Classic URL
 			return result.getServiceMeta();
@@ -136,7 +136,7 @@ public class WebLocator {
 	}
 	
 	public WebLocator get(String val) {
-		if(Hotpot.orNull(val, values)) return null;
+		if(Empty.or(val, values)) return null;
 		var result = values.get(val);
 		if(result != null) return result;
 		return values.get(WILDCARD);

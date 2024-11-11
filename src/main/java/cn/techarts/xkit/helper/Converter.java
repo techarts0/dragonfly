@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -162,20 +161,6 @@ public final class Converter {
 		}catch(ClassCastException e) {
 			return null; //Cannot cast to the given type
 		}
-	}
-	
-	/**
-	 * An alias of {@link Reflector.dump}
-	 */
-	public static Map<String, Object> toMap(Object arg){
-		return Reflector.dump(arg);
-	}
-	
-	/**
-	 * An alias of {@link Reflector.fill}
-	 */
-	public static void toBean(Object bean, Map<String, Object> data) {
-		Reflector.fill(bean, data);
 	}
 	
 	//---------------------Bit Manipulation-----------------------------------
