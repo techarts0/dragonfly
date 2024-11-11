@@ -23,11 +23,12 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
-import cn.techarts.xkit.util.Hotpot;
 import cn.techarts.xkit.data.DataHelper;
 import cn.techarts.xkit.data.DataManager;
 import cn.techarts.xkit.data.redis.RedisHelper;
 import cn.techarts.xkit.data.trans.TransactionManager;
+import cn.techarts.xkit.helper.Cryptor;
+import cn.techarts.xkit.helper.Empty;
 
 /**
  * Full RDB access and Redis caching capabilities are enabled.
@@ -91,7 +92,7 @@ public abstract class AbstractService
 	 * Returns true if the parameter objects is not null and contains at least 1 item.
 	 */
 	protected<T extends Object> boolean ok(T[] objects){
-		return !Hotpot.isNull(objects);
+		return !Empty.is(objects);
 	}
 	
 	/**
@@ -126,7 +127,7 @@ public abstract class AbstractService
 	 * Get the first item from the variable arguments.
 	 */
 	protected<T> T getFirst/**Of Variable Arguments*/(T[] objects) {
-		if(Hotpot.isNull(objects)) return null;
+		if(Empty.is(objects)) return null;
 		return objects[0]; //Note: maybe null here
 	}
 	
@@ -156,15 +157,15 @@ public abstract class AbstractService
 	}
 	
 	public static String md5(String source){
-		return Hotpot.encrypt(source, "MD5");
+		return Cryptor.encrypt(source, "MD5");
 	}
 	
 	public static String sha1( String source){
-		return Hotpot.encrypt( source, "SHA-1");
+		return Cryptor.encrypt( source, "SHA-1");
 	}
 	
 	public static String sha256(String source) {
-		return Hotpot.encrypt(source, "SHA-256");
+		return Cryptor.encrypt(source, "SHA-256");
 	}
 		
 	public static int random(int seed){

@@ -21,7 +21,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import cn.techarts.xkit.util.Hotpot;
+import cn.techarts.xkit.helper.Cryptor;
 
 /**
  * @author rocwon@gmail.com
@@ -39,8 +39,8 @@ public class SafeDataSource extends HikariDataSource {
 	}
 	
 	public static String decrypt(String password) {
-		var key = Hotpot.toBytes(KEY);
-		return Hotpot.decrypt(password, key);
+		var key = Cryptor.toBytes(KEY);
+		return Cryptor.decrypt(password, key);
 	}
 	
 	@Override
@@ -77,8 +77,8 @@ public class SafeDataSource extends HikariDataSource {
 	}
 	
 	public static String encrypt(String arg) {
-		var key = Hotpot.toBytes(KEY);
-		return Hotpot.encrypt(arg, key);
+		var key = Cryptor.toBytes(KEY);
+		return Cryptor.encrypt(arg, key);
 	}
 	
 	@Override

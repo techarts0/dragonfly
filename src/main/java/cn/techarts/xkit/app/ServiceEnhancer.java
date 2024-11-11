@@ -28,6 +28,7 @@ import cn.techarts.xkit.aop.Enhanced;
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.trans.Isolation;
 import cn.techarts.xkit.data.trans.Transactional;
+import cn.techarts.xkit.helper.Empty;
 import cn.techarts.xkit.util.Hotpot;
 import cn.techarts.xkit.util.Scanner;
 
@@ -46,7 +47,7 @@ public class ServiceEnhancer {
 	public void start() {
 		var cfs = this.scanClasses();
 		var obj = AbstractService.class;
-		if(Hotpot.isNull(cfs)) return;
+		if(Empty.is(cfs)) return;
 		try {
 			for(var cf : cfs) {
 				var clzz = Class.forName(cf);

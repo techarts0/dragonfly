@@ -51,7 +51,7 @@ public final class Cryptor
 	
 	//-------------------------------HASH(MD5, SHA-1, SHA256)-------------------------------------------
 	
-	private static String encrypt( String source, String algorithm){
+	public static String encrypt( String source, String algorithm){
 		try{
 			if(Empty.is(source)) return null;
 			var mda = MessageDigest.getInstance(algorithm);

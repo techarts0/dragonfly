@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Logger;
+
+import cn.techarts.xkit.helper.Empty;
 import cn.techarts.xkit.util.Hotpot;
 
 /**
@@ -55,7 +57,7 @@ public class ParameterHelper {
 	}
 	
 	public static SqlMeta parseNamedParameters(String sql) {
-		if(Hotpot.isNull(sql)) return null;
+		if(Empty.is(sql)) return null;
 		var chars = sql.toCharArray();
 		var length = chars.length;
 		var matched = false;
@@ -84,7 +86,7 @@ public class ParameterHelper {
 	}
 		
 	public static SqlMeta parseHjqlNamedParameters(String sql) {
-		if(Hotpot.isNull(sql)) return null;
+		if(Empty.is(sql)) return null;
 		var chars = sql.toCharArray();
 		var length = chars.length;
 		var matched = false;
@@ -184,7 +186,7 @@ public class ParameterHelper {
 		
 		
 		private Object getValue(Object obj, String field) {
-			if(Hotpot.orNull(obj, field)) return null;
+			if(Empty.or(obj, field)) return null;
 			var method = toMethodName("get", field);
 			try {
 				var raw = obj.getClass();
