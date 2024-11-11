@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Slice the array or collection from the specified indexes start(inclusive) to end(inclusive).
+ * Slice the array or collection from the specified indexes start(inclusive) to end(exclusive).
  */
 public final class Slicer {
 	
@@ -16,7 +16,7 @@ public final class Slicer {
 	public static int[] slice(int[] arg, int start, int end) {
 		if(Empty.is(arg) || end < start) return null;
 		var endIndex = getEndIndex(end, arg.length);
-		var result = new int[endIndex - start + 1];
+		var result = new int[endIndex - start];
 		System.arraycopy(arg, start, result, 0, result.length);
 		return result;
 	}
@@ -24,7 +24,7 @@ public final class Slicer {
 	public static float[] slice(float[] arg, int start, int end) {
 		if(Empty.is(arg) || end < start) return null;
 		var endIndex = getEndIndex(end, arg.length);
-		var result = new float[endIndex - start + 1];
+		var result = new float[endIndex - start];
 		System.arraycopy(arg, start, result, 0, result.length);
 		return result;
 	}
@@ -32,7 +32,7 @@ public final class Slicer {
 	public static double[] slice(double[] arg, int start, int end) {
 		if(Empty.is(arg) || end < start) return null;
 		var endIndex = getEndIndex(end, arg.length);
-		var result = new double[endIndex - start + 1];
+		var result = new double[endIndex - start];
 		System.arraycopy(arg, start, result, 0, result.length);
 		return result;
 	}
@@ -40,7 +40,7 @@ public final class Slicer {
 	public static long[] slice(long[] arg, int start, int end) {
 		if(Empty.is(arg) || end < start) return null;
 		var endIndex = getEndIndex(end, arg.length);
-		var result = new long[endIndex - start + 1];
+		var result = new long[endIndex - start];
 		System.arraycopy(arg, start, result, 0, result.length);
 		return result;
 	}
@@ -48,7 +48,7 @@ public final class Slicer {
 	public static boolean[] slice(boolean[] arg, int start, int end) {
 		if(Empty.is(arg) || end < start) return null;
 		var endIndex = getEndIndex(end, arg.length);
-		var result = new boolean[endIndex - start + 1];
+		var result = new boolean[endIndex - start];
 		System.arraycopy(arg, start, result, 0, result.length);
 		return result;
 	}
@@ -56,7 +56,7 @@ public final class Slicer {
 	public static byte[] slice(byte[] arg, int start, int end) {
 		if(Empty.is(arg) || end < start) return null;
 		var endIndex = getEndIndex(end, arg.length);
-		var result = new byte[endIndex - start + 1];
+		var result = new byte[endIndex - start];
 		System.arraycopy(arg, start, result, 0, result.length);
 		return result;
 	}
@@ -64,7 +64,7 @@ public final class Slicer {
 	public static char[] slice(char[] arg, int start, int end) {
 		if(Empty.is(arg) || end < start) return null;
 		var endIndex = getEndIndex(end, arg.length);
-		var result = new char[endIndex - start + 1];
+		var result = new char[endIndex - start];
 		System.arraycopy(arg, start, result, 0, result.length);
 		return result;
 	}
@@ -78,7 +78,7 @@ public final class Slicer {
 	public static Object[] slice(Object[] arg, int start, int end) {
 		if(Empty.is(arg) || end < start) return null;
 		var endIndex = getEndIndex(end, arg.length);
-		var result = new Object[endIndex - start + 1];
+		var result = new Object[endIndex - start];
 		System.arraycopy(arg, start, result, 0, result.length);
 		return result;
 	}
@@ -86,7 +86,7 @@ public final class Slicer {
 	@SuppressWarnings("unchecked")
 	public static<T> T[] slice(T[] arg, int start, int end, Class<T> clazz) {
 		if(Empty.is(arg) || end < start) return null;
-		var length = getEndIndex(end, arg.length) - start + 1;
+		var length = getEndIndex(end, arg.length) - start;
 		var result = Array.newInstance(clazz, length);
 		System.arraycopy(arg, start, result, 0, length);
 		return (T[])result; //Force to convert the generic type
