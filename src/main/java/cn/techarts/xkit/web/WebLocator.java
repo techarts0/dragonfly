@@ -19,7 +19,7 @@ package cn.techarts.xkit.web;
 import java.util.Map;
 import java.util.Objects;
 
-import cn.techarts.whale.util.Hotpot;
+import cn.techarts.xkit.util.Hotpot;
 
 import java.util.ArrayList;
 import java.util.HashMap;

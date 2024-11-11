@@ -38,6 +38,9 @@ import cn.techarts.xkit.web.restful.Restful;
  * @author rocwon@gmail.com
  */
 public class StartupListener implements ServletContextListener {
+	private boolean standalone = false; //Is out of DI container?
+	//The constant MUST be same as Context.NAME in whale project.
+	public static final String WHALE_KEY = "context.whale.techarts";
 	public static final String CONFIG_PATH = "contextConfigLocation";
 	private static final Logger LOGGER = Hotpot.getLogger();
 		
@@ -49,10 +52,10 @@ public class StartupListener implements ServletContextListener {
 		if(Hotpot.isNull(classes)) return;
 		var config = getResourcePath("config.properties");
 		var configs = Hotpot.resolveProperties(config);
-		
 		this.getSessionConfig(context, configs);
-		this.initWhale(context, classes, configs);
-		int n = initWebServices(context, classes);
+		this.standalone = this.checkWhale(context);
+		if(!standalone) initWhale(context, classes, configs);
+		int n = this.initWebServices(context, classes);
 		LOGGER.info("The web application has been started successfully. (" + n + " web services)");
 	}
 	
@@ -92,9 +95,17 @@ public class StartupListener implements ServletContextListener {
 		throw new RuntimeException("Failed to find the resource: [" + resource + "]");
 	}
 	
+	private String getBeansXmlWithoutException() {
+		try {
+			return getResourcePath("beans.xml");
+		}catch(RuntimeException e) {
+			return null;
+		}
+	}
+	
 	private void initWhale(ServletContext context, List<String> classes, Map<String, String> configs) {
 		var factory = Context.make(configs).cache(context).createFactory();
-		factory.register(classes).parse(getResourcePath("beans.xml"));
+		factory.register(classes).parse(getBeansXmlWithoutException());
 		registerAppModules(factory, configs.get("app.modules")).start();
 	}
 	
@@ -107,20 +118,17 @@ public class StartupListener implements ServletContextListener {
 		return factory;
 	}
 	
+	private boolean checkWhale(ServletContext arg) {
+		var container = arg.getAttribute(WHALE_KEY);
+		return container != null ? true : false;
+	}
+	
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) {
+		if(this.standalone) return;
 		var ctx = arg0.getServletContext();
 		var context = Context.from(ctx);
 		if(context != null) context.close();
-	}
-	
-	public<T> T get(ServletContext ctx, String id, Class<T> clzz)
-	{
-		return Context.from(ctx).get(id, clzz);
-	}
-	
-	public Object get(ServletContext ctx, String id){
-		return Context.from(ctx).get(id);
 	}
 	
 	private String getWebService(Object obj) {
@@ -135,9 +143,8 @@ public class StartupListener implements ServletContextListener {
 	private int initWebServices(ServletContext context, List<String> classes) {
 		var webServiceCount = 0;
 		var result = new WebLocator(false);
-		var container = Context.from(context);
 		for(var service : classes) {
-			var ws = container.silent(service);
+			var ws = getWS(context, service);
 			if(Objects.isNull(ws)) continue;
 			var prefix = getWebService(ws);
 			if(Objects.isNull(prefix)) continue;
@@ -151,6 +158,19 @@ public class StartupListener implements ServletContextListener {
 			context.setAttribute(WebLocator.CACHE_KEY, result);
 		}
 		return webServiceCount; //How many web-services are found?
+	}
+	
+	private Object getWS(ServletContext context, String clazz) {
+		if(!standalone) {
+			var tmp = Context.from(context);
+			return tmp.silent(clazz);
+		}else {
+			try {
+				return Class.forName(clazz);
+			}catch(ClassNotFoundException e) {
+				return null;
+			}
+		}
 	}
 	
 	private boolean checkParamType(Method m) {

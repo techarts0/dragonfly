@@ -86,25 +86,24 @@ public class WebContext {
 	}
 	
 	/**
-	 * Retrieve managed object from DI container.
+	 * Retrieve managed object from DI container.<p>
+	 * Null is returned if works stand-alonely.
 	 */
 	public<T> T get(String name, Class<T> clazz) {
 		var ctx = getServletContext();
 		if(Objects.isNull(ctx)) return null;
-		var context = Context.from(ctx);
+		var key = StartupListener.WHALE_KEY;
+		var context = ctx.getAttribute(key);
 		if(Objects.isNull(context)) return null;
-		return context.silent(name, clazz);
+		return ((Context)context).silent(name, clazz);
 	}
 	
 	/**
-	 * Retrieve managed object from DI container.
+	 * Retrieve managed object from DI container.<p>
+	 * Null is returned if works stand-alonely.
 	 */
 	public<T> T get(Class<T> clazz) {
-		var ctx = getServletContext();
-		if(Objects.isNull(ctx)) return null;
-		var context = Context.from(ctx);
-		if(Objects.isNull(context)) return null;
-		return context.silent(clazz);
+		return get(clazz.getName(), clazz);
 	}
 	
 	/**Get path parameter in restful URL pattern:<br>

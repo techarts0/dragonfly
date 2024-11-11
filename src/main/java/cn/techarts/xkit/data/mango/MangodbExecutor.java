@@ -14,7 +14,7 @@ import cn.techarts.xkit.app.UniObject;
 import cn.techarts.xkit.data.DataException;
 
 //TODO
-public class MangodbHelper implements AutoCloseable{
+public class MangodbExecutor implements AutoCloseable{
 	
 	@Inject
 	@Valued(key="mangodb.url")
@@ -24,7 +24,7 @@ public class MangodbHelper implements AutoCloseable{
 	private MongoDatabase database;
 	private ObjectMapper converter;
 	
-	public MangodbHelper(){
+	public MangodbExecutor(){
 		if(this.url == null) return;
 		this.converter = new ObjectMapper();
 		this.client = MongoClients.create(url);
