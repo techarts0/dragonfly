@@ -114,7 +114,7 @@ public class StartupListener implements ServletContextListener {
 		if(Empty.is(modules)) return factory;
 		var appModules = modules.split(",");
 		for(int i = 0; i < appModules.length; i++) {
-			factory.register(appModules[i]);
+			factory.register(appModules[i].trim());
 		}
 		return factory;
 	}
@@ -143,7 +143,7 @@ public class StartupListener implements ServletContextListener {
 	
 	private int initWebServices(ServletContext context, List<String> classes) {
 		var webServiceCount = 0;
-		var result = new WebLocator(false);
+		var root = new WebLocator(false);
 		for(var service : classes) {
 			var ws = getWS(context, service);
 			if(Objects.isNull(ws)) continue;
@@ -154,9 +154,9 @@ public class StartupListener implements ServletContextListener {
 			for(var method : methods) {
 				if(!checkParamType(method)) continue;
 				var meta = ServiceMeta.to(method, ws, prefix);
-				webServiceCount += result.parse(meta);
+				webServiceCount += root.parse(meta);
 			}
-			context.setAttribute(WebLocator.CACHE_KEY, result);
+			context.setAttribute(WebLocator.CACHE_KEY, root);
 		}
 		return webServiceCount; //How many web-services are found?
 	}

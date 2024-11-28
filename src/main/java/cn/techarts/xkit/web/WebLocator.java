@@ -69,7 +69,7 @@ public class WebLocator {
 			for(int i = 0; i < length; i++) {
 				var wc  = wild(locators[i]);
 				var loc = wc ? WILDCARD : locators[i];
-				var next = current.get(loc);
+				var next = current.get(loc, wc);
 				if(Objects.isNull(next)) {
 					next = new WebLocator(wc);
 					current.put(loc, next);
@@ -94,7 +94,7 @@ public class WebLocator {
 		var len = parts.length - 1;
 		var current = this; //Root Locator
 		for(int i = 0; i <= len; i++) {
-			var next = current.get(parts[i]);
+			var next = current.get(parts[i], true);
 			if(next == null) return null; //Could not find, if(i != len) 
 			current = next; //To the next
 			if(current.isWild()) {
@@ -135,11 +135,11 @@ public class WebLocator {
 		this.values.put(key, val);
 	}
 	
-	public WebLocator get(String val) {
+	public WebLocator get(String val, boolean wc) {
 		if(Empty.or(val, values)) return null;
 		var result = values.get(val);
 		if(result != null) return result;
-		return values.get(WILDCARD);
+		return wc ? values.get(WILDCARD) : null;
 	}
 	
 	public boolean hasNext() {
