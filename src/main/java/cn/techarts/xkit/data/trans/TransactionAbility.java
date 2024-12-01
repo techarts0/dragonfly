@@ -14,19 +14,11 @@
  * limitations under the License.
  */
 
-package cn.techarts.xkit.aop;
-
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package cn.techarts.xkit.data.trans;
 
 /**
  * @author rocwon@gmail.com
  */
-@Target(ElementType.TYPE)
-@Retention(RUNTIME)
-public @interface Enhanced {
-
+public interface TransactionAbility {
+	public TransactionManager getTransactionManager();
 }

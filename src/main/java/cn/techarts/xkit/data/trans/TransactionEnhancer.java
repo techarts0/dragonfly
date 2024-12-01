@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cn.techarts.xkit.app;
+package cn.techarts.xkit.data.trans;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -24,10 +24,7 @@ import java.util.logging.Logger;
 
 import cn.techarts.xkit.aop.AopException;
 import cn.techarts.xkit.aop.Bytecoder;
-import cn.techarts.xkit.aop.Enhanced;
 import cn.techarts.xkit.data.DataException;
-import cn.techarts.xkit.data.trans.Isolation;
-import cn.techarts.xkit.data.trans.Transactional;
 import cn.techarts.xkit.helper.Empty;
 import cn.techarts.xkit.util.Hotpot;
 import cn.techarts.xkit.util.Scanner;
@@ -36,23 +33,23 @@ import cn.techarts.xkit.util.Scanner;
  * Provides transaction support for service.
  * @author rocwon@gmail.com
  */
-public class ServiceEnhancer {
+public class TransactionEnhancer {
 	private String classpath = null;
 	private static final Logger LOGGER = Hotpot.getLogger();
 	
-	public ServiceEnhancer(String classpath) {
+	public TransactionEnhancer(String classpath) {
 		this.classpath = classpath;
 	}
 	
 	public void start() {
 		var cfs = this.scanClasses();
-		var obj = AbstractService.class;
+		var obj = TransactionAbility.class;
 		if(Empty.is(cfs)) return;
 		try {
 			for(var cf : cfs) {
 				var clzz = Class.forName(cf);
 				if(!obj.isAssignableFrom(clzz)) continue;
-				if(clzz.isAnnotationPresent(Enhanced.class)) continue;
+				if(clzz.isAnnotationPresent(TransactionEnhanced.class)) continue;
 				this.enhanceClassWithinTransaction(clzz);
 			}
 		}catch(Exception e) {

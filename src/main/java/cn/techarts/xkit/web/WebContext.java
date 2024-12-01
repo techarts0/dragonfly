@@ -110,17 +110,18 @@ public class WebContext {
 	 * For example: the request "/users/{id}/articles/{id}"<p>
 	 * the index of first {id} is 0, and the second {id} is 1.<p>
 	 * 
-	 * Dragonfly does not support annotation mode, but<br>
-	 * in JSR370, the annotation is @PathParam, <br>
-	 * in Spring-MVC, the annotation is @PathVariable
+	 * Dragonfly does not support path parameter annotation mode.<br>
+	 * In JSR370, the annotation is @PathParam, and<br>
+	 * in Spring-MVC, the annotation is @PathVariable,<br>
+	 * but they are not my taste, too tedious.
 	 */
 	public String get(int index) {
 		if(Objects.isNull(arguments)) return null;
 		var tmp = arguments.get(index);
 		if(tmp != null) return tmp;
 		var size = arguments.size() - 1;
-		var bound = "(0 - " + size + ")";
-		throw new RuntimeException("Out of boundary:" + bound);
+		var bound = "[0 - " + size + "]";
+		throw new RuntimeException("Index is out of boundary:" + bound);
 	}
 	
 	/**
@@ -130,6 +131,24 @@ public class WebContext {
 		var tmp = get(index);
 		if(Objects.isNull(tmp)) return 0;
 		return Converter.toInt(tmp);
+	}
+	
+	public float getFloat(int index) {
+		var tmp = get(index);
+		if(Objects.isNull(tmp)) return 0f;
+		return Converter.toFloat(tmp);
+	}
+	
+	public Date getDate(int index) {
+		var tmp = get(index);
+		if(Objects.isNull(tmp)) return null;
+		return Converter.toDate(tmp);
+	}
+	
+	public boolean getBool(int index) {
+		var tmp = get(index);
+		if(Objects.isNull(tmp)) return false;
+		return Converter.toBoolean(tmp);
 	}
 	
 	public int getInt(String name) {
@@ -145,7 +164,7 @@ public class WebContext {
 	public String get(String name) {
 		return request.getParameter(name);
 	}
-	
+		
 	public boolean getBool(String name) {
 		var val = request.getParameter(name);
 		return Converter.toBoolean(val);

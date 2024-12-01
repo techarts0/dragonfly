@@ -39,7 +39,7 @@ import cn.techarts.xkit.web.restful.Restful;
  * @author rocwon@gmail.com
  */
 public class StartupListener implements ServletContextListener {
-	private boolean standalone = false; //Is out of DI container?
+	private boolean standalone = false; //Running without DI
 	//The constant MUST be same as Context.NAME in whale project.
 	public static final String WHALE_KEY = "context.whale.techarts";
 	public static final String CONFIG_PATH = "contextConfigLocation";
@@ -54,7 +54,7 @@ public class StartupListener implements ServletContextListener {
 		var config = getResourcePath("config.properties");
 		var configs = Hotpot.resolveProperties(config);
 		this.getSessionConfig(context, configs);
-		this.standalone = this.checkWhale(context);
+		this.standalone = isRunningStandalone(context);
 		if(!standalone) initWhale(context, classes, configs);
 		int n = this.initWebServices(context, classes);
 		LOGGER.info("The web application has been started successfully. (" + n + " web services)");
@@ -119,9 +119,13 @@ public class StartupListener implements ServletContextListener {
 		return factory;
 	}
 	
-	private boolean checkWhale(ServletContext arg) {
-		var container = arg.getAttribute(WHALE_KEY);
-		return container != null ? true : false;
+	private boolean isRunningStandalone(ServletContext arg) {
+		try {
+			Class.forName("cn.techarts.whale.Panic");
+			return false;
+		}catch(ClassNotFoundException e) {
+			return true;
+		}
 	}
 	
 	@Override

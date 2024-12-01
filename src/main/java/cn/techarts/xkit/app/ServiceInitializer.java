@@ -23,6 +23,8 @@ import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
+import cn.techarts.xkit.data.trans.TransactionEnhancer;
+
 /**
  * @author rocwon@gmail.com
  */
@@ -30,7 +32,7 @@ public class ServiceInitializer implements ServletContainerInitializer{
 	@Override
 	public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException {
 		var classpath = this.getRootClassPath();
-		new ServiceEnhancer(classpath).start();
+		new TransactionEnhancer(classpath).start();
 	}
 	
 	private String getRootClassPath() {
