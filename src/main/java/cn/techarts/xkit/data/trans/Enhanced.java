@@ -27,6 +27,6 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RUNTIME)
-public @interface TransactionEnhanced {
+public @interface Enhanced{
 
 }

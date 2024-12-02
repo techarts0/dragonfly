@@ -18,6 +18,7 @@ package cn.techarts.xkit.aop;
 
 import java.util.Objects;
 
+import cn.techarts.xkit.helper.Empty;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.bytecode.AnnotationsAttribute;
@@ -31,8 +32,6 @@ public final class Bytecoder {
 	private ClassPool pool = null;
 	private CtClass target = null;
 	private String classpath = null;
-	
-	private static final String ENHANCED = "cn.techarts.xkit.aop.Enhanced";
 	
 	public Bytecoder(Class<?> clzz) {
 		this(clzz.getName());
@@ -48,12 +47,10 @@ public final class Bytecoder {
 		}
 	}
 	
-	public void save(boolean setEnhancedTag) {
+	public void save(String annotation) {
 		try {
-			if(setEnhancedTag) {
-				setClassEnhancedTag();
-			}
-			target.writeFile(classpath);
+			addAnnotationOnType(annotation);
+			this.target.writeFile(classpath);
 		}catch(Exception e) {
 			throw AopException.failedSaveFile(e);
 		}
@@ -100,7 +97,8 @@ public final class Bytecoder {
 		}
 	}
 	
-	private void setClassEnhancedTag() {
+	public void addAnnotationOnType(String annotation) {
+		if(Empty.is(annotation)) return;
 		var file = target.getClassFile();
 		var cp = file.getConstPool();
 		var at = AnnotationsAttribute.visibleTag;
@@ -108,7 +106,7 @@ public final class Bytecoder {
         if(Objects.isNull(attr)) {
         	attr = new AnnotationsAttribute(cp, at);
         }
-        attr.addAnnotation(new Annotation(ENHANCED, cp));
+        attr.addAnnotation(new Annotation(annotation, cp));
 		file.addAttribute(attr);
 	}
 }

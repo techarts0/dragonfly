@@ -36,6 +36,7 @@ import cn.techarts.xkit.util.Scanner;
 public class TransactionEnhancer {
 	private String classpath = null;
 	private static final Logger LOGGER = Hotpot.getLogger();
+	private static final String ENHANCED = "cn.techarts.xkit.data.trans.Enhanced";
 	
 	public TransactionEnhancer(String classpath) {
 		this.classpath = classpath;
@@ -49,7 +50,7 @@ public class TransactionEnhancer {
 			for(var cf : cfs) {
 				var clzz = Class.forName(cf);
 				if(!obj.isAssignableFrom(clzz)) continue;
-				if(clzz.isAnnotationPresent(TransactionEnhanced.class)) continue;
+				if(clzz.isAnnotationPresent(Enhanced.class)) continue;
 				this.enhanceClassWithinTransaction(clzz);
 			}
 		}catch(Exception e) {
@@ -94,7 +95,7 @@ public class TransactionEnhancer {
 				bytecoder.addCatch(method.getName(), SRC_ROLL, DATA_EX, "e");
 			}
 		}
-		bytecoder.save(true); //Save the enhanced class file  to recover the original
+		bytecoder.save(ENHANCED); //Save the enhanced class file  to recover the original
 		LOGGER.info("Enhanced the transaction service class: " + service.getName());
 	}
 	
