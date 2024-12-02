@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cn.techarts.xkit.app;
+package cn.techarts.xkit.web;
 
 import java.util.Objects;
 import java.util.Set;
@@ -28,7 +28,7 @@ import cn.techarts.xkit.data.trans.TransactionEnhancer;
 /**
  * @author rocwon@gmail.com
  */
-public class ServiceInitializer implements ServletContainerInitializer{
+public class WebInitializer implements ServletContainerInitializer{
 	@Override
 	public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException {
 		var classpath = this.getRootClassPath();

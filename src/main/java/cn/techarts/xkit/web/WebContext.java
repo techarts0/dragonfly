@@ -36,9 +36,9 @@ import cn.techarts.xkit.helper.Converter;
  */
 public class WebContext {
 	private List<String> arguments; //RESTFUL
+	private Result result = Result.ok();
 	private HttpServletRequest request;
 	private HttpServletResponse response;
-	private Result result = Result.ok();
 	
 	public WebContext(HttpServletRequest request, HttpServletResponse response) {
 		this.request = request;

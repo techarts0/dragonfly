@@ -107,14 +107,19 @@ public class StartupListener implements ServletContextListener {
 	private void initWhale(ServletContext context, List<String> classes, Map<String, String> configs) {
 		var factory = Context.make(configs).cache(context).createFactory();
 		factory.register(classes).parse(getBeansXmlWithoutException());
-		registerAppModules(factory, configs.get("app.modules")).start();
+		registerApplicationModules(factory, configs.get("app.modules")).start();
 	}
 	
-	private Factory registerAppModules(Factory factory, String modules) {
+	private Factory registerApplicationModules(Factory factory, String modules) {
 		if(Empty.is(modules)) return factory;
 		var appModules = modules.split(",");
 		for(int i = 0; i < appModules.length; i++) {
-			factory.register(appModules[i].trim());
+			var module = appModules[i].trim();
+			if(module.endsWith(".jar")) {
+				factory.load(module);
+			}else { // .class
+				factory.register(module);
+			}
 		}
 		return factory;
 	}

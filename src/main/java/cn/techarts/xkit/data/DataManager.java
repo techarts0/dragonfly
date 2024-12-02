@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -19,7 +19,7 @@ import cn.techarts.xkit.data.trans.Isolation;
 import cn.techarts.xkit.data.trans.TransactionManager;
 import cn.techarts.xkit.util.Hotpot;
 
-@Named
+@Singleton
 public class DataManager extends JdbcSettings implements TransactionManager, AutoCloseable{
 	
 	private boolean initialized;
