@@ -28,7 +28,6 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import cn.techarts.whale.Context;
-import cn.techarts.whale.core.Factory;
 import cn.techarts.xkit.helper.Converter;
 import cn.techarts.xkit.helper.Empty;
 import cn.techarts.xkit.util.Hotpot;
@@ -105,23 +104,24 @@ public class StartupListener implements ServletContextListener {
 	}
 	
 	private void initWhale(ServletContext context, List<String> classes, Map<String, String> configs) {
-		var factory = Context.make(configs).cache(context).createFactory();
-		factory.register(classes).parse(getBeansXmlWithoutException());
-		registerApplicationModules(factory, configs.get("app.modules")).start();
+		var ctx = Context.make(configs).cache(context);
+		ctx.getBinder().register(classes);
+		ctx.getLoader().parse(getBeansXmlWithoutException());
+		registerApplicationModules(ctx, configs.get("app.modules"));
+		ctx.start();
 	}
 	
-	private Factory registerApplicationModules(Factory factory, String modules) {
-		if(Empty.is(modules)) return factory;
+	private void registerApplicationModules(Context context, String modules) {
+		if(Empty.is(modules)) return;
 		var appModules = modules.split(",");
 		for(int i = 0; i < appModules.length; i++) {
 			var module = appModules[i].trim();
 			if(module.endsWith(".jar")) {
-				factory.load(module);
+				context.getLoader().load(module);
 			}else { // .class
-				factory.register(module);
+				context.getBinder().register(module);
 			}
 		}
-		return factory;
 	}
 	
 	private boolean isRunningStandalone(ServletContext arg) {
