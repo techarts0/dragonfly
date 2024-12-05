@@ -18,6 +18,9 @@ package cn.techarts.xkit.app;
 
 import java.util.Objects;
 import javax.inject.Inject;
+
+import org.apache.ibatis.session.SqlSession;
+
 import cn.techarts.xkit.data.DataHelper;
 import cn.techarts.xkit.data.DataManager;
 import cn.techarts.xkit.data.redis.RedisHelper;
@@ -65,5 +68,15 @@ public abstract class AbstractService implements TransactionAbility
 			throw new RuntimeException("Cache module is not enabled.");
 		}
 		return this.redisHelper;
+	}
+	
+	/**
+	 * Returns the MYBATIS Mapper object directly.
+	 */
+	protected<T> T getMapper(Class<T> mybatisMappClass) {
+		var exec = getDataHelper().getExecutor();
+		if(Objects.isNull(exec)) return null;
+		if(!(exec instanceof SqlSession)) return null;
+		return ((SqlSession)exec).getMapper(mybatisMappClass);
 	}
 }
