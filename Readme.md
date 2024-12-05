@@ -46,7 +46,8 @@ public class BookWebService{
 ```
 #### 2.2 Web方法形式
 的返回值不限，取决于您的业务。为了简化，Dragonfly采用了一个强制约束：每个方法都只有一个参数，类型为WebContext，WebContext中有您需要的一切，比如获取请求参数或设置错误代码/信息等。这种设计是为了让代码更简洁，形式更统一。
-#### Web方法上的注解
+
+#### 2.3 Web方法注解
 注解表示它是哪一类REST请求（HTTP METHOD），以及资源的URL路径和参数。URL设计是个难点，需要根据业务去仔细琢磨。Dragonfly支持以下HTTP METHODS:
 
 
@@ -63,7 +64,7 @@ public class BookWebService{
 
 在一个业务稍复杂的应用中，REST的严格约束会让开发者感到很不方便。因此，Dragonfly提供了一个@Any注解，兼容传统设计风格的Web API。但是需要注意：它的URL中不能使用路径参数了，也就是说，所有参数要么通过POST form传过来，要么通过Query String传过来。
 
-#### 2.3 获取请求参数
+#### 2.4 获取请求参数
 每个注解的value属性中，如果含有参数，需要放在一对花括号{}中。在方法体内，获取Request参数有两种方式：
 - A. 如果是URL路径中花括号里的参数，需要用它的位置索引，从0开始，依次增加。这是一种设计权衡，为了避免Spring MVC和JAX-RS中的@PathVariable和@PathParam注解对参数形式的破坏，这两个东西看起来乱糟糟的。WebContext内置了多个方法获取不同类型的参数，包括：
 
@@ -91,7 +92,8 @@ public class BookWebService{
 | 8 | bean      | T      | T           |
 | 9 | getDouble | String | double      |
 
-#### 2.4 错误处理
+
+#### 2.5 错误处理
 如果要在Response中向调用者传递错误信息，可以使用WebContext的error方法：
 
 ```java
@@ -101,7 +103,7 @@ public Book getBook(WebContext arg){
 }
 ```
 
-#### 2.5 响应数据格式
+#### 2.6 响应数据格式
 Dragonfly将以JSON格式返回数据给请求者，并且模式是固定的：
 ```java
 public class Result implements Serializable{
@@ -125,7 +127,7 @@ public class Result implements Serializable{
 }
 ```
 
-#### 2.6 其它功能
+#### 2.7 其它功能
 WebContext中还有更丰富的内容，包括以下几类：
 -- 使用getRequest()原生的HttpServletRequest, getResponse()获取原生的HttpServletResponse
 -- 对于一些常见的参数名称，比如id, name, date, time, page做了特殊处理，直接用id(), name(), date(), time(), page()等简洁方法就可以获取到值
