@@ -40,7 +40,7 @@ public class BookWebService{
 ```
 - B. Web方法的返回值不限，取决于您的业务。为了简化，Dragonfly采用了一个强制约束：每个方法都只有一个参数，类型为WebContext，WebContext中有您需要的一切，比如获取请求参数或设置错误代码/信息等。这种设计是为了让代码更简洁，形式更统一。
 - C. Web方法上的注解，表示它是哪一类REST请求（HTTP METHOD），以及资源的URL路径和参数。URL设计是个难点，需要根据业务去自习琢磨。Dragonfly支持以下HTTP METHODS:
-| # | HTTP Method | 注解      | 用途            |
+| ID| HTTP Method | 注解      | 用途            |
 |---|-------------|---------|---------------|
 | 1 | GET         | @Get    | 查询资源          |
 | 2 | PUT         | @Put    | 修改资源          |
