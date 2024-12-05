@@ -128,6 +128,6 @@ public class Result implements Serializable{
 
 #### 2.7 其它功能
 WebContext中还有更丰富的内容，包括以下几类：
--- 使用getRequest()原生的HttpServletRequest, getResponse()获取原生的HttpServletResponse
--- 对于一些常见的参数名称，比如id, name, date, time, page做了特殊处理，直接用id(), name(), date(), time(), page()等简洁方法就可以获取到值
--- head(String)可以获取HTTP请求头字段的信息，ip()可以获取客户端的IP地址，ua()获取客户端的User-Agent，等等。
+- 使用getRequest()原生的HttpServletRequest, getResponse()获取原生的HttpServletResponse
+- 对于一些常见的参数名称，比如id, name, date, time, page做了特殊处理，直接用id(), name(), date(), time(), page()等简洁方法就可以获取到值
+- head(String)可以获取HTTP请求头字段的信息，ip()可以获取客户端的IP地址，ua()获取客户端的User-Agent，等等。
