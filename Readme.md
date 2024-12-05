@@ -4,6 +4,7 @@
 [![Generic badge](https://img.shields.io/badge/JAVA_11+-8A2BE2.svg)](https://shields.io/)
 [![Generic badge](https://img.shields.io/badge/Restful-FFFF00.svg)](https://shields.io/)
 [![Generic badge](https://img.shields.io/badge/Web-Framework-009ACD.svg)](https://shields.io/)
+[![Generic badge](https://img.shields.io/badge/MVC-009ACD.svg)](https://shields.io/)
 [![Generic badge](https://img.shields.io/badge/GraphQL-0000CD.svg)](https://shields.io/)
 [![Generic badge](https://img.shields.io/badge/Lightweight-00008B.svg)](https://shields.io/)
 [![Generic badge](https://img.shields.io/badge/ORM-009ACD.svg)](https://shields.io/)
