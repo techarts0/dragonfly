@@ -68,14 +68,18 @@ public class StartupListener implements ServletContextListener {
 	
 	private void getSessionConfig(ServletContext context, Map<String, String> configs) {
 		var result = new SessionConfig();
-		result.setSessionKey(configs.remove("session.key"));
-		result.setSessionSalt(configs.remove("session.salt"));
-		var duration = configs.remove("session.duration");		
-		result.setSessionDuration(Converter.toInt(duration));
-		var permission = configs.remove("session.check");
-		result.setSessionCheck(Converter.toBoolean(permission));
-		var uid = configs.remove("session.uidProperty");
-		result.setUidProperty(uid == null ? "uid" : uid);
+		try {
+			result.setSessionKey(configs.remove("session.key"));
+			result.setSessionSalt(configs.remove("session.salt"));
+			var duration = configs.remove("session.duration");		
+			result.setSessionDuration(Converter.toInt(duration));
+			var permission = configs.remove("session.check");
+			result.setSessionCheck(Converter.toBoolean(permission));
+			var uid = configs.remove("session.uidProperty");
+			result.setUidProperty(uid == null ? "uid" : uid);
+		}catch(Exception e) {
+			//Ignored. Returns an empty SessionConfig object.
+		}
 		context.setAttribute(SessionConfig.CACHE_KEY, result);
 	}
 	

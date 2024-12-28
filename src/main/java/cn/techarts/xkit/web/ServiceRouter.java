@@ -44,7 +44,7 @@ public class ServiceRouter extends HttpServlet{
 	public int authenticate(HttpServletRequest req, HttpServletResponse response, ServiceMeta service){
 		if(service == null) return NO_SUCH_API;
 		var context = req.getServletContext();
-		var sessionConfig = this.getSessionConfig(context);
+		var sessionConfig = getSessionConfig(context);
 		if(!sessionConfig.check()) return ALLOWED;
 		if(!service.isPermissionRequired()) return ALLOWED;
 		String session = getSession(req), ip = getRemorteAddress(req);
@@ -54,7 +54,8 @@ public class ServiceRouter extends HttpServlet{
 	}
 	
 	private SessionConfig getSessionConfig(ServletContext ctx) {
-		return (SessionConfig)ctx.getAttribute(SessionConfig.CACHE_KEY);
+		var tmp = ctx.getAttribute(SessionConfig.CACHE_KEY);
+		return tmp == null ? new SessionConfig() : (SessionConfig)tmp;
 	}
 	
 	public static String getRemorteAddress(HttpServletRequest request) {

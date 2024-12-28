@@ -80,7 +80,7 @@ public final class Requester {
 	 * Send plain text content
 	 */
 	public static String post(String url, String text) {
-		var request = createHttpRequest(url, text);
+		var request = createHttpPostRequest(url, text);
 		return sendRequestSync(createHttpClient(), request);
 	}
 	
@@ -88,7 +88,7 @@ public final class Requester {
 	 * Send plain text content as async-mode
 	 */
 	public static void post(String url, String text, final HttpCallback callback) {
-		var request = createHttpRequest(url, text);
+		var request = createHttpPostRequest(url, text);
 		sendRequestAsync(createHttpClient(), request, callback);
 	}
 	
@@ -96,7 +96,7 @@ public final class Requester {
 	 * Send form-data
 	 */
 	public static String post(String url, Map<String, String> data) {
-		var request = createHttpRequest(url, data);
+		var request = createHttpPostRequest(url, data);
 		return sendRequestSync(createHttpClient(), request);
 	}
 	
@@ -104,7 +104,7 @@ public final class Requester {
 	 * Send form-data as async mode
 	 */
 	public static void post(String url, Map<String, String> data, final HttpCallback callback) {
-		var request = createHttpRequest(url, data);
+		var request = createHttpPostRequest(url, data);
 		sendRequestAsync(createHttpClient(), request, callback);
 	}
 	
@@ -112,7 +112,7 @@ public final class Requester {
 	 * Send form-data with specified HTTP headers
 	 */
 	public static String post(String url, Map<String, String> data, Map<String, String> header) {
-		var request = createHttpRequest(url, data, header);
+		var request = createHttpPostRequest(url, data, header);
 		return sendRequestSync(createHttpClient(), request);
 	}
 	
@@ -120,7 +120,7 @@ public final class Requester {
 	 * Send the payload with your specified content type(TEXT | JSON | FORM-DATA)
 	 */
 	public static String post(String url, String payload, String contentType) {
-		var request = createHttpRequest(url, payload, contentType);
+		var request = createHttpPostRequest(url, payload, contentType);
 		return sendRequestSync(createHttpClient(), request);
 	}
 	
@@ -128,8 +128,8 @@ public final class Requester {
 	 * Send a file
 	 * @param file The full path of the file (e.g. /usr/local/bin/girl.jpg)
 	 */
-	public static String send(String url, String file) {
-		var request = createHttpFileRequest(url, file);
+	public static String send(String url, String filePath) {
+		var request = createHttpFileRequest(url, filePath);
 		return sendRequestSync(createHttpClient(), request);
 	}
 	
@@ -137,9 +137,29 @@ public final class Requester {
 	 * Send a file as async-mode
 	 * @param file The full path of the file (e.g. /usr/local/bin/girl.jpg)
 	 */
-	public static void send(String url, String file, final HttpCallback callback) {
-		var request = createHttpFileRequest(url, file);
+	public static void send(String url, String filePath, final HttpCallback callback) {
+		var request = createHttpFileRequest(url, filePath);
 		sendRequestAsync(createHttpClient(), request, callback);
+	}
+	
+	public static String put(String url, String data, boolean json) {
+		var request = createHttpPutRequest(url, data, json);
+		return sendRequestSync(createHttpClient(), request);
+	}
+	
+	public static String put(String url, Map<String, String> data) {
+		var request = createHttpPutRequest(url, data);
+		return sendRequestSync(createHttpClient(), request);
+	}
+	
+	public static String delete(String url, Map<String, String> data) {
+		var request = createHttpDeleteRequest(url, data);
+		return sendRequestSync(createHttpClient(), request);
+	}
+	
+	public static String head(String url) {
+		var request = createHttpHeadRequest(url);
+		return sendRequestSync(createHttpClient(), request);
 	}
 	
 	//---------------------------------------------------------------------------------------------------------------------
@@ -166,10 +186,38 @@ public final class Requester {
 			   .header("Content-Type", CONTENT_TYPE_FORM).build();
 	}
 	
+	private static HttpRequest createHttpPutRequest(String url, Map<String, String> data) {
+		var publisher = BodyPublishers.ofString(stringify(data));
+		return HttpRequest.newBuilder().uri(URI.create(url))
+			   .timeout(Duration.ofSeconds(TIMEOUT_SECONDS)).PUT(publisher)
+			   .header("Content-Type", CONTENT_TYPE_FORM).build();
+	}
+	
+	private static HttpRequest createHttpPutRequest(String url, String data, boolean json) {
+		var publisher = BodyPublishers.ofString(data);
+		var ct = json ? CONTENT_TYPE_JSON : CONTENT_TYPE_TEXT;
+		return HttpRequest.newBuilder().uri(URI.create(url))
+			   .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
+			   .PUT(publisher).header("Content-Type", ct).build();
+	}
+	
+	private static HttpRequest createHttpDeleteRequest(String url, Map<String, String> data) {
+		var uri = (Empty.is(data)) ? url : url.concat("?").concat(stringify(data));
+		return HttpRequest.newBuilder().uri(URI.create(uri))
+			   .timeout(Duration.ofSeconds(TIMEOUT_SECONDS)).DELETE()
+			   .header("Content-Type", CONTENT_TYPE_FORM).build();
+	}
+	
+	private static HttpRequest createHttpHeadRequest(String url) {
+		return HttpRequest.newBuilder().uri(URI.create(url))
+			   .timeout(Duration.ofSeconds(TIMEOUT_SECONDS)).HEAD()
+			   .header("Content-Type", CONTENT_TYPE_FORM).build();
+	}
+	
 	/**
 	 * Make a request to send a set of encoded form parameters
 	 * */
-	private static HttpRequest createHttpRequest(String url, Map<String, String> data) {
+	private static HttpRequest createHttpPostRequest(String url, Map<String, String> data) {
 		return HttpRequest.newBuilder().uri(URI.create(url))
 			   .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
 			   .POST(BodyPublishers.ofString(stringify(data)))
@@ -179,14 +227,14 @@ public final class Requester {
 	/**
 	 * Make a request to send the text data
 	 * */
-	private static HttpRequest createHttpRequest(String url, String data) {
+	private static HttpRequest createHttpPostRequest(String url, String data) {
 		return HttpRequest.newBuilder().uri(URI.create(url))
 			   .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
 			   .POST(BodyPublishers.ofString(data))
 			   .header("Content-Type", CONTENT_TYPE_TEXT).build();
 	}
 	
-	private static HttpRequest createHttpRequest(String url, String data, String contentType) {
+	private static HttpRequest createHttpPostRequest(String url, String data, String contentType) {
 		return HttpRequest.newBuilder().uri(URI.create(url))
 			   .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
 			   .POST(BodyPublishers.ofString(data))
@@ -196,7 +244,7 @@ public final class Requester {
 	/**
 	 * Make a request to send a java object as JSON
 	 * */
-	private static HttpRequest createHttpRequest(String url, Map<String, String> data, Map<String, String> headers) {
+	private static HttpRequest createHttpPostRequest(String url, Map<String, String> data, Map<String, String> headers) {
 		var result = HttpRequest.newBuilder().uri(URI.create(url))
 							    .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
 							    .POST(BodyPublishers.ofString(stringify(data)))

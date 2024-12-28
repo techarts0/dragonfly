@@ -78,4 +78,16 @@ public class Result implements Serializable{
 	public void setData(Object data) {
 		this.data = data;
 	}
+	
+	/**
+	 * Returns null if the type mismatched.
+	 */
+	public<T> T getData(Class<T> t) {
+		if(data == null) return null;
+		var tmp = data.getClass();
+		if(t.isAssignableFrom(tmp)) {
+			return t.cast(this.data);
+		}
+		return null;
+	}
 }

@@ -26,6 +26,7 @@ import cn.techarts.xkit.data.DataManager;
 import cn.techarts.xkit.data.redis.RedisHelper;
 import cn.techarts.xkit.data.trans.TransactionAbility;
 import cn.techarts.xkit.data.trans.TransactionManager;
+import cn.techarts.xkit.rpc.WebRpcHelper;
 
 /**
  * Full RDB access and Redis caching capabilities are enabled.
@@ -39,6 +40,9 @@ public abstract class AbstractService implements TransactionAbility
 	
 	@Inject
 	private RedisHelper redisHelper = null;
+	
+	@Inject
+	private WebRpcHelper rpcHelper = null;
 		
 	/**
 	 * ERRID means the Id is ZERO(<b>0</b>) and it's <b>invalid</b>.
@@ -70,6 +74,13 @@ public abstract class AbstractService implements TransactionAbility
 		return this.redisHelper;
 	}
 	
+	protected WebRpcHelper getRpcHelper() {
+		if(Objects.isNull(rpcHelper)) {
+			throw new RuntimeException("RPC module is not enabled.");
+		}
+		return this.rpcHelper;
+	}
+	
 	/**
 	 * Returns the MYBATIS Mapper object directly.
 	 */
@@ -78,5 +89,5 @@ public abstract class AbstractService implements TransactionAbility
 		if(Objects.isNull(exec)) return null;
 		if(!(exec instanceof SqlSession)) return null;
 		return ((SqlSession)exec).getMapper(mybatisMappClass);
-	}
+	}	
 }

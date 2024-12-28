@@ -50,13 +50,16 @@ public class WebContext {
 	}
 	
 	public void respondAsJson(Object obj, MediaType type){
-		if(obj != null) {
-			this.result.setData(obj);
-		}else {
+		if(obj == null) {
 			if(!result.mark()) {
 				result = Result.unknown();
 			}
+		}else if(obj instanceof Result) {
+			this.result = (Result)obj;
+		}else {
+			this.result.setData(obj);
 		}
+		
 		response.setContentType(type.value());
 		var content = Codec.toJson(result);
 		try{
