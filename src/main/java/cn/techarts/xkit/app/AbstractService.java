@@ -42,7 +42,7 @@ public abstract class AbstractService implements TransactionAbility
 	private RedisHelper redisHelper = null;
 	
 	@Inject
-	private WebRpcHelper rpcHelper = null;
+	private WebRpcHelper webRpcHelper = null;
 		
 	/**
 	 * ERRID means the Id is ZERO(<b>0</b>) and it's <b>invalid</b>.
@@ -75,10 +75,10 @@ public abstract class AbstractService implements TransactionAbility
 	}
 	
 	protected WebRpcHelper getRpcHelper() {
-		if(Objects.isNull(rpcHelper)) {
+		if(Objects.isNull(webRpcHelper)) {
 			throw new RuntimeException("RPC module is not enabled.");
 		}
-		return this.rpcHelper;
+		return this.webRpcHelper;
 	}
 	
 	/**
