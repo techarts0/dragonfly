@@ -30,7 +30,7 @@ import cn.techarts.xkit.util.Codec;
  */
 
 @Singleton
-public class WebRpcHelper {
+public class WebRPCHelper {
 	public<T> T get(String url, Map<String, String> args, Class<T> t) {
 		var result = Requester.get(url, args);
 		if(Empty.is(result)) return null;

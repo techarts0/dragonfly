@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.ibatis.session.SqlSession;
 
-import cn.techarts.xkit.app.rpc.WebRpcHelper;
+import cn.techarts.xkit.app.rpc.WebRPCHelper;
 import cn.techarts.xkit.data.DataHelper;
 import cn.techarts.xkit.data.DataManager;
 import cn.techarts.xkit.data.redis.RedisHelper;
@@ -47,7 +47,7 @@ public abstract class AbstractService implements TransactionAbility
 	private RedisHelper redisHelper = null;
 	
 	@Inject
-	private WebRpcHelper webRpcHelper = null;
+	private WebRPCHelper webRpcHelper = null;
 		
 	/**
 	 * ERRID means the Id is ZERO(<b>0</b>) and it's <b>invalid</b>.
@@ -89,7 +89,7 @@ public abstract class AbstractService implements TransactionAbility
 	/**
 	 * @return The helper to help you call remoting methods over HTTP.
 	 */
-	protected WebRpcHelper getRpcHelper() {
+	protected WebRPCHelper getRpcHelper() {
 		if(Objects.isNull(webRpcHelper)) {
 			throw new RuntimeException("RPC module is not enabled.");
 		}
