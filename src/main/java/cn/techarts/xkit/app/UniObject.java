@@ -22,11 +22,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * Generally, a POJO should derived from the class {@link UniObject} especially mapping on an entity in database.<p>
- * An instance of a subclass derived from {@link UniObject} owns a unique id(an integer) and supports serialization.<p>
- * The class contains below state properties:<br>
- * 1. page-number and page-size
- * 
+ * A super class of POJO (e.g database entity object).<p>
  * @author rocwon@gmail.com
  */
 public class UniObject implements Serializable {

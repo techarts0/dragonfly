@@ -19,6 +19,7 @@ package cn.techarts.xkit.app;
 import java.util.Objects;
 import javax.inject.Inject;
 
+import org.apache.commons.dbutils.QueryRunner;
 import org.apache.ibatis.session.SqlSession;
 
 import cn.techarts.xkit.data.DataHelper;
@@ -27,9 +28,13 @@ import cn.techarts.xkit.data.redis.RedisHelper;
 import cn.techarts.xkit.data.trans.TransactionAbility;
 import cn.techarts.xkit.data.trans.TransactionManager;
 import cn.techarts.xkit.rpc.WebRpcHelper;
+import jakarta.persistence.EntityManager;
 
 /**
- * Full RDB access and Redis caching capabilities are enabled.
+ * Your service will gain the following abilities:<p>
+ * 1. Fully access relational database via {@link getDataHelper()},<br>
+ * 2. access the memory cache redis via {@link getRedisHelper()},<br>
+ * 3. interact to other applications via {@link getRpcHelper()}
  * 
  * @author rocwon@gmail.com
  */
@@ -52,13 +57,17 @@ public abstract class AbstractService implements TransactionAbility
 	/**A tiny decimal that's very near to 0*/
 	public static final double ZERO = 0.0000001D;
 	
+	/**
+	 * The method is invoked by framework to enhance the transaction ablitity,
+	 * developers do not need to call it directly.
+	 */
 	@Override
 	public TransactionManager getTransactionManager() {
 		return this.dataManager;
 	}
 	
 	/**
-	 * Container manages transaction.
+	 * @return The unified database access interface with the container managed transaction.
 	 */
 	protected DataHelper getDataHelper() {
 		if(Objects.isNull(dataManager)) {
@@ -67,6 +76,9 @@ public abstract class AbstractService implements TransactionAbility
 		return dataManager.getExecutor();
 	}
 	
+	/**
+	 * @return The helper to help you access REDIS cache.
+	 */
 	protected RedisHelper getRedisHelper() {
 		if(Objects.isNull(redisHelper) || !redisHelper.isInitialized()) {
 			throw new RuntimeException("Cache module is not enabled.");
@@ -74,6 +86,9 @@ public abstract class AbstractService implements TransactionAbility
 		return this.redisHelper;
 	}
 	
+	/**
+	 * @return The helper to help you call remoting methods over HTTP.
+	 */
 	protected WebRpcHelper getRpcHelper() {
 		if(Objects.isNull(webRpcHelper)) {
 			throw new RuntimeException("RPC module is not enabled.");
@@ -82,12 +97,43 @@ public abstract class AbstractService implements TransactionAbility
 	}
 	
 	/**
-	 * Returns the MYBATIS Mapper object directly.
+	 * @param mybatisMappClass The mapper interface you declared.
+	 * @return The MYBATIS Mapper object directly.
 	 */
 	protected<T> T getMapper(Class<T> mybatisMappClass) {
 		var exec = getDataHelper().getExecutor();
 		if(Objects.isNull(exec)) return null;
 		if(!(exec instanceof SqlSession)) return null;
 		return ((SqlSession)exec).getMapper(mybatisMappClass);
-	}	
+	}
+	
+	/**
+	 * @return The native MYBATIS SqlSession object.
+	 * @see getDataHelper.getExecutor() 
+	 */
+	protected SqlSession getSqlSession() {
+		var exec = getDataHelper().getExecutor();
+		if(Objects.isNull(exec)) return null;
+		return (exec instanceof SqlSession) ? (SqlSession)exec : null;
+	}
+	
+	/**
+	 * @return The native Apache DbUtil QueryRunner object. 
+	 * @see getDataHelper.getExecutor()
+	 */
+	protected QueryRunner getQueryRunner() {
+		var exec = getDataHelper().getExecutor();
+		if(Objects.isNull(exec)) return null;
+		return (exec instanceof QueryRunner) ? (QueryRunner)exec : null;
+	}
+	
+	/**
+	 * @return The native Apache OpenJPA EntityManager object. 
+	 * @see getDataHelper.getExecutor()
+	 */
+	protected EntityManager getEntityManager() {
+		var exec = getDataHelper().getExecutor();
+		if(Objects.isNull(exec)) return null;
+		return (exec instanceof EntityManager) ? (EntityManager)exec : null;
+	}
 }
