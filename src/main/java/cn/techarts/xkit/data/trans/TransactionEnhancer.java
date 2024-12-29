@@ -22,10 +22,9 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.logging.Logger;
 
-import cn.techarts.xkit.aop.AopException;
-import cn.techarts.xkit.aop.Bytecoder;
+import cn.techarts.xkit.app.helper.Empty;
 import cn.techarts.xkit.data.DataException;
-import cn.techarts.xkit.helper.Empty;
+import cn.techarts.xkit.util.Bytecoder;
 import cn.techarts.xkit.util.Hotpot;
 import cn.techarts.xkit.util.Scanner;
 
@@ -54,7 +53,7 @@ public class TransactionEnhancer {
 				this.enhanceClassWithinTransaction(clzz);
 			}
 		}catch(Exception e) {
-			throw new AopException("Failed to enhance services.", e);
+			throw new RuntimeException("Failed to enhance services.", e);
 		}
 	}
 	

@@ -21,7 +21,8 @@ import java.sql.SQLException;
 import java.util.Properties;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import cn.techarts.xkit.helper.Cryptor;
+
+import cn.techarts.xkit.app.helper.Cryptor;
 
 /**
  * @author rocwon@gmail.com

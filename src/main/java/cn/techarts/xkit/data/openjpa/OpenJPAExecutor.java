@@ -18,6 +18,7 @@ package cn.techarts.xkit.data.openjpa;
 
 import java.sql.Connection;
 import java.util.List;
+
 import cn.techarts.xkit.app.UniObject;
 import cn.techarts.xkit.data.DataException;
 import cn.techarts.xkit.data.DataHelper;

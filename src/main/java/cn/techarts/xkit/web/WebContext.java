@@ -28,8 +28,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import cn.techarts.whale.Context;
+import cn.techarts.xkit.app.helper.Converter;
 import cn.techarts.xkit.util.Codec;
-import cn.techarts.xkit.helper.Converter;
 
 /**
  * @author rocwon@gmail.com

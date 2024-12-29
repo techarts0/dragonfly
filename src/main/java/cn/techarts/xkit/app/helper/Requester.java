@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cn.techarts.xkit.helper;
+package cn.techarts.xkit.app.helper;
 
 import java.io.FileNotFoundException;
 import java.net.URI;

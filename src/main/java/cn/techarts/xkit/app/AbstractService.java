@@ -22,12 +22,12 @@ import javax.inject.Inject;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.ibatis.session.SqlSession;
 
+import cn.techarts.xkit.app.rpc.WebRpcHelper;
 import cn.techarts.xkit.data.DataHelper;
 import cn.techarts.xkit.data.DataManager;
 import cn.techarts.xkit.data.redis.RedisHelper;
 import cn.techarts.xkit.data.trans.TransactionAbility;
 import cn.techarts.xkit.data.trans.TransactionManager;
-import cn.techarts.xkit.rpc.WebRpcHelper;
 import jakarta.persistence.EntityManager;
 
 /**

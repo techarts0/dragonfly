@@ -21,7 +21,7 @@ import java.util.Properties;
 
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
 
-import cn.techarts.xkit.helper.Converter;
+import cn.techarts.xkit.app.helper.Converter;
 
 /**
  * @author rocwon@gmail.com

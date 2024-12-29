@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Logger;
 
-import cn.techarts.xkit.helper.Empty;
+import cn.techarts.xkit.app.helper.Empty;
 import cn.techarts.xkit.util.Hotpot;
 
 /**

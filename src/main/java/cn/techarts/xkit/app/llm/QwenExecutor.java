@@ -1,4 +1,4 @@
-package cn.techarts.xkit.llm;
+package cn.techarts.xkit.app.llm;
 
 public class QwenExecutor {
 	private String model;

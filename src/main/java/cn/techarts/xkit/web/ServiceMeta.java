@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.techarts.xkit.helper.Empty;
+import cn.techarts.xkit.app.helper.Empty;
 import cn.techarts.xkit.web.restful.Any;
 import cn.techarts.xkit.web.restful.Delete;
 import cn.techarts.xkit.web.restful.Get;

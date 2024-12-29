@@ -16,8 +16,8 @@
 
 package cn.techarts.xkit.web;
 
-import cn.techarts.xkit.helper.Converter;
-import cn.techarts.xkit.helper.Cryptor;
+import cn.techarts.xkit.app.helper.Converter;
+import cn.techarts.xkit.app.helper.Cryptor;
 
 /**
  * @author rocwon@gmail.com

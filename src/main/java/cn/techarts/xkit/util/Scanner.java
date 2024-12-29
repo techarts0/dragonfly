@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import cn.techarts.xkit.app.helper.Empty;
 import cn.techarts.xkit.data.DataException;
-import cn.techarts.xkit.helper.Empty;
 import jakarta.persistence.Entity;
 /**
  * Internal utility.

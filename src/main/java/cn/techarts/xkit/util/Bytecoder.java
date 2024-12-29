@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package cn.techarts.xkit.aop;
+package cn.techarts.xkit.util;
 
 import java.util.Objects;
 
-import cn.techarts.xkit.helper.Empty;
+import cn.techarts.xkit.app.helper.Empty;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.bytecode.AnnotationsAttribute;
@@ -43,7 +43,7 @@ public final class Bytecoder {
 			this.pool = ClassPool.getDefault();
 			this.target = pool.get(clazz); 
 		}catch(Exception e) {
-			throw AopException.notFound(clazz, e);
+			throw new RuntimeException("Class not found: ", e);
 		}
 	}
 	
@@ -52,7 +52,7 @@ public final class Bytecoder {
 			addAnnotationOnType(annotation);
 			this.target.writeFile(classpath);
 		}catch(Exception e) {
-			throw AopException.failedSaveFile(e);
+			throw new RuntimeException("Failed to save class: ", e);
 		}
 	}
 	
@@ -71,7 +71,7 @@ public final class Bytecoder {
 			var m = target.getDeclaredMethod(method);
 			if(m != null) m.insertAfter(code);
 		}catch(Exception e) {
-			throw AopException.notFound(method, e);
+			throw new RuntimeException("Method not found: ", e);
 		}
 	}
 	
@@ -81,7 +81,7 @@ public final class Bytecoder {
 			var m = target.getDeclaredMethod(method);
 			if(m != null) m.insertBefore(code);
 		}catch(Exception e) {
-			throw AopException.notFound(method, e);
+			throw new RuntimeException("Method not found: ", e);
 		}
 	}
 	
@@ -93,7 +93,7 @@ public final class Bytecoder {
 				m.addCatch(code, exception, name);
 			}
 		}catch(Exception e) {
-			throw AopException.notFound(method, e);
+			throw new RuntimeException("Method not found: ", e);
 		}
 	}
 	

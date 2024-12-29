@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package cn.techarts.xkit.rpc;
+package cn.techarts.xkit.app.rpc;
 
 import java.util.Map;
 
 import javax.inject.Singleton;
+
+import cn.techarts.xkit.app.helper.Empty;
+import cn.techarts.xkit.app.helper.Requester;
 import cn.techarts.xkit.util.Codec;
-import cn.techarts.xkit.helper.Empty;
-import cn.techarts.xkit.helper.Requester;
 
 /**
  * RPC based on HTTP
