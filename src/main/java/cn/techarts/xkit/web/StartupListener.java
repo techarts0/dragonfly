@@ -42,6 +42,7 @@ public class StartupListener implements ServletContextListener {
 	//The constant MUST be same as Context.NAME in whale project.
 	public static final String WHALE_KEY = "context.whale.techarts";
 	public static final String CONFIG_PATH = "contextConfigLocation";
+	public static final String URL_PATTERN = "web.url.pattern";
 	private static final Logger LOGGER = Hotpot.getLogger();
 		
 	@Override
@@ -56,7 +57,13 @@ public class StartupListener implements ServletContextListener {
 		this.standalone = isRunningStandalone(context);
 		if(!standalone) initWhale(context, classes, configs);
 		int n = this.initWebServices(context, classes);
+		registerServiceRouter(context, configs.get(URL_PATTERN));
 		LOGGER.info("The web application has been started successfully. (" + n + " web services)");
+	}
+	
+	private void registerServiceRouter(ServletContext context, String urlPattern) {
+		var pattern = urlPattern == null ? "/ws/*" : urlPattern;
+		context.addServlet("serviceRouter",ServiceRouter.class).addMapping(pattern);
 	}
 	
 	private List<String> scanClasses(String classpath){

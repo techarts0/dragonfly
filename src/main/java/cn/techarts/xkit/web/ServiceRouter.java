@@ -15,29 +15,21 @@
  */
 
 package cn.techarts.xkit.web;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Objects;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import cn.techarts.xkit.app.helper.Empty;
 
 /**
  * @author rocwon@gmail.com
  */
-
-@WebServlet("/ws/*")
 public class ServiceRouter extends HttpServlet{
-	
 	private static final long serialVersionUID = 1L;
-	
 	public static final int ALLOWED = 0; //OK
 	public static final int NO_SUCH_API = -10086;
 	public static final int INVALID_SESSION = -10000;
