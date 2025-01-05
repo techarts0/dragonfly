@@ -277,7 +277,7 @@ public class WebContext {
 		var obj = ctx.getAttribute(SessionConfig.CACHE_KEY);
 		if(obj == null) return null; //ERROR
 		var sessionConfig = (SessionConfig)obj;
-		return sessionConfig.generate(ip(), userId);
+		return sessionConfig.generate(ip(), userId, ua());
 	}
 	
 	public String getSession(int userId) {

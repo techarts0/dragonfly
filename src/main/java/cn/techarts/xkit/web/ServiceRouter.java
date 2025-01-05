@@ -43,7 +43,7 @@ public class ServiceRouter extends HttpServlet{
 		String session = getSession(req), ip = getRemorteAddress(req);
 		if(session == null || session.isBlank()) return INVALID_SESSION;
 		var uid = req.getParameter(sessionConfig.getUidProperty());
-		return this.validate(context, uid, ip,  session);
+		return this.validate(context, uid, ip,  session, getUserAgent(req));
 	}
 	
 	private SessionConfig getSessionConfig(ServletContext ctx) {
@@ -57,9 +57,12 @@ public class ServiceRouter extends HttpServlet{
 		return result == null ? request.getRemoteAddr() : result;
 	} 
 	
-	public int validate(ServletContext context, String user, String ip, String session) {
+	private String getUserAgent(HttpServletRequest request) {
+		return request.getHeader("user-agent");
+	}
+	public int validate(ServletContext context, String user, String ip, String session, String ua) {
 		var config = getSessionConfig(context);
-		var result = config.verify(ip, user, session);
+		var result = config.verify(ip, user, session, ua);
 		return result ? ALLOWED : INVALID_SESSION;
 	}
 	

@@ -70,20 +70,20 @@ public class SessionConfig {
 	
 	//////////////////////////////////////////////////
 	
-	public boolean verify(String ip, String userId, String session) {
+	public boolean verify(String ip, String userId, String session, String ua) {
 		var tmp = Cryptor.decrypt(session, Cryptor.toBytes(sessionKey));
 		if(tmp == null) return false; //An invalid session
 		var bgn = Converter.toInt(tmp.substring(0, 8));
 		if(minutes() - bgn > sessionDuration) return false;
-		var result = (ip != null ? ip : "0000") + userId + sessionSalt;
+		var result = (ip != null ? ip : "0000") + userId + sessionSalt + ua;
 		return result != null ? result.equals(tmp.substring(8)) : false;
 	}
 	
-	public String generate(String ip, String userId) {
-		var result = (ip != null ? ip : "0000") + userId;
+	public String generate(String ip, String userId, String ua) {
 		var minutes = String.valueOf(minutes());
-		result = minutes.concat(result).concat(sessionSalt);
-		return Cryptor.encrypt(result, Cryptor.toBytes(sessionKey));
+		var tmp = (ip != null ? ip : "0000") + userId;
+		tmp = minutes.concat(tmp).concat(sessionSalt).concat(ua);
+		return Cryptor.encrypt(tmp, Cryptor.toBytes(sessionKey));
 	}
 	
 	public static int minutes() {
