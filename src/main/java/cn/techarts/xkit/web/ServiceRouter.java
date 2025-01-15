@@ -118,10 +118,13 @@ public class ServiceRouter extends HttpServlet{
 	}
 	
 	/**
-	 * You can put the session in request header with a customized name "x:session".
+	 * You can put the session in request header with a customized name "x-session" or "x-token".
 	 */
 	private String getSession(HttpServletRequest request) {
 		var result = request.getHeader("x-session");
+		if(result == null) {
+			result = request.getHeader("x-token");
+		}
 		if(result == null) {
 			result = request.getParameter("session");
 		}

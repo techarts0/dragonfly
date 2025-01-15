@@ -1,5 +1,5 @@
 package cn.techarts.xkit.app.llm;
 
-public class GptHelper {
-
+public interface GptHelper {
+	public Answer ask(Question question);
 }

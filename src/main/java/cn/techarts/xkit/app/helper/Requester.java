@@ -67,12 +67,17 @@ public final class Requester {
 	 * Send a redirect request
 	 */
 	public static String redirect(String url, Map<String, String> parameters) {
-		var request = createHttpGetRequest(url, parameters);
+		var request = createHttpGetRequest(url, parameters, null);
 		return sendRequestSync(createHttpClient(true), request);
 	}
 	
 	public static String get(String url, Map<String, String> parameters) {
-		var request = createHttpGetRequest(url, parameters);
+		var request = createHttpGetRequest(url, parameters, null);
+		return sendRequestSync(createHttpClient(), request);
+	}
+	
+	public static String get(String url, Map<String, String> parameters, Map<String, String> headers) {
+		var request = createHttpGetRequest(url, parameters, headers);
 		return sendRequestSync(createHttpClient(), request);
 	}
 	
@@ -119,8 +124,8 @@ public final class Requester {
 	/**
 	 * Send the payload with your specified content type(TEXT | JSON | FORM-DATA)
 	 */
-	public static String post(String url, String payload, String contentType) {
-		var request = createHttpPostRequest(url, payload, contentType);
+	public static String post(String url, String payload, Map<String, String> header) {
+		var request = createHttpPostRequest(url, payload, header);
 		return sendRequestSync(createHttpClient(), request);
 	}
 	
@@ -148,12 +153,22 @@ public final class Requester {
 	}
 	
 	public static String put(String url, Map<String, String> data) {
-		var request = createHttpPutRequest(url, data);
+		var request = createHttpPutRequest(url, data, null);
+		return sendRequestSync(createHttpClient(), request);
+	}
+	
+	public static String put(String url, Map<String, String> data, Map<String, String> headers) {
+		var request = createHttpPutRequest(url, data, headers);
 		return sendRequestSync(createHttpClient(), request);
 	}
 	
 	public static String delete(String url, Map<String, String> data) {
-		var request = createHttpDeleteRequest(url, data);
+		var request = createHttpDeleteRequest(url, data, null);
+		return sendRequestSync(createHttpClient(), request);
+	}
+	
+	public static String delete(String url, Map<String, String> data, Map<String, String> headers) {
+		var request = createHttpDeleteRequest(url, data, headers);
 		return sendRequestSync(createHttpClient(), request);
 	}
 	
@@ -179,18 +194,28 @@ public final class Requester {
 		return httpClient;
 	}
 	
-	private static HttpRequest createHttpGetRequest(String url, Map<String, String> data) {
+	private static HttpRequest createHttpGetRequest(String url, Map<String, String> data, Map<String, String> headers) {
 		var uri = (Empty.is(data)) ? url : url.concat("?").concat(stringify(data));
-		return HttpRequest.newBuilder().uri(URI.create(uri))
+		var result = HttpRequest.newBuilder().uri(URI.create(uri))
 			   .timeout(Duration.ofSeconds(TIMEOUT_SECONDS)).GET()
-			   .header("Content-Type", CONTENT_TYPE_FORM).build();
+			   .header("Content-Type", CONTENT_TYPE_FORM);
+		if(!Empty.is(headers)) {
+			headers.forEach((k,v)->result.header(k, v));
+		}
+		return result.build();
 	}
 	
-	private static HttpRequest createHttpPutRequest(String url, Map<String, String> data) {
+	private static HttpRequest createHttpPutRequest(String url, Map<String, String> data, Map<String, String> headers) {
 		var publisher = BodyPublishers.ofString(stringify(data));
-		return HttpRequest.newBuilder().uri(URI.create(url))
-			   .timeout(Duration.ofSeconds(TIMEOUT_SECONDS)).PUT(publisher)
-			   .header("Content-Type", CONTENT_TYPE_FORM).build();
+		var result = HttpRequest.newBuilder()
+				.uri(URI.create(url))
+				.timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
+				.PUT(publisher)
+				.header("Content-Type", CONTENT_TYPE_FORM);
+		if(!Empty.is(headers)) {
+			headers.forEach((k,v)->result.header(k, v));
+		}
+		return result.build();
 	}
 	
 	private static HttpRequest createHttpPutRequest(String url, String data, boolean json) {
@@ -201,11 +226,17 @@ public final class Requester {
 			   .PUT(publisher).header("Content-Type", ct).build();
 	}
 	
-	private static HttpRequest createHttpDeleteRequest(String url, Map<String, String> data) {
+	private static HttpRequest createHttpDeleteRequest(String url, Map<String, String> data, Map<String, String> headers) {
 		var uri = (Empty.is(data)) ? url : url.concat("?").concat(stringify(data));
-		return HttpRequest.newBuilder().uri(URI.create(uri))
-			   .timeout(Duration.ofSeconds(TIMEOUT_SECONDS)).DELETE()
-			   .header("Content-Type", CONTENT_TYPE_FORM).build();
+		var result = HttpRequest.newBuilder()
+				.uri(URI.create(uri))
+				.timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
+				.DELETE()
+				.header("Content-Type", CONTENT_TYPE_FORM);
+		if(!Empty.is(headers)) {
+			headers.forEach((k,v)->result.header(k, v));
+		}
+		return result.build();
 	}
 	
 	private static HttpRequest createHttpHeadRequest(String url) {
@@ -234,20 +265,24 @@ public final class Requester {
 			   .header("Content-Type", CONTENT_TYPE_TEXT).build();
 	}
 	
-	private static HttpRequest createHttpPostRequest(String url, String data, String contentType) {
-		return HttpRequest.newBuilder().uri(URI.create(url))
-			   .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
-			   .POST(BodyPublishers.ofString(data))
-			   .header("Content-Type", contentType).build();
-	}
-	
 	/**
 	 * Make a request to send a java object as JSON
 	 * */
 	private static HttpRequest createHttpPostRequest(String url, Map<String, String> data, Map<String, String> headers) {
-		var result = HttpRequest.newBuilder().uri(URI.create(url))
+		var result = HttpRequest.newBuilder()
+								.uri(URI.create(url))
 							    .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
 							    .POST(BodyPublishers.ofString(stringify(data)))
+							    .header("Content-Type", CONTENT_TYPE_JSON);
+		if(!Empty.is(headers)) headers.forEach((k,v)->result.header(k, v));
+		return result.build();
+	}
+	
+	private static HttpRequest createHttpPostRequest(String url, String data, Map<String, String> headers) {
+		var result = HttpRequest.newBuilder()
+								.uri(URI.create(url))
+							    .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
+							    .POST(BodyPublishers.ofString(data))
 							    .header("Content-Type", CONTENT_TYPE_JSON);
 		if(!Empty.is(headers)) headers.forEach((k,v)->result.header(k, v));
 		return result.build();

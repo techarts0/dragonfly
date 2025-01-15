@@ -16,6 +16,7 @@
 
 package cn.techarts.xkit.app.rpc;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Singleton;
@@ -25,7 +26,7 @@ import cn.techarts.xkit.app.helper.Requester;
 import cn.techarts.xkit.util.Codec;
 
 /**
- * RPC based on HTTP
+ * RPC based on HTTP & JSON
  * @author rocwon@gmail.com
  */
 
@@ -37,8 +38,46 @@ public class WebRPCHelper {
 		return Codec.decodeJson(result, t);
 	}
 	
+	public<T> T get(String url, Map<String, String> args, Class<T> t, Map<String, String> headers) {
+		var result = Requester.get(url, args, headers);
+		if(Empty.is(result)) return null;
+		return Codec.decodeJson(result, t);
+	}
+	
+	/**
+	 * It is compatible to Dragonfly Web Framework.
+	 */
+	public<T> T get(String url, Map<String, String> args, Class<T> t, String session) {
+		var hdr = new HashMap<String, String>();
+		if(session != null) {
+			hdr.put("x-session", session);
+		}
+		var result = Requester.get(url, args, hdr);
+		if(Empty.is(result)) return null;
+		return Codec.decodeJson(result, t);
+	}
+	
 	public<T> T post(String url, Map<String, String> args, Class<T> t) {
 		var result = Requester.post(url, args);
+		if(Empty.is(result)) return null;
+		return Codec.decodeJson(result, t);
+	}
+	
+	/**
+	 * It is compatible to Dragonfly Web Framework.
+	 */
+	public<T> T post(String url, Map<String, String> args, Class<T> t, String session) {
+		var hdr = new HashMap<String, String>();
+		if(session != null) {
+			hdr.put("x-session", session);
+		}
+		var result = Requester.post(url, args, hdr);
+		if(Empty.is(result)) return null;
+		return Codec.decodeJson(result, t);
+	}
+	
+	public<T> T post(String url, Map<String, String> args, Class<T> t, Map<String, String> headers) {
+		var result = Requester.post(url, args, headers);
 		if(Empty.is(result)) return null;
 		return Codec.decodeJson(result, t);
 	}
@@ -49,8 +88,34 @@ public class WebRPCHelper {
 		return Codec.decodeJson(result, t);
 	}
 	
+	/**
+	 * It is compatible to Dragonfly Web Framework.
+	 */
+	public<T> T delete(String url, Map<String, String> args, Class<T> t, String session) {
+		var hdr = new HashMap<String, String>();
+		if(session != null) {
+			hdr.put("x-session", session);
+		}
+		var result = Requester.delete(url, args, hdr);
+		if(Empty.is(result)) return null;
+		return Codec.decodeJson(result, t);
+	}
+	
 	public<T> T put(String url, Map<String, String> args, Class<T> t) {
 		var result = Requester.put(url, args);
+		if(Empty.is(result)) return null;
+		return Codec.decodeJson(result, t);
+	}
+	
+	/**
+	 * It is compatible to Dragonfly Web Framework.
+	 */
+	public<T> T put(String url, Map<String, String> args, Class<T> t, String session) {
+		var hdr = new HashMap<String, String>();
+		if(session != null) {
+			hdr.put("x-session", session);
+		}
+		var result = Requester.put(url, args, hdr);
 		if(Empty.is(result)) return null;
 		return Codec.decodeJson(result, t);
 	}
