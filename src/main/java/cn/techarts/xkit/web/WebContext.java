@@ -110,15 +110,15 @@ public class WebContext {
 	}
 	
 	/**Get path parameter in restful URL pattern:<br>
-	 * For example: the request "/users/{id}/articles/{id}"<p>
-	 * the index of first {id} is 0, and the second {id} is 1.<p>
-	 * 
+	 * For example:<br> the request "/user/{id}/articles/{id}"<p>
+	 * The index of path parameter is from 0 like an array in C or Java. 
+	 * So the index of first {id} is 0, and the second {id} is 1.<p>
 	 * Dragonfly does not support path parameter annotation mode.<br>
 	 * In JSR370, the annotation is @PathParam, and<br>
 	 * in Spring-MVC, the annotation is @PathVariable,<br>
 	 * but they are not my taste, too tedious.
 	 * 
-	 * @parama index A number from 0 to n - 1.
+	 * @parama index A number from 0 to (n - 1).
 	 */
 	public String at(int index) {
 		if(Objects.isNull(arguments)) return null;
