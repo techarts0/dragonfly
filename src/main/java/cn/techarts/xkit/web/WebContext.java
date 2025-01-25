@@ -66,7 +66,7 @@ public class WebContext {
 			response.getWriter().write(content);
 			response.getWriter().flush();
 		}catch(IOException e){ 
-			throw new RuntimeException("Failed to response.", e);
+			throw new RuntimeException("Failed to respond.", e);
 		}
 	}
 	
@@ -79,7 +79,7 @@ public class WebContext {
 			response.getWriter().write(content);
 			response.getWriter().flush();
 		}catch(IOException e){ 
-			throw new RuntimeException("Failed to response.", e);
+			throw new RuntimeException("Failed to respond.", e);
 		}
 	}
 	
@@ -117,39 +117,41 @@ public class WebContext {
 	 * In JSR370, the annotation is @PathParam, and<br>
 	 * in Spring-MVC, the annotation is @PathVariable,<br>
 	 * but they are not my taste, too tedious.
+	 * 
+	 * @parama index A number from 0 to n - 1.
 	 */
-	public String get(int index) {
+	public String at(int index) {
 		if(Objects.isNull(arguments)) return null;
 		var tmp = arguments.get(index);
 		if(tmp != null) return tmp;
 		var size = arguments.size() - 1;
 		var bound = "[0 - " + size + "]";
-		throw new RuntimeException("Index is out of boundary:" + bound);
+		throw new RuntimeException("The path parameter index is out of range:" + bound);
 	}
 	
 	/**
 	 * @see get(int index)
 	 */
-	public int getInt(int index) {
-		var tmp = get(index);
+	public int intAt(int index) {
+		var tmp = at(index);
 		if(Objects.isNull(tmp)) return 0;
 		return Converter.toInt(tmp);
 	}
 	
-	public float getFloat(int index) {
-		var tmp = get(index);
+	public float floatAt(int index) {
+		var tmp = at(index);
 		if(Objects.isNull(tmp)) return 0f;
 		return Converter.toFloat(tmp);
 	}
 	
-	public Date getDate(int index) {
-		var tmp = get(index);
+	public Date dateAt(int index) {
+		var tmp = at(index);
 		if(Objects.isNull(tmp)) return null;
 		return Converter.toDate(tmp);
 	}
 	
-	public boolean getBool(int index) {
-		var tmp = get(index);
+	public boolean boolAt(int index) {
+		var tmp = at(index);
 		if(Objects.isNull(tmp)) return false;
 		return Converter.toBoolean(tmp);
 	}
