@@ -42,7 +42,7 @@ public class WebLocator {
 		this.values = new HashMap<>(8);
 	}
 	
-	// Pattern: POST/authors/{id}/books/{isbn}
+	// Pattern: POST/author/{id}/books/{isbn}
 	public int parse(ServiceMeta meta) {
 		if(Objects.isNull(meta)) return 0;
 		var uri = meta.getConcreteUri();
@@ -68,7 +68,7 @@ public class WebLocator {
 		return 1;
 	}
 	
-	// Pattern: POST/authors/1/books/233
+	// Pattern: POST/author/1/books/233
 	public ServiceMeta matches(String uri, String method) {
 		if(Empty.or(uri, values)) return null;
 		var result = values.get(uri);
