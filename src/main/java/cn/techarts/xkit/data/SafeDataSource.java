@@ -50,15 +50,22 @@ public class SafeDataSource extends HikariDataSource {
 	}
 	
 	public void setDataSourcePassword(String password) {
-		var val = decrypt(password);
-		super.addDataSourceProperty("password", val);
+		if(password == null || password.length() < 32) {
+			super.addDataSourceProperty("password", password);
+		}else {
+			super.addDataSourceProperty("password", decrypt(password));
+		}
 	}
 	
 	@Override
 	public void addDataSourceProperty(String propertyName, Object value){
 		if("password".equals(propertyName)) {
-			var val = decrypt((String)value);
-			super.addDataSourceProperty("password", val);
+			var pwd = (String)value;
+			if(pwd == null || pwd.length() < 32) {
+				super.addDataSourceProperty("password", pwd);
+			}else {
+				super.addDataSourceProperty("password", decrypt(pwd));
+			}
 		}else {
 			super.addDataSourceProperty(propertyName, value);
 		}
@@ -67,14 +74,12 @@ public class SafeDataSource extends HikariDataSource {
 	@Override
 	public void setDataSourceProperties(Properties dsProperties){
 		var pwd = dsProperties.getProperty("password");
-		if(pwd != null) {
+		if(pwd == null || pwd.length() < 32) {
+			dsProperties.setProperty("password", pwd);
+		}else {
 			dsProperties.setProperty("password", decrypt(pwd));
 		}
 		super.setDataSourceProperties(dsProperties);
-	}
-	
-	public static String pwd(String encrypted, String token) {
-		return "asdf!@#$".equals(token) ? decrypt(encrypted) : null;
 	}
 	
 	public static String encrypt(String arg) {

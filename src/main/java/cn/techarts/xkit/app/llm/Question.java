@@ -23,7 +23,9 @@ import cn.techarts.xkit.util.Codec;
  * @author rocwon@gmail.com
  */
 public class Question {
+	private int n = 1;
 	private String model;
+	private float temperature = 1f;
 	private List<Message> messages;
 	
 	public Question() {}
@@ -62,5 +64,21 @@ public class Question {
 	}
 	public String to(){
 		return Codec.toJson(this);
+	}
+
+	public float getTemperature() {
+		return temperature;
+	}
+
+	public void setTemperature(float temperature) {
+		this.temperature = temperature;
+	}
+
+	public int getN() {
+		return n;
+	}
+
+	public void setN(int n) {
+		this.n = n;
 	}
 }

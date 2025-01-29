@@ -45,8 +45,12 @@ public class DefaultGptHelper extends LLMConfig implements GptHelper {
 			case "ZHIPU":
 				executor = new OpenAICompatibleExecutor(this); break;
 			case "QWEN":
-				executor = new OpenAICompatibleExecutor(this); break;
+				executor = new OpenAICompatibleExecutor(this); break; 
 			case "WENXIN":
+				executor = new OpenAICompatibleExecutor(this); break;
+			case "GEMINI":
+				executor = new OpenAICompatibleExecutor(this); break;
+			case "DEEPSEEK":
 				executor = new OpenAICompatibleExecutor(this); break;
 			default:
 				throw new RuntimeException("Unsupported LLM: " + getProvider());

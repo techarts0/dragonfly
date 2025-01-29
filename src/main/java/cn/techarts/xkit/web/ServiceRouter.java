@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import cn.techarts.xkit.app.helper.Empty;
+import cn.techarts.xkit.web.token.TokenConfig;
 
 /**
  * @author rocwon@gmail.com
@@ -33,22 +34,23 @@ public class ServiceRouter extends HttpServlet{
 	public static final int ALLOWED = 0; //OK
 	public static final int NO_SUCH_API = -10086;
 	public static final int INVALID_SESSION = -10000;
+	public static final String METHODS = "GET, POST, PUT, DELETE, HEAD, PATCH";
 	
 	public int authenticate(HttpServletRequest req, HttpServletResponse response, ServiceMeta service){
 		if(service == null) return NO_SUCH_API;
 		var context = req.getServletContext();
-		var sessionConfig = getSessionConfig(context);
-		if(!sessionConfig.check()) return ALLOWED;
+		var sessionConfig = getTokenConfig(context);
+		if(!sessionConfig.required()) return ALLOWED;
 		if(!service.isPermissionRequired()) return ALLOWED;
-		String session = getSession(req), ip = getRemorteAddress(req);
-		if(session == null || session.isBlank()) return INVALID_SESSION;
+		String token = getToken(req), ip = getRemorteAddress(req);
+		if(token == null || token.isBlank()) return INVALID_SESSION;
 		var uid = req.getParameter(sessionConfig.getUidProperty());
-		return this.validate(context, uid, ip,  session, getUserAgent(req));
+		return validate(context, uid, ip,  token, getUserAgent(req));
 	}
 	
-	private SessionConfig getSessionConfig(ServletContext ctx) {
-		var tmp = ctx.getAttribute(SessionConfig.CACHE_KEY);
-		return tmp == null ? new SessionConfig() : (SessionConfig)tmp;
+	private TokenConfig getTokenConfig(ServletContext ctx) {
+		var tmp = ctx.getAttribute(TokenConfig.CACHE_KEY);
+		return tmp == null ? new TokenConfig() : (TokenConfig)tmp;
 	}
 	
 	public static String getRemorteAddress(HttpServletRequest request) {
@@ -60,9 +62,14 @@ public class ServiceRouter extends HttpServlet{
 	private String getUserAgent(HttpServletRequest request) {
 		return request.getHeader("user-agent");
 	}
-	public int validate(ServletContext context, String user, String ip, String session, String ua) {
-		var config = getSessionConfig(context);
-		var result = config.verify(ip, user, session, ua);
+	public int validate(ServletContext context, String user, String ip, String token, String ua) {
+		var config = getTokenConfig(context);
+		var result = config.getTokenizer()
+							.verify(ip, user, ua, 
+							config.getTokenSalt(), 
+							config.getTokenDuration(), 
+							config.getTokenKey(), 
+							token);
 		return result ? ALLOWED : INVALID_SESSION;
 	}
 	
@@ -77,7 +84,7 @@ public class ServiceRouter extends HttpServlet{
 	
 	public void allowsCrossDomainAccess(HttpServletResponse response) {
         response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "POST, GET");
+        response.setHeader("Access-Control-Allow-Methods", METHODS);
         response.setHeader("Access-Control-Max-Age", "315360000"); //10 years
         response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
     }
@@ -112,23 +119,21 @@ public class ServiceRouter extends HttpServlet{
 			handleUndefinedRequest(api, request, response);
 		}else{
 			var code = INVALID_SESSION;
-			var msg = "Session is invalid.";
+			var msg = "Token is invalid.";
 			WebContext.respondMessage(response, code, msg);
 		}
 	}
 	
 	/**
-	 * You can put the session in request header with a customized name "x-session" or "x-token".
+	 * You can put the token in request header with the name "token" or "x-token".
 	 */
-	private String getSession(HttpServletRequest request) {
-		var result = request.getHeader("x-session");
-		if(result == null) {
-			result = request.getHeader("x-token");
-		}
-		if(result == null) {
-			result = request.getParameter("session");
-		}
-		return result;
+	private String getToken(HttpServletRequest request) {
+		var result = request.getHeader("token");
+		if(result != null) return result;
+		result = request.getHeader("Authorization");
+		if(result == null || result.length() < 8) return null;
+		var bearer = result.startsWith("Bearer ");
+		return bearer ? result.substring(7) : null;
 	}
 	
 	private void ping(HttpServletResponse response, boolean async) {

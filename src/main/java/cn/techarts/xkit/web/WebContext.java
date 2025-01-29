@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import cn.techarts.whale.Context;
 import cn.techarts.xkit.app.helper.Converter;
 import cn.techarts.xkit.util.Codec;
+import cn.techarts.xkit.web.token.TokenConfig;
 
 /**
  * @author rocwon@gmail.com
@@ -274,16 +275,23 @@ public class WebContext {
 		return request.getHeader(name);
 	}
 	
-	public String getSession(String userId) {
+	public String getToken(String userId) {
 		var ctx = this.request.getServletContext();
-		var obj = ctx.getAttribute(SessionConfig.CACHE_KEY);
+		var obj = ctx.getAttribute(TokenConfig.CACHE_KEY);
 		if(obj == null) return null; //ERROR
-		var sessionConfig = (SessionConfig)obj;
-		return sessionConfig.generate(ip(), userId, ua());
+		var sessionConfig = (TokenConfig)obj;
+		return sessionConfig
+				.getTokenizer()
+				.create(ip(), 
+						userId, 
+						ua(), 
+						sessionConfig.getTokenSalt(),
+						sessionConfig.getTokenDuration(),
+						sessionConfig.getTokenKey());
 	}
 	
-	public String getSession(int userId) {
-		return this.getSession(Integer.toString(userId));
+	public String getToken(int userId) {
+		return this.getToken(Integer.toString(userId));
 	}
 	
 	/**

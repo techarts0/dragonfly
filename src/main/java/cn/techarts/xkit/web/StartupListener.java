@@ -33,6 +33,7 @@ import cn.techarts.xkit.app.helper.Empty;
 import cn.techarts.xkit.util.Hotpot;
 import cn.techarts.xkit.util.Scanner;
 import cn.techarts.xkit.web.restful.Restful;
+import cn.techarts.xkit.web.token.TokenConfig;
 
 /**
  * @author rocwon@gmail.com
@@ -43,6 +44,8 @@ public class StartupListener implements ServletContextListener {
 	public static final String WHALE_KEY = "context.whale.techarts";
 	public static final String CONFIG_PATH = "contextConfigLocation";
 	public static final String URL_PATTERN = "web.url.pattern";
+	public static final String DB_CONFIG = "jdbc.properties";
+	public static final String APP_CONFIG = "application.properties";
 	private static final Logger LOGGER = Hotpot.getLogger();
 		
 	@Override
@@ -51,14 +54,23 @@ public class StartupListener implements ServletContextListener {
 		var classpath = this.getRootClassPath();
 		var classes = this.scanClasses(classpath);
 		if(Empty.is(classes)) return;
-		var config = getResourcePath("config.properties");
+		var config = getResourcePath(APP_CONFIG, false);
 		var configs = Hotpot.resolveProperties(config);
-		this.getSessionConfig(context, configs);
+		this.appendDatabaseProperties(configs);
+		this.getTokenConfig(context, configs);
 		this.standalone = isRunningStandalone();
 		if(!standalone) initWhale(context, classes, configs);
 		int n = this.initWebServices(context, classes);
 		registerServiceRouter(context, configs.get(URL_PATTERN));
 		LOGGER.info("The web application has been started successfully. (" + n + " web services)");
+	}
+	
+	private void appendDatabaseProperties(Map<String, String> configs) {
+		var tmp = getResourcePath(DB_CONFIG, true);
+		var database = Hotpot.resolveProperties(tmp);
+		if(database != null && !database.isEmpty()) {
+			configs.putAll(database);
+		}
 	}
 	
 	private void registerServiceRouter(ServletContext context, String urlPattern) {
@@ -73,21 +85,22 @@ public class StartupListener implements ServletContextListener {
 		return Scanner.scanClasses(base, start);
 	}
 	
-	private void getSessionConfig(ServletContext context, Map<String, String> configs) {
-		var result = new SessionConfig();
+	private void getTokenConfig(ServletContext context, Map<String, String> configs) {
+		var result = new TokenConfig();
 		try {
-			result.setSessionKey(configs.remove("session.key"));
-			result.setSessionSalt(configs.remove("session.salt"));
-			var duration = configs.remove("session.duration");		
-			result.setSessionDuration(Converter.toInt(duration));
-			var permission = configs.remove("session.check");
-			result.setSessionCheck(Converter.toBoolean(permission));
-			var uid = configs.remove("session.uidProperty");
+			result.setTokenKey(configs.remove("token.key"));
+			result.setTokenSalt(configs.remove("token.salt"));
+			var duration = configs.remove("token.duration");
+			result.setTokenDuration(Converter.toInt(duration));
+			var required = configs.remove("token.required");
+			result.setTokenRequired(Converter.toBoolean(required));
+			var uid = configs.remove("token.uidProperty");
 			result.setUidProperty(uid == null ? "uid" : uid);
+			result.setTokenizer(configs.remove("token.tokenizer"));
 		}catch(Exception e) {
 			//Ignored. Returns an empty SessionConfig object.
 		}
-		context.setAttribute(SessionConfig.CACHE_KEY, result);
+		context.setAttribute(TokenConfig.CACHE_KEY, result);
 	}
 	
 	private String getRootClassPath() {
@@ -98,26 +111,22 @@ public class StartupListener implements ServletContextListener {
 		return result.getPath();
 	}
 	
-	private String getResourcePath(String resource) {
+	private String getResourcePath(String resource, boolean silence) {
 		var result = getClass().getResource("/".concat(resource));
 		if(result != null && result.getPath() != null) return result.getPath();
 		result = getClass().getResource("/WEB-INF/".concat(resource));
 		if(result != null && result.getPath() != null) return result.getPath();
-		throw new RuntimeException("Failed to find the resource: [" + resource + "]");
-	}
-	
-	private String getBeansXmlWithoutException() {
-		try {
-			return getResourcePath("beans.xml");
-		}catch(RuntimeException e) {
-			return null;
+		if(silence) {
+			return null; //Don't throw an exception
+		}else {
+			throw new RuntimeException("Failed to find the resource: [" + resource + "]");
 		}
 	}
 	
 	private void initWhale(ServletContext context, List<String> classes, Map<String, String> configs) {
 		var ctx = Context.make(configs).cache(context);
 		ctx.getBinder().register(classes);
-		ctx.getLoader().parse(getBeansXmlWithoutException());
+		ctx.getLoader().parse(getResourcePath("beans.xml", false));
 		registerApplicationModules(ctx, configs.get("app.modules"));
 		ctx.start();
 	}
