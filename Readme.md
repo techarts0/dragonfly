@@ -69,13 +69,13 @@ public class BookWebService{
 
 | # | 方法       | 参数  | 返回值     |
 |---|----------|-----|---------|
-| 1 | get      | int | String  |
-| 2 | getInt   | int | int     |
-| 3 | getFloat | int | float   |
-| 4 | getLong  | int | long    |
-| 5 | getBool  | int | boolean |
+| 1 | at      | int | String  |
+| 2 | intAt   | int | int     |
+| 3 | floatAt | int | float   |
+| 4 | longAt  | int | long    |
+| 5 | boolAt  | int | boolean |
 
-当然，您也可以只是用get(int)，将获得的字符串使用Dragonfly提供的Converter工具进行类型转换。
+当然，您也可以只是用at(int)，将获得的字符串使用Dragonfly提供的Converter工具进行类型转换。
 
 - B. 如果是通过POST表单(form)或者GET QueryString(?xx=xxx)传过来的参数，需要根据参数的名称获取。WebContext中提供了丰富的方法：
 
