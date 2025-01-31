@@ -58,7 +58,7 @@ public class StartupListener implements ServletContextListener {
 		var configs = Hotpot.resolveProperties(config);
 		this.appendDatabaseProperties(configs);
 		this.getTokenConfig(context, configs);
-		this.standalone = isRunningStandalone();
+		this.standalone = isRunningStandalonely();
 		if(!standalone) initWhale(context, classes, configs);
 		int n = this.initWebServices(context, classes);
 		registerServiceRouter(context, configs.get(URL_PATTERN));
@@ -144,7 +144,7 @@ public class StartupListener implements ServletContextListener {
 		}
 	}
 	
-	private boolean isRunningStandalone() {
+	private boolean isRunningStandalonely() {
 		try {
 			Class.forName("cn.techarts.whale.Panic");
 			return false;
