@@ -31,7 +31,7 @@ import cn.techarts.xkit.web.MediaType;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Put {
 	public String value(); //URL
-	public boolean permission() default true;
+	public boolean authorized() default true;
 	//JSR370: @Produces
 	public MediaType produces() default MediaType.JSON;
 	//JSR370: @Consumes

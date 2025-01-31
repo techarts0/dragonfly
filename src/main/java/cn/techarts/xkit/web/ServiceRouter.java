@@ -42,7 +42,7 @@ public class ServiceRouter extends HttpServlet{
 		var context = req.getServletContext();
 		var sessionConfig = getTokenConfig(context);
 		if(!sessionConfig.required()) return ALLOWED;
-		if(!service.isPermissionRequired()) return ALLOWED;
+		if(!service.isAuthorized()) return ALLOWED;
 		String token = getToken(req), ip = getRemorteAddress(req);
 		if(token == null || token.isBlank()) return INVALID_SESSION;
 		var uid = req.getParameter(sessionConfig.getUidProperty());
