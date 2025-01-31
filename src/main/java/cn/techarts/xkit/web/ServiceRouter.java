@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import cn.techarts.xkit.app.helper.Empty;
+import cn.techarts.xkit.web.token.ClientContext;
 import cn.techarts.xkit.web.token.TokenConfig;
 
 /**
@@ -64,12 +65,8 @@ public class ServiceRouter extends HttpServlet{
 	}
 	public int validate(ServletContext context, String user, String ip, String token, String ua) {
 		var config = getTokenConfig(context);
-		var result = config.getTokenizer()
-							.verify(ip, user, ua, 
-							config.getTokenSalt(), 
-							config.getTokenDuration(), 
-							config.getTokenKey(), 
-							token);
+		var client = new ClientContext(ip, ua, user);
+		var result = config.getTokenizer().verify(client,config, token);
 		return result ? ALLOWED : INVALID_SESSION;
 	}
 	

@@ -88,12 +88,12 @@ public class StartupListener implements ServletContextListener {
 	private void getTokenConfig(ServletContext context, Map<String, String> configs) {
 		var result = new TokenConfig();
 		try {
-			result.setTokenKey(configs.remove("token.key"));
-			result.setTokenSalt(configs.remove("token.salt"));
+			result.setKey(configs.remove("token.key"));
+			result.setSalt(configs.remove("token.salt"));
 			var duration = configs.remove("token.duration");
-			result.setTokenDuration(Converter.toInt(duration));
+			result.setDuration(Converter.toInt(duration));
 			var required = configs.remove("token.required");
-			result.setTokenRequired(Converter.toBoolean(required));
+			result.setRequired(Converter.toBoolean(required));
 			var uid = configs.remove("token.uidProperty");
 			result.setUidProperty(uid == null ? "uid" : uid);
 			result.setTokenizer(configs.remove("token.tokenizer"));

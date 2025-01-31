@@ -25,40 +25,40 @@ public class TokenConfig{
 	
 	private String uidProperty;
 	
-	private String tokenKey;
+	private String key;
 	
-	private String tokenSalt;
+	private String salt;
 	
-	private int tokenDuration;
+	private int duration;
 	
-	private boolean tokenRequired;
+	private boolean required;
 	
 	private Tokenizer tokenizer;
 		
 	public boolean required() {
-		return tokenRequired;
+		return this.required;
 	}
-	public void setTokenRequired(boolean required) {
-		this.tokenRequired = required;
+	public void setRequired(boolean required) {
+		this.required = required;
 	}	
-	public String getTokenSalt() {
-		if(tokenSalt != null) return tokenSalt;
+	public String getSalt() {
+		if(salt != null) return salt;
 		return "LikeaBridg3overtR0ub1eDwaTer"; //Default
 	}
-	public void setTokenSalt(String tokenSalt) {
-		this.tokenSalt = tokenSalt;
+	public void setSalt(String salt) {
+		this.salt = salt;
 	}
-	public int getTokenDuration() {
-		return tokenDuration;
+	public int getDuration() {
+		return duration;
 	}
-	public void setTokenDuration(int tokenDuration) {
-		this.tokenDuration = tokenDuration;
+	public void setDuration(int duration) {
+		this.duration = duration;
 	}
-	public String getTokenKey() {
-		return tokenKey;
+	public String getKey() {
+		return key;
 	}
-	public void setTokenKey(String tokenKey) {
-		this.tokenKey = tokenKey;
+	public void setKey(String key) {
+		this.key = key;
 	}
 	public String getUidProperty() {
 		return uidProperty;

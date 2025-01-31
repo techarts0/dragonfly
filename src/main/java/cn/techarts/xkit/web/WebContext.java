@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import cn.techarts.whale.Context;
 import cn.techarts.xkit.app.helper.Converter;
 import cn.techarts.xkit.util.Codec;
+import cn.techarts.xkit.web.token.ClientContext;
 import cn.techarts.xkit.web.token.TokenConfig;
 
 /**
@@ -280,14 +281,8 @@ public class WebContext {
 		var obj = ctx.getAttribute(TokenConfig.CACHE_KEY);
 		if(obj == null) return null; //ERROR
 		var sessionConfig = (TokenConfig)obj;
-		return sessionConfig
-				.getTokenizer()
-				.create(ip(), 
-						userId, 
-						ua(), 
-						sessionConfig.getTokenSalt(),
-						sessionConfig.getTokenDuration(),
-						sessionConfig.getTokenKey());
+		var client = new ClientContext(ip(), userId, ua());
+		return sessionConfig.getTokenizer().create(client, sessionConfig);
 	}
 	
 	public String getToken(int userId) {

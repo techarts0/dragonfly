@@ -6,20 +6,21 @@ import cn.techarts.xkit.app.helper.Cryptor;
 public class DefaultTokenizer implements Tokenizer{
 
 	@Override
-	public String create(String ip, String userId, String ua, String salt, int duration, String key) {
+	public String create(ClientContext client, TokenConfig config) {
 		var minutes = String.valueOf(minutes());
-		var tmp = (ip != null ? ip : "0000") + userId;
-		tmp = minutes.concat(tmp).concat(salt).concat(ua);
-		return Cryptor.encrypt(tmp, Cryptor.toBytes(key));
+		var tmp = (client.getIp() != null ? client.getIp() : "0000") + client.getUser();
+		tmp = minutes.concat(tmp).concat(config.getSalt()).concat(client.getUa());
+		return Cryptor.encrypt(tmp, Cryptor.toBytes(config.getKey()));
 	}
 
 	@Override
-	public boolean verify(String ip, String userId, String ua, String salt, int duration, String key, String token) {
-		var tmp = Cryptor.decrypt(token, Cryptor.toBytes(key));
+	public boolean verify(ClientContext client, TokenConfig config, String token) {
+		var tmp = Cryptor.decrypt(token, Cryptor.toBytes(config.getKey()));
 		if(tmp == null) return false; //An invalid token
 		var bgn = Converter.toInt(tmp.substring(0, 8));
-		if(minutes() - bgn > duration) return false;
-		var result = (ip != null ? ip : "0000") + userId + salt + ua;
+		if(minutes() - bgn > config.getDuration()) return false;
+		var result = (client.getIp() != null ? client.getIp() : "0000") + 
+					 client.getUser() + config.getSalt() + client.getUa();
 		return result != null ? result.equals(tmp.substring(8)) : false;
 	}
 	
