@@ -24,9 +24,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import cn.techarts.whale.Context;
 import cn.techarts.xkit.app.helper.Converter;
 import cn.techarts.xkit.util.Codec;
@@ -42,9 +42,21 @@ public class WebContext {
 	private HttpServletRequest request;
 	private HttpServletResponse response;
 	
+	private jakarta.servlet.http.HttpServletRequest request0;
+	private jakarta.servlet.http.HttpServletResponse response0;
+
 	public WebContext(HttpServletRequest request, HttpServletResponse response) {
 		this.request = request;
 		this.response = response;
+	}
+	
+	/**
+	 * For Jakarta Servlet API
+	 */
+	public WebContext(jakarta.servlet.http.HttpServletRequest request, 
+					  jakarta.servlet.http.HttpServletResponse response) {
+		this.request0 = request;
+		this.response0 = response;
 	}
 	
 	public void setRestfulArguments(List<String> arguments) {
@@ -60,24 +72,105 @@ public class WebContext {
 			this.result = (Result)obj;
 		}else {
 			this.result.setData(obj);
-		}
-		
-		response.setContentType(type.value());
+		}		
 		var content = Codec.toJson(result);
-		try{
+		this.responds(type.value(), content);
+	}
+	
+	//Javax & Jakarta API 
+	private void responds(String contentType, String content) {
+		try {
+		if(this.response != null) { //Javax
+			response.setContentType(contentType);
 			response.getWriter().write(content);
 			response.getWriter().flush();
-		}catch(IOException e){ 
+		}else {	//Jakarta
+			response0.setContentType(contentType);
+			response0.getWriter().write(content);
+			response0.getWriter().flush();
+		}
+		}catch(IOException e) {
 			throw new RuntimeException("Failed to respond.", e);
+		}
+	}
+	
+	private String getParameter(String name) {
+		if(request != null) { //Javax
+			return request.getParameter(name);
+		}else {	//Jakarta
+			return request0.getParameter(name);
+		}
+	}
+	
+	public Object getAttribute(String name) {
+		if(request != null) { //Javax
+			var ctx = request.getServletContext();
+			if(Objects.isNull(ctx)) return null;
+			return ctx.getAttribute(name);
+		}else {	//Jakarta
+			var ctx = request0.getServletContext();
+			if(Objects.isNull(ctx)) return null;
+			return ctx.getAttribute(name);
+		}
+	}
+	
+	public void setAttribute(String name, Object value) {
+		if(request != null) { //Javax
+			var ctx = request.getServletContext();
+			if(Objects.isNull(ctx)) return;
+			ctx.setAttribute(name, value);
+		}else {	//Jakarta
+			var ctx = request0.getServletContext();
+			if(Objects.isNull(ctx)) return;
+			ctx.setAttribute(name, value);
+		}
+	}
+	
+	/**
+	 * Return the parameter in HTTP header.
+	 */
+	public String getHeader(String name) {
+		if(request != null) { //Javax
+			return request.getHeader(name);
+		}else {	//Jakarta
+			return request0.getHeader(name);
+		}
+	}
+	
+	public void setHeader(String name, String value) {
+		if(response != null) { //Javax
+			response.setHeader(name, value);
+		}else {	//Jakarta
+			response0.setHeader(name, value);
+		}
+	}
+	
+	private String getContentType() {
+		if(request != null) { //Javax
+			return request.getContentType();
+		}else {	//Jakarta
+			return request0.getContentType();
+		}
+	}
+	
+	private byte[] readRequestBytes() {
+		try {
+		if(request != null) { //Javax
+			return request.getInputStream().readAllBytes();
+		}else {	//Jakarta
+			return request0.getInputStream().readAllBytes();
+		}
+		}catch(IOException e) {
+			throw new RuntimeException("Failed to get json from request.", e);
 		}
 	}
 	
 	public static void respondMessage(HttpServletResponse response, int code, String msg){
 		var type = MediaType.JSON;
-		response.setContentType(type.value());
 		var info = new Result(code, msg);
 		var content = Codec.toJson(info);
 		try{
+			response.setContentType(type.value());
 			response.getWriter().write(content);
 			response.getWriter().flush();
 		}catch(IOException e){ 
@@ -85,20 +178,29 @@ public class WebContext {
 		}
 	}
 	
-	public ServletContext getServletContext() {
-		if(Objects.isNull(request)) return null;
-		return this.request.getServletContext();
+	/**
+	 * For Jakarta Servlet API
+	 */
+	public static void respondMessage(jakarta.servlet.http.HttpServletResponse response, int code, String msg){
+		var type = MediaType.JSON;
+		var info = new Result(code, msg);
+		var content = Codec.toJson(info);
+		try{
+			response.setContentType(type.value());
+			response.getWriter().write(content);
+			response.getWriter().flush();
+		}catch(IOException e){ 
+			throw new RuntimeException("Failed to respond.", e);
+		}
 	}
-	
+
 	/**
 	 * Retrieve managed object from DI container.<p>
 	 * Null is returned if works stand-alonely.
 	 */
 	public<T> T get(String name, Class<T> clazz) {
-		var ctx = getServletContext();
-		if(Objects.isNull(ctx)) return null;
 		var key = StartupListener.WHALE_KEY;
-		var context = ctx.getAttribute(key);
+		var context = this.getAttribute(key);
 		if(Objects.isNull(context)) return null;
 		return ((Context)context).silent(name, clazz);
 	}
@@ -159,36 +261,36 @@ public class WebContext {
 	}
 	
 	public int getInt(String name) {
-		var val = request.getParameter(name);
+		var val = getParameter(name);
 		return Converter.toInt(val);
 	}
 
 	public long getlong(String name) {
-		var val = request.getParameter(name);
+		var val = getParameter(name);
 		return Converter.toLong(val);
 	}
 	
 	public String get(String name) {
-		return request.getParameter(name);
+		return getParameter(name);
 	}
 		
 	public boolean getBool(String name) {
-		var val = request.getParameter(name);
+		var val = getParameter(name);
 		return Converter.toBoolean(val);
 	}
 	
 	public float getFloat(String name) {
-		var val = request.getParameter(name);
+		var val = getParameter(name);
 		return Converter.toFloat(val);
 	}
 	
 	public double getDouble(String name) {
-		var val = request.getParameter(name);
+		var val = getParameter(name);
 		return Converter.toDouble(val);
 	}
 	
 	public List<String> toList(String name, String separator){
-		var tmp = request.getParameter(name);
+		var tmp = getParameter(name);
 		if(Objects.isNull(tmp)) return List.of();
 		return Arrays.asList(tmp.split(separator));
 	}
@@ -219,7 +321,7 @@ public class WebContext {
 	
 	/**Get Time Parameter: yyyy/MM/dd HH:mm:ss*/
 	public Date time(String name){
-		var p = request.getParameter(name);
+		var p = getParameter(name);
 		if(Objects.isNull(p)) return null;
 		int length = p.length();
 		if(length < 10) return null;
@@ -230,7 +332,7 @@ public class WebContext {
 	
 	/**Get Date Parameter: yyyy/MM/dd*/
 	public Date date(String name){
-		var p = request.getParameter(name);
+		var p = getParameter(name);
 		if(Objects.isNull(p)) return null;
 		int length = p.length();
 		if(length < 10) return null;
@@ -250,35 +352,29 @@ public class WebContext {
 		return Objects.isNull(result) ? request.getRemoteAddr() : result;
 	}
 	
+	public static String getClientAddress(jakarta.servlet.http.HttpServletRequest request) {
+		var result = request.getHeader("x-forwarded-for");
+		if(Objects.isNull(result)) result = request.getHeader("X-Real-IP");
+		return Objects.isNull(result) ? request.getRemoteAddr() : result;
+	}
+	
 	public String ip() {
-		return getClientAddress(this.request);
-	}
-	
-	public HttpServletRequest getRequest() {
-		return this.request;
-	}
-	
-	public HttpServletResponse getResponse() {
-		return this.response;
+		if(request != null) {
+			return getClientAddress(request);
+		}else {
+			return getClientAddress(request0);
+		}
 	}
 	
 	/**
 	 * @return The value of user-agent field in HTTP Request header
 	 */
 	public String ua() {
-		return request.getHeader("user-agent");
-	}
-	
-	/**
-	 * Return the parameter in HTTP header.
-	 */
-	public String head(String name) {
-		return request.getHeader(name);
+		return getHeader("user-agent");
 	}
 	
 	public String getToken(String userId) {
-		var ctx = this.request.getServletContext();
-		var obj = ctx.getAttribute(TokenConfig.CACHE_KEY);
+		var obj = getAttribute(TokenConfig.CACHE_KEY);
 		if(obj == null) return null; //ERROR
 		var sessionConfig = (TokenConfig)obj;
 		var client = new ClientContext(ip(), userId, ua());
@@ -293,14 +389,10 @@ public class WebContext {
 	 * If the content-type of request is application/json, returns the whole content string. 
 	 */
 	public String getJson(){
-		var ct = this.request.getContentType();
+		var ct = getContentType();
 		if(!ct.toLowerCase().contains("/json")) return null;
-		try {
-			var bs = request.getInputStream().readAllBytes();
-			return new String(bs, StandardCharsets.UTF_8);
-		}catch(IOException e) {
-			throw new RuntimeException("Failed to get json from request.", e);
-		}
+		var bs = readRequestBytes();
+		return new String(bs, StandardCharsets.UTF_8);
 	}
 	
 	/**

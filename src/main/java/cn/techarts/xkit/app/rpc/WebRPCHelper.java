@@ -20,12 +20,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Singleton;
+//import jakarta.inject.Singleton;
 
 import cn.techarts.xkit.app.helper.Empty;
 import cn.techarts.xkit.app.helper.Requester;
 import cn.techarts.xkit.util.Codec;
 
 /**
+ * <p>javax & jakarta</p>
  * RPC based on HTTP & JSON
  * @author rocwon@gmail.com
  */

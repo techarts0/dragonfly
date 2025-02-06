@@ -20,7 +20,7 @@ package cn.techarts.xkit.web.token;
  */
 public interface Tokenizer {
 	/**
-	 * Generate a token.
+	 * Generate a token such as JWT.
 	 */
 	public String create(ClientContext client, TokenConfig config);
 	

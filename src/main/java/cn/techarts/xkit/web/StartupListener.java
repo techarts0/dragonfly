@@ -27,6 +27,10 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+//import jakarta.servlet.ServletContext;
+//import jakarta.servlet.ServletContextEvent;
+//import jakarta.servlet.ServletContextListener;
+
 import cn.techarts.whale.Context;
 import cn.techarts.xkit.app.helper.Converter;
 import cn.techarts.xkit.app.helper.Empty;
@@ -36,6 +40,7 @@ import cn.techarts.xkit.web.restful.Restful;
 import cn.techarts.xkit.web.token.TokenConfig;
 
 /**
+ * <p>javax & jakarta</p>
  * @author rocwon@gmail.com
  */
 public class StartupListener implements ServletContextListener {

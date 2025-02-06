@@ -111,22 +111,42 @@ public final class ServiceMeta {
 		this.method = method;
 	}
 	
+	private void checkBeforeCalling(String contentType) {
+		var expect = consume.value();
+		if(expect != null && !expect.equals(contentType)) {
+			throw new RuntimeException("The content types mismatched.");
+		}
+	}
+	
+	private void callAndRespond(WebContext context) throws Exception{
+		context.setRestfulArguments(this.arguments);
+		context.respondAsJson(method.invoke(object, context), produce);
+	}
+	
 	public void call(HttpServletRequest request, HttpServletResponse response) {
 		if(Empty.or(method, object)) return;
 		try {
-			var expect = consume.value();
-			var type = request.getContentType();
-			if(expect != null && !expect.equals(type)) {
-				throw new RuntimeException("The content types mismatched.");
-			}
-			var p = new WebContext(request, response);
-			p.setRestfulArguments(this.arguments);
-			p.respondAsJson(method.invoke(object, p), produce);
+			checkBeforeCalling(request.getContentType());
+			callAndRespond(new WebContext(request, response));
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to execute the web service.",  e);
 		}
 	}
-
+	
+	/**
+	 * Jakarata Servlet API
+	 */
+	public void call(jakarta.servlet.http.HttpServletRequest request, 
+					 jakarta.servlet.http.HttpServletResponse response) {
+		if(Empty.or(method, object)) return;
+		try {
+			checkBeforeCalling(request.getContentType());
+			callAndRespond(new WebContext(request, response));
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to execute the web service.",  e);
+		}
+	}
+	
 	public String getUri() {
 		return uri;
 	}

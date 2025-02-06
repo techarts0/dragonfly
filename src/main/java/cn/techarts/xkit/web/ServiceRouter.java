@@ -15,19 +15,29 @@
  */
 
 package cn.techarts.xkit.web;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Objects;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+//import jakarta.servlet.ServletContext;
+//import jakarta.servlet.ServletException;
+//import jakarta.servlet.http.HttpServlet;
+//import jakarta.servlet.http.HttpServletRequest;
+//import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Objects;
+
 import cn.techarts.xkit.app.helper.Empty;
 import cn.techarts.xkit.web.token.ClientContext;
 import cn.techarts.xkit.web.token.TokenConfig;
 
 /**
+ * <p>javax & jakarta</p>
  * @author rocwon@gmail.com
  */
 public class ServiceRouter extends HttpServlet{
@@ -63,6 +73,7 @@ public class ServiceRouter extends HttpServlet{
 	private String getUserAgent(HttpServletRequest request) {
 		return request.getHeader("user-agent");
 	}
+	
 	public int validate(ServletContext context, String user, String ip, String token, String ua) {
 		var config = getTokenConfig(context);
 		var client = new ClientContext(ip, ua, user);

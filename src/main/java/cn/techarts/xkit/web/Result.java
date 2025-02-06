@@ -17,7 +17,6 @@
 package cn.techarts.xkit.web;
 
 import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
