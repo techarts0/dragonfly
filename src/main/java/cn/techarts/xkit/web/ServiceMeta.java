@@ -40,7 +40,7 @@ public final class ServiceMeta {
 	private String uri = null;
 	private String httpMethod;
 	private boolean restful = false;
-	private boolean authorized = true;
+	private boolean mandatory = true;
 	private MediaType produce = MediaType.JSON;
 	private MediaType consume = MediaType.FORM;
 	
@@ -49,54 +49,54 @@ public final class ServiceMeta {
 	public ServiceMeta(Get m, Object obj, Method method, String prefix) {
 		this.httpMethod= "GET";
 		var uri = prefix.concat(m.value());
-		setAttrs(obj, method, uri, m.authorized(), m.produces(), m.consumes());
+		setAttrs(obj, method, uri, m.mandatory(), m.produces(), m.consumes());
 	}
 	
 	public ServiceMeta(Post m, Object obj, Method method, String prefix) {
 		this.httpMethod= "POST";
 		var uri = prefix.concat(m.value());
-		setAttrs(obj, method, uri, m.authorized(), m.produces(), m.consumes());
+		setAttrs(obj, method, uri, m.mandatory(), m.produces(), m.consumes());
 	}
 	
 	public ServiceMeta(Put m, Object obj, Method method, String prefix) {
 		this.httpMethod= "PUT";
 		var uri = prefix.concat(m.value());
-		setAttrs(obj, method, uri, m.authorized(), m.produces(), m.consumes());
+		setAttrs(obj, method, uri, m.mandatory(), m.produces(), m.consumes());
 	}
 	
 	public ServiceMeta(Patch m, Object obj, Method method, String prefix) {
 		this.httpMethod= "PATCH";
 		var uri = prefix.concat(m.value());
-		setAttrs(obj, method, uri, m.authorized(), m.produces(), m.consumes());
+		setAttrs(obj, method, uri, m.mandatory(), m.produces(), m.consumes());
 	}
 	
 	public ServiceMeta(Delete m, Object obj, Method method, String prefix) {
 		this.httpMethod= "DELETE";
 		var uri = prefix.concat(m.value());
-		setAttrs(obj, method, uri, m.authorized(), m.produces(), m.consumes());
+		setAttrs(obj, method, uri, m.mandatory(), m.produces(), m.consumes());
 	}
 	
 	public ServiceMeta(Head m, Object obj, Method method, String prefix) {
 		this.httpMethod= "HEAD";
 		var uri = prefix.concat(m.value());
-		setAttrs(obj, method, uri, m.authorized(), m.produces(), m.consumes());
+		setAttrs(obj, method, uri, m.mandatory(), m.produces(), m.consumes());
 	}
 	
 	public ServiceMeta(Any m, Object obj, Method method, String prefix) {
 		this.httpMethod= "";
 		var uri = prefix.concat(m.value());
-		setAttrs(obj, method, uri, m.authorized(), m.produces(), m.consumes());
+		setAttrs(obj, method, uri, m.mandatory(), m.produces(), m.consumes());
 		this.restful = false; //Recover the value to ignore the HTTP methods
 	}
 	
-	private void setAttrs(Object object, Method method, String uri, boolean authorized, MediaType produce, MediaType consume) {
+	private void setAttrs(Object object, Method method, String uri, boolean mandatory, MediaType produce, MediaType consume) {
 		this.uri = uri;
 		this.restful = true;
 		this.object = object;
 		this.method = method;
 		this.produce = produce;
 		this.consume = consume;
-		this.authorized = authorized;
+		this.mandatory = mandatory;
 	}	
 	public Object getObject() {
 		return object;
@@ -159,12 +159,12 @@ public final class ServiceMeta {
 		this.httpMethod = httpMethod;
 	}
 
-	public boolean isAuthorized() {
-		return authorized;
+	public boolean isMandatory() {
+		return mandatory;
 	}
 
-	public void setAuthorized(boolean authorized) {
-		this.authorized = authorized;
+	public void setMandatory(boolean mandatory) {
+		this.mandatory = mandatory;
 	}
 	
 	public ServiceMeta setArguments(List<String> arguments) {

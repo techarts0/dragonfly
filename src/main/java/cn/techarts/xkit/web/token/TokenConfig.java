@@ -21,7 +21,7 @@ package cn.techarts.xkit.web.token;
  */
 public class TokenConfig{
 	
-	public static final String CACHE_KEY = "config.token.techarts";
+	public static final String CACHE_KEY = "config.token.dragonfly";
 	
 	private String uidProperty;
 	
@@ -31,15 +31,15 @@ public class TokenConfig{
 	
 	private int duration;
 	
-	private boolean required;
+	private boolean mandatory;
 	
 	private Tokenizer tokenizer;
 		
-	public boolean required() {
-		return this.required;
+	public boolean mandatory() {
+		return this.mandatory;
 	}
-	public void setRequired(boolean required) {
-		this.required = required;
+	public void setMandatory(boolean mandatory) {
+		this.mandatory = mandatory;
 	}	
 	public String getSalt() {
 		if(salt != null) return salt;

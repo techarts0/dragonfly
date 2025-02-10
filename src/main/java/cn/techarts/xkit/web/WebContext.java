@@ -44,6 +44,9 @@ public class WebContext {
 	
 	private jakarta.servlet.http.HttpServletRequest request0;
 	private jakarta.servlet.http.HttpServletResponse response0;
+	
+	//The constant MUST be same as Context.NAME in whale project.
+	private static final String WHALE_KEY = "context.whale.techarts";
 
 	public WebContext(HttpServletRequest request, HttpServletResponse response) {
 		this.request = request;
@@ -199,8 +202,7 @@ public class WebContext {
 	 * Null is returned if works stand-alonely.
 	 */
 	public<T> T get(String name, Class<T> clazz) {
-		var key = StartupListener.WHALE_KEY;
-		var context = this.getAttribute(key);
+		var context = getAttribute(WHALE_KEY);
 		if(Objects.isNull(context)) return null;
 		return ((Context)context).silent(name, clazz);
 	}

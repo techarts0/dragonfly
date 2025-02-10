@@ -31,8 +31,10 @@ import cn.techarts.xkit.web.MediaType;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Any {
-	public String value(); //URL
-	public boolean authorized() default true;
+	/**URI Path*/
+	public String value();
+	/**Token is mandatory*/
+	public boolean mandatory() default true;
 	//JSR370: @Produces
 	public MediaType produces() default MediaType.JSON;
 	//JSR370: @Consumes

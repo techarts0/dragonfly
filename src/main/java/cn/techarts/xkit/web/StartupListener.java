@@ -45,11 +45,8 @@ import cn.techarts.xkit.web.token.TokenConfig;
  */
 public class StartupListener implements ServletContextListener {
 	private boolean standalone = false; //Running without DI
-	//The constant MUST be same as Context.NAME in whale project.
-	public static final String WHALE_KEY = "context.whale.techarts";
-	public static final String CONFIG_PATH = "contextConfigLocation";
-	public static final String URL_PATTERN = "web.url.pattern";
 	public static final String DB_CONFIG = "jdbc.properties";
+	public static final String URL_PATTERN = "web.url.pattern";
 	public static final String APP_CONFIG = "application.properties";
 	private static final Logger LOGGER = Hotpot.getLogger();
 		
@@ -58,12 +55,12 @@ public class StartupListener implements ServletContextListener {
 		var context = arg.getServletContext();
 		var classpath = this.getRootClassPath();
 		var classes = this.scanClasses(classpath);
-		if(Empty.is(classes)) return;
+		if(classes == null || classes.isEmpty()) return;
 		var config = getResourcePath(APP_CONFIG, false);
 		var configs = Hotpot.resolveProperties(config);
 		this.appendDatabaseProperties(configs);
 		this.getTokenConfig(context, configs);
-		this.standalone = isRunningStandalonely();
+		this.standalone = isRunningStandalone();
 		if(!standalone) initWhale(context, classes, configs);
 		int n = this.initWebServices(context, classes);
 		registerServiceRouter(context, configs.get(URL_PATTERN));
@@ -97,8 +94,8 @@ public class StartupListener implements ServletContextListener {
 			result.setSalt(configs.remove("token.salt"));
 			var duration = configs.remove("token.duration");
 			result.setDuration(Converter.toInt(duration));
-			var required = configs.remove("token.required");
-			result.setRequired(Converter.toBoolean(required));
+			var mandatory = configs.remove("token.mandatory");
+			result.setMandatory(Converter.toBoolean(mandatory));
 			var uid = configs.remove("token.uidProperty");
 			result.setUidProperty(uid == null ? "uid" : uid);
 			result.setTokenizer(configs.remove("token.tokenizer"));
@@ -111,7 +108,7 @@ public class StartupListener implements ServletContextListener {
 	private String getRootClassPath() {
 		var result = getClass().getResource("/");
 		if(Objects.isNull(result) || result.getPath() == null){
-			throw new RuntimeException("Failed to get class path.");
+			throw new RuntimeException("Failed to find class path.");
 		}
 		return result.getPath();
 	}
@@ -149,7 +146,7 @@ public class StartupListener implements ServletContextListener {
 		}
 	}
 	
-	private boolean isRunningStandalonely() {
+	private boolean isRunningStandalone() {
 		try {
 			Class.forName("cn.techarts.whale.Panic");
 			return false;

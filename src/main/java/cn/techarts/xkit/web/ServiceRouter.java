@@ -44,18 +44,21 @@ public class ServiceRouter extends HttpServlet{
 	private static final long serialVersionUID = 1L;
 	public static final int ALLOWED = 0; //OK
 	public static final int NO_SUCH_API = -10086;
-	public static final int INVALID_SESSION = -10000;
-	public static final String METHODS = "GET, POST, PUT, DELETE, HEAD, PATCH";
+	public static final int INVALID_TOKEN = -10000;
+	private static final String METHODS = "GET, POST, PUT, DELETE, HEAD, PATCH";
 	
 	public int authenticate(HttpServletRequest req, HttpServletResponse response, ServiceMeta service){
 		if(service == null) return NO_SUCH_API;
 		var context = req.getServletContext();
-		var sessionConfig = getTokenConfig(context);
-		if(!sessionConfig.required()) return ALLOWED;
-		if(!service.isAuthorized()) return ALLOWED;
-		String token = getToken(req), ip = getRemorteAddress(req);
-		if(token == null || token.isBlank()) return INVALID_SESSION;
-		var uid = req.getParameter(sessionConfig.getUidProperty());
+		var tokenConfig = getTokenConfig(context);
+		//Global Settings
+		if(!tokenConfig.mandatory()) return ALLOWED;
+		//API Settings
+		if(!service.isMandatory()) return ALLOWED;
+		var token = getToken(req);
+		if(Objects.isNull(token)) return INVALID_TOKEN;
+		var ip = getRemorteAddress(req);
+		var uid = req.getParameter(tokenConfig.getUidProperty());
 		return validate(context, uid, ip,  token, getUserAgent(req));
 	}
 	
@@ -71,14 +74,14 @@ public class ServiceRouter extends HttpServlet{
 	} 
 	
 	private String getUserAgent(HttpServletRequest request) {
-		return request.getHeader("user-agent");
+		return request.getHeader("User-Agent");
 	}
 	
 	public int validate(ServletContext context, String user, String ip, String token, String ua) {
 		var config = getTokenConfig(context);
 		var client = new ClientContext(ip, ua, user);
 		var result = config.getTokenizer().verify(client,config, token);
-		return result ? ALLOWED : INVALID_SESSION;
+		return result ? ALLOWED : INVALID_TOKEN;
 	}
 	
 	private void setCharsetEncoding(HttpServletRequest request, HttpServletResponse response) {
@@ -126,14 +129,14 @@ public class ServiceRouter extends HttpServlet{
 		}else if(result == NO_SUCH_API) {
 			handleUndefinedRequest(api, request, response);
 		}else{
-			var code = INVALID_SESSION;
+			var code = INVALID_TOKEN;
 			var msg = "Token is invalid.";
 			WebContext.respondMessage(response, code, msg);
 		}
 	}
 	
 	/**
-	 * You can put the token in request header with the name "token" or "x-token".
+	 * It's compatible to JWT
 	 */
 	private String getToken(HttpServletRequest request) {
 		var result = request.getHeader("token");
