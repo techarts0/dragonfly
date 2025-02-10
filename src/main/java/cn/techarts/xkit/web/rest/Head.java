@@ -14,22 +14,28 @@
  * limitations under the License.
  */
 
-package cn.techarts.xkit.web.restful;
+package cn.techarts.xkit.web.rest;
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.techarts.xkit.web.MediaType;
+
 /**
- * The annotation is the same as @Path in JSR370.
+ * The annotation is the same as @HEAD in JSR370.
  * @author rocwon@gmail.com
  */
-@Target(TYPE)
-@Retention(RUNTIME)
-@Documented
-public @interface Restful {
-	public String value() default "";
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Head {
+	/**URI Path*/
+	public String value();
+	/**Token is mandatory*/
+	public boolean mandatory() default true;
+	//JSR370: @Produces
+	public MediaType produces() default MediaType.JSON;
+	//JSR370: @Consumes
+	public MediaType consumes() default MediaType.NONE;
 }

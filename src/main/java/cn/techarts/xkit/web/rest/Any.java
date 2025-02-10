@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cn.techarts.xkit.web.restful;
+package cn.techarts.xkit.web.rest;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -24,12 +24,13 @@ import java.lang.annotation.Target;
 import cn.techarts.xkit.web.MediaType;
 
 /**
- * The annotation is the same as @Patch in JSR370.
+ * Ignored HTTP methods. 
+ * That means the service is able to handle any request methods.
  * @author rocwon@gmail.com
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Patch {
+public @interface Any {
 	/**URI Path*/
 	public String value();
 	/**Token is mandatory*/

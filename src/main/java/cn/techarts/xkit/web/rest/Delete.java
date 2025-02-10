@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cn.techarts.xkit.web.restful;
+package cn.techarts.xkit.web.rest;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -24,12 +24,12 @@ import java.lang.annotation.Target;
 import cn.techarts.xkit.web.MediaType;
 
 /**
- * The annotation is the same as @HEAD in JSR370.
+ * The annotation is the same as @DELETE in JSR370.
  * @author rocwon@gmail.com
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Head {
+public @interface Delete {
 	/**URI Path*/
 	public String value();
 	/**Token is mandatory*/

@@ -36,7 +36,7 @@ import cn.techarts.xkit.app.helper.Converter;
 import cn.techarts.xkit.app.helper.Empty;
 import cn.techarts.xkit.util.Hotpot;
 import cn.techarts.xkit.util.Scanner;
-import cn.techarts.xkit.web.restful.Restful;
+import cn.techarts.xkit.web.rest.Restful;
 import cn.techarts.xkit.web.token.TokenConfig;
 
 /**

@@ -23,13 +23,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.techarts.xkit.app.helper.Empty;
-import cn.techarts.xkit.web.restful.Any;
-import cn.techarts.xkit.web.restful.Delete;
-import cn.techarts.xkit.web.restful.Get;
-import cn.techarts.xkit.web.restful.Head;
-import cn.techarts.xkit.web.restful.Patch;
-import cn.techarts.xkit.web.restful.Post;
-import cn.techarts.xkit.web.restful.Put;
+import cn.techarts.xkit.web.rest.Any;
+import cn.techarts.xkit.web.rest.Delete;
+import cn.techarts.xkit.web.rest.Get;
+import cn.techarts.xkit.web.rest.Head;
+import cn.techarts.xkit.web.rest.Patch;
+import cn.techarts.xkit.web.rest.Post;
+import cn.techarts.xkit.web.rest.Put;
 
 /**
  * @author rocwon@gmail.com
