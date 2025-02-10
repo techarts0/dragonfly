@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Objects;
 
-import cn.techarts.dragonfly.app.helper.Empty;
 import cn.techarts.dragonfly.web.token.ClientContext;
 import cn.techarts.dragonfly.web.token.TokenConfig;
 
@@ -101,7 +100,7 @@ public class ServiceRouter extends HttpServlet{
     }
 	
 	private ServiceMeta getService(ServletContext context, String uri, String method) {
-		if(Empty.is(uri)) return null;
+		if(uri == null || uri.isEmpty()) return null;
 		var rootWebLocator = context.getAttribute(WebLocator.CACHE_KEY);
 		if(Objects.isNull(rootWebLocator)) return null;
 		return ((WebLocator)rootWebLocator).matches(uri, method);

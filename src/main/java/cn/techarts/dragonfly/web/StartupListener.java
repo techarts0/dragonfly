@@ -46,9 +46,10 @@ import cn.techarts.whale.Context;
  */
 public class StartupListener implements ServletContextListener {
 	private boolean standalone = false; //Running without DI
-	public static final String DB_CONFIG = "jdbc.properties";
-	public static final String URL_PATTERN = "web.url.pattern";
-	public static final String APP_CONFIG = "application.properties";
+	private static final String WEB_MODE = "web.standalone";
+	private static final String DB_CONFIG = "jdbc.properties";
+	private static final String URL_PATTERN = "web.url.pattern";
+	private static final String APP_CONFIG = "application.properties";
 	private static final Logger LOGGER = Hotpot.getLogger();
 		
 	@Override
@@ -61,7 +62,7 @@ public class StartupListener implements ServletContextListener {
 		var configs = Hotpot.resolveProperties(config);
 		this.appendDatabaseProperties(configs);
 		this.getTokenConfig(context, configs);
-		this.standalone = isRunningStandalone();
+		standalone = isStandalone(configs.remove(WEB_MODE));
 		if(!standalone) initWhale(context, classes, configs);
 		int n = this.initWebServices(context, classes);
 		registerServiceRouter(context, configs.get(URL_PATTERN));
@@ -147,13 +148,9 @@ public class StartupListener implements ServletContextListener {
 		}
 	}
 	
-	private boolean isRunningStandalone() {
-		try {
-			Class.forName("cn.techarts.whale.Panic");
-			return false;
-		}catch(ClassNotFoundException e) {
-			return true;
-		}
+	private boolean isStandalone(String standalone) {
+		if(standalone == null) return false;
+		return "true".equals(standalone.toLowerCase());
 	}
 	
 	@Override

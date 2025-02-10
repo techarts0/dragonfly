@@ -18,9 +18,6 @@ package cn.techarts.dragonfly.web;
 
 import java.util.Map;
 import java.util.Objects;
-
-import cn.techarts.dragonfly.app.helper.Empty;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +67,7 @@ public class WebLocator {
 	
 	// Pattern: POST/author/1/books/233
 	public ServiceMeta matches(String uri, String method) {
-		if(Empty.or(uri, values)) return null;
+		if(!or(uri, values)) return null;
 		var result = values.get(uri);
 		if(result != null) {//Classic URL
 			return result.getServiceMeta();
@@ -123,7 +120,7 @@ public class WebLocator {
 	}
 	
 	public WebLocator get(String val, boolean wc) {
-		if(Empty.or(val, values)) return null;
+		if(!or(val, values)) return null;
 		var result = values.get(val);
 		if(result != null) return result;
 		return wc ? values.get(WILDCARD) : null;
@@ -133,5 +130,10 @@ public class WebLocator {
 		if(meta == null) return false;
 		if(values == null) return true;
 		return this.values.isEmpty();
+	}
+	
+	private static boolean or(String arg0, Map<?, ?> arg1) {
+		if(arg0 == null || arg0.isEmpty()) return false;
+		return (arg1 == null || arg1.isEmpty()) ? false : true;
 	}
 }
