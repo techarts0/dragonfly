@@ -35,7 +35,7 @@ import cn.techarts.dragonfly.util.Scanner;
 public class TransactionEnhancer {
 	private String classpath = null;
 	private static final Logger LOGGER = Hotpot.getLogger();
-	private static final String ENHANCED = "cn.techarts.xkit.data.trans.Enhanced";
+	private static final String ENHANCED = "cn.techarts.dragonfly.data.trans.Enhanced";
 	
 	public TransactionEnhancer(String classpath) {
 		this.classpath = classpath;
