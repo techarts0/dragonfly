@@ -195,9 +195,11 @@ public class StartupListener implements ServletContextListener {
 			var tmp = Context.from(context);
 			return tmp.silent(clazz);
 		}else {
-			try {
-				return Class.forName(clazz);
-			}catch(ClassNotFoundException e) {
+			try {  //Invoke Default Constructor
+				var clz = Class.forName(clazz);
+				var con = clz.getConstructor();
+				return con.newInstance(); //
+			}catch(Exception e) {
 				return null;
 			}
 		}
