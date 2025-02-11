@@ -26,9 +26,11 @@ public class DefaultTokenizer implements Tokenizer{
 	@Override
 	public String create(ClientContext client, TokenConfig config) {
 		var minutes = String.valueOf(minutes());
-		var tmp = (client.getIp() != null ? client.getIp() : "0000") + client.getUser();
-		tmp = minutes.concat(tmp).concat(config.getSalt()).concat(client.getUa());
-		return Cryptor.encrypt(tmp, Cryptor.toBytes(config.getKey()));
+		var source = minutes.concat(client.getIp())
+							.concat(client.getUser())
+							.concat(client.getUa())
+							.concat(config.getSalt());
+		return Cryptor.encrypt(source, Cryptor.toBytes(config.getKey()));
 	}
 
 	@Override
@@ -37,8 +39,10 @@ public class DefaultTokenizer implements Tokenizer{
 		if(tmp == null) return false; //An invalid token
 		var bgn = Converter.toInt(tmp.substring(0, 8));
 		if(minutes() - bgn > config.getDuration()) return false;
-		var result = (client.getIp() != null ? client.getIp() : "0000") + 
-					 client.getUser() + config.getSalt() + client.getUa();
+		var result = client.getIp()
+						   .concat(client.getUser())
+						   .concat(client.getUa())
+						   .concat(config.getSalt());						    
 		return result != null ? result.equals(tmp.substring(8)) : false;
 	}
 	

@@ -38,7 +38,10 @@ public class ClientContext {
 	 * IP Address
 	 **/
 	public String getIp() {
-		return ip;
+		if(ip != null) {
+			return ip;
+		}
+		return "0:0:0:0";
 	}
 	
 	/**
@@ -52,7 +55,7 @@ public class ClientContext {
 	 * User-Agent
 	 **/
 	public String getUa() {
-		return ua;
+		return ua != null ? ua : "Unknown";
 	}
 	
 	/**
@@ -66,7 +69,7 @@ public class ClientContext {
 	 * User(id, email, mobile, username...)
 	 **/
 	public String getUser() {
-		return user;
+		return user != null ? user : "";
 	}
 	
 	/**
