@@ -9,7 +9,7 @@
 [![Generic badge](https://img.shields.io/badge/ORM-009ACD.svg)](https://shields.io/)
 
 ## 1. 介绍
-Dragonfly是一个轻量级的Java应用开发框架，可以作为Spring Framework的替代。Dragonfly基于DI框架[Whale](https://gitee.com/techarts/whale)，包括三个部分：
+Dragonfly是一个轻量级的Java应用开发框架，可以作为SpringBoot的替代。Dragonfly基于DI框架[Whale](https://gitee.com/techarts/whale)，包括三个部分：
 - Web: 一个遵循REST规范，参考JSR371和JAX-RS标准的Web开发框架
 - Data:一个用统一的API集成了MyBatis,Apache DBUTILS和JPA的数据访问框架
 - APP: 一些简化应用开发的工具
