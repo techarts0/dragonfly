@@ -1,4 +1,4 @@
-# dragonfly: 轻量级JAVA应用开发框架
+# dragonfly: 轻量级Java Web应用开发框架
 
 [![Generic badge](https://img.shields.io/badge/Active-00EE00.svg)](https://shields.io/)
 [![Generic badge](https://img.shields.io/badge/JAVA_11+-8A2BE2.svg)](https://shields.io/)
