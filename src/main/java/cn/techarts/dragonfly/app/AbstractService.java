@@ -21,8 +21,6 @@ import javax.inject.Inject;
 
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.ibatis.session.SqlSession;
-
-import cn.techarts.dragonfly.app.rpc.WebRPCHelper;
 import cn.techarts.dragonfly.data.DataHelper;
 import cn.techarts.dragonfly.data.DataManager;
 import cn.techarts.dragonfly.data.redis.RedisHelper;
@@ -45,9 +43,6 @@ public abstract class AbstractService implements TransactionAbility
 	
 	@Inject
 	private RedisHelper redisHelper = null;
-	
-	@Inject
-	private WebRPCHelper webRpcHelper = null;
 		
 	/**
 	 * ERRID means the Id is ZERO(<b>0</b>) and it's <b>invalid</b>.
@@ -84,16 +79,6 @@ public abstract class AbstractService implements TransactionAbility
 			throw new RuntimeException("Cache module is not enabled.");
 		}
 		return this.redisHelper;
-	}
-	
-	/**
-	 * @return The helper to help you call remoting methods over HTTP.
-	 */
-	protected WebRPCHelper getRpcHelper() {
-		if(Objects.isNull(webRpcHelper)) {
-			throw new RuntimeException("RPC module is not enabled.");
-		}
-		return this.webRpcHelper;
 	}
 	
 	/**
