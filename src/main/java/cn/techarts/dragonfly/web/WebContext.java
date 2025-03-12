@@ -41,7 +41,6 @@ public class WebContext {
 	private Result result = Result.ok();
 	private HttpServletRequest request;
 	private HttpServletResponse response;
-	
 	private jakarta.servlet.http.HttpServletRequest request0;
 	private jakarta.servlet.http.HttpServletResponse response0;
 	
@@ -66,7 +65,16 @@ public class WebContext {
 		this.arguments = arguments;
 	}
 	
-	public void respondAsJson(Object obj, MediaType type){
+	public void respondAsBinary(byte[] bin, MediaType type) {
+		if(bin == null || bin.length == 0) return;
+		this.responds(type.value(), bin);
+	}
+	
+	public void respondAsText(String content, MediaType type) {
+		this.responds(type.value(), content);
+	}
+	
+	public void respondAsJson(Object obj){
 		if(obj == null) {
 			if(!result.mark()) {
 				result = Result.unknown();
@@ -77,7 +85,7 @@ public class WebContext {
 			this.result.setData(obj);
 		}		
 		var content = Codec.toJson(result);
-		this.responds(type.value(), content);
+		this.responds(MediaType.JSON.value(), content);
 	}
 	
 	//Javax & Jakarta API 
@@ -96,6 +104,23 @@ public class WebContext {
 			throw new RuntimeException("Failed to respond.", e);
 		}
 	}
+	
+	//Javax & Jakarta API 
+		private void responds(String contentType, byte[] content) {
+			try {
+			if(this.response != null) { //Javax
+				response.setContentType(contentType);
+				response.getOutputStream().write(content);
+				response.getOutputStream().flush();
+			}else {	//Jakarta
+				response0.setContentType(contentType);
+				response0.getOutputStream().write(content);
+				response0.getOutputStream().flush();
+			}
+			}catch(IOException e) {
+				throw new RuntimeException("Failed to respond.", e);
+			}
+		}
 	
 	private String getParameter(String name) {
 		if(request != null) { //Javax
@@ -371,7 +396,7 @@ public class WebContext {
 	/**
 	 * @return The value of user-agent field in HTTP Request header
 	 */
-	public String ua() {
+	public String userAgent() {
 		return getHeader("user-agent");
 	}
 	
@@ -379,7 +404,7 @@ public class WebContext {
 		var obj = getAttribute(TokenConfig.CACHE_KEY);
 		if(obj == null) return null; //ERROR
 		var sessionConfig = (TokenConfig)obj;
-		var client = new ClientContext(ip(), ua(), userId);
+		var client = new ClientContext(ip(), userAgent(), userId);
 		return sessionConfig.getTokenizer().create(client, sessionConfig);
 	}
 	
@@ -392,9 +417,10 @@ public class WebContext {
 	 */
 	public String getJson(){
 		var ct = getContentType();
-		if(!ct.toLowerCase().contains("/json")) return null;
-		var bs = readRequestBytes();
-		return new String(bs, StandardCharsets.UTF_8);
+		if(!ct.toLowerCase().contains("/json")) {
+			throw new RuntimeException("The content type is not JSON.");
+		}
+		return new String(readRequestBytes(), StandardCharsets.UTF_8);
 	}
 	
 	/**

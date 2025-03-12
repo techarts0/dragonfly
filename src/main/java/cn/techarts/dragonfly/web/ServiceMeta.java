@@ -120,7 +120,21 @@ public final class ServiceMeta {
 	
 	private void callAndRespond(WebContext context) throws Exception{
 		context.setRestfulArguments(this.arguments);
-		context.respondAsJson(method.invoke(object, context), produce);
+		var result = method.invoke(object, context);
+		if(produce == MediaType.JSON) {
+			context.respondAsJson(result);
+		}else if(produce == MediaType.YAML){
+			context.respondAsText((String)result, consume);
+		}else if(produce == MediaType.XML) {
+			context.respondAsText((String)result, consume);
+		}else {
+			if(result instanceof byte[]) {
+				context.respondAsBinary((byte[])result, consume);
+			}else {
+				throw new RuntimeException("It's not a byte array.");
+			}
+		}
+		
 	}
 	
 	public void call(HttpServletRequest request, HttpServletResponse response) {

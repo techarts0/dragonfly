@@ -27,8 +27,10 @@ public enum MediaType {
 	PNG("image/png"),
 	JPEG("image/jpeg"),
 	XML("application/xml"),
+	BIN("application/octet-stream"),
 	JSON("application/json;charset=UTF-8"),
-	FORM("application/x-www-form-urlencoded");
+	YAML("application/x-yaml;charset=UTF-8"),
+	FORM("application/x-www-form-urlencoded;charset=UTF-8");
 	
 	private String contentType;
 	

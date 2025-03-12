@@ -67,9 +67,11 @@ public class ServiceRouter extends HttpServlet{
 	}
 	
 	public static String getRemorteAddress(HttpServletRequest request) {
-		var result = request.getHeader("x-forwarded-for");
-		if(result == null) result = request.getHeader("X-Real-IP");
-		return result == null ? request.getRemoteAddr() : result;
+		var result = request.getHeader("X-Real-IP");
+		if(result == null) {
+			result = request.getHeader("x-forwarded-for");;
+		}
+		return result != null ? result : request.getRemoteAddr();
 	} 
 	
 	private String getUserAgent(HttpServletRequest request) {

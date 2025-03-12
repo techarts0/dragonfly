@@ -135,6 +135,7 @@ public class StartupListener implements ServletContextListener {
 		ctx.start();
 	}
 	
+	//SPI
 	private void registerApplicationModules(Context context, String modules) {
 		if(Empty.is(modules)) return;
 		var appModules = modules.split(",");
