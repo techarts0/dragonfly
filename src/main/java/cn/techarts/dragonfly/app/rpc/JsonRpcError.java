@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cn.techarts.dragonfly.web.jsonrpc;
+package cn.techarts.dragonfly.app.rpc;
 
 /**
  * @author rocwon@gmail.com

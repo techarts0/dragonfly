@@ -81,6 +81,11 @@ public final class Requester {
 		return sendRequestSync(createHttpClient(), request);
 	}
 	
+	public static String get(String url, String payload, Map<String, String> headers) {
+		var request = createHttpGetRequest(url, payload, headers);
+		return sendRequestSync(createHttpClient(), request);
+	}
+	
 	/**
 	 * Send plain text content
 	 */
@@ -196,6 +201,17 @@ public final class Requester {
 	
 	private static HttpRequest createHttpGetRequest(String url, Map<String, String> data, Map<String, String> headers) {
 		var uri = (Empty.is(data)) ? url : url.concat("?").concat(stringify(data));
+		var result = HttpRequest.newBuilder().uri(URI.create(uri))
+			   .timeout(Duration.ofSeconds(TIMEOUT_SECONDS)).GET()
+			   .header("Content-Type", CONTENT_TYPE_FORM);
+		if(!Empty.is(headers)) {
+			headers.forEach((k,v)->result.header(k, v));
+		}
+		return result.build();
+	}
+	
+	private static HttpRequest createHttpGetRequest(String url, String payload, Map<String, String> headers) {
+		var uri = (Empty.is(payload)) ? url : url.concat("?").concat(payload);
 		var result = HttpRequest.newBuilder().uri(URI.create(uri))
 			   .timeout(Duration.ofSeconds(TIMEOUT_SECONDS)).GET()
 			   .header("Content-Type", CONTENT_TYPE_FORM);

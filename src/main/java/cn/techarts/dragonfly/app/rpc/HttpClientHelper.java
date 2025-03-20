@@ -28,12 +28,12 @@ import cn.techarts.dragonfly.util.Codec;
 
 /**
  * <p>javax & jakarta</p>
- * RPC based on HTTP & JSON
+ * RPC based on HTTP & JSON & JWT
  * @author rocwon@gmail.com
  */
 
 @Singleton
-public class WebRPCHelper {
+public class HttpClientHelper {
 	public<T> T get(String url, Map<String, String> args, Class<T> t) {
 		var result = Requester.get(url, args);
 		if(Empty.is(result)) return null;
@@ -49,10 +49,10 @@ public class WebRPCHelper {
 	/**
 	 * It is compatible to Dragonfly Web Framework.
 	 */
-	public<T> T get(String url, Map<String, String> args, Class<T> t, String session) {
+	public<T> T get(String url, Map<String, String> args, Class<T> t, String token) {
 		var hdr = new HashMap<String, String>();
-		if(session != null) {
-			hdr.put("x-session", session);
+		if(token != null) {
+			hdr.put("Authorization", "Bearer " + token);
 		}
 		var result = Requester.get(url, args, hdr);
 		if(Empty.is(result)) return null;
@@ -68,10 +68,10 @@ public class WebRPCHelper {
 	/**
 	 * It is compatible to Dragonfly Web Framework.
 	 */
-	public<T> T post(String url, Map<String, String> args, Class<T> t, String session) {
+	public<T> T post(String url, Map<String, String> args, Class<T> t, String token) {
 		var hdr = new HashMap<String, String>();
-		if(session != null) {
-			hdr.put("x-session", session);
+		if(token != null) {
+			hdr.put("Authorization", "Bearer " + token);
 		}
 		var result = Requester.post(url, args, hdr);
 		if(Empty.is(result)) return null;
@@ -93,10 +93,10 @@ public class WebRPCHelper {
 	/**
 	 * It is compatible to Dragonfly Web Framework.
 	 */
-	public<T> T delete(String url, Map<String, String> args, Class<T> t, String session) {
+	public<T> T delete(String url, Map<String, String> args, Class<T> t, String token) {
 		var hdr = new HashMap<String, String>();
-		if(session != null) {
-			hdr.put("x-session", session);
+		if(token != null) {
+			hdr.put("Authorization", "Bearer " + token);
 		}
 		var result = Requester.delete(url, args, hdr);
 		if(Empty.is(result)) return null;
@@ -112,10 +112,10 @@ public class WebRPCHelper {
 	/**
 	 * It is compatible to Dragonfly Web Framework.
 	 */
-	public<T> T put(String url, Map<String, String> args, Class<T> t, String session) {
+	public<T> T put(String url, Map<String, String> args, Class<T> t, String token) {
 		var hdr = new HashMap<String, String>();
-		if(session != null) {
-			hdr.put("x-session", session);
+		if(token != null) {
+			hdr.put("Authorization", "Bearer " + token);
 		}
 		var result = Requester.put(url, args, hdr);
 		if(Empty.is(result)) return null;
