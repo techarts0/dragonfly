@@ -28,12 +28,12 @@ import cn.techarts.dragonfly.util.Codec;
 
 /**
  * <p>javax & jakarta</p>
- * RPC based on HTTP & JSON & JWT
+ * Restful RPC based on HTTP & JSON & JWT
  * @author rocwon@gmail.com
  */
 
 @Singleton
-public class HttpClientHelper {
+public class RestfulRpcClient {
 	public<T> T get(String url, Map<String, String> args, Class<T> t) {
 		var result = Requester.get(url, args);
 		if(Empty.is(result)) return null;
