@@ -49,6 +49,7 @@ public class StartupListener implements ServletContextListener {
 	private static final String WEB_MODE = "web.standalone";
 	private static final String DB_CONFIG = "jdbc.properties";
 	private static final String URL_PATTERN = "web.url.pattern";
+	private static final String RPC_PROTOCOL = "web.rpc.protocol";
 	private static final String APP_CONFIG = "application.properties";
 	private static final Logger LOGGER = Hotpot.getLogger();
 		
@@ -62,6 +63,11 @@ public class StartupListener implements ServletContextListener {
 		var configs = Hotpot.resolveProperties(config);
 		this.appendDatabaseProperties(configs);
 		this.getTokenConfig(context, configs);
+		
+		var rpc = configs.remove(RPC_PROTOCOL);
+		rpc = rpc != null ? rpc.toLowerCase() : null;
+		ServiceRouter.JSONRPC = "jsonrpc".equals(rpc);
+		
 		standalone = isStandalone(configs.remove(WEB_MODE));
 		if(!standalone) initWhale(context, classes, configs);
 		int n = this.initWebServices(context, classes);

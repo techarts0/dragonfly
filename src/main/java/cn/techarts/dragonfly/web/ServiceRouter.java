@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 //import jakarta.servlet.http.HttpServletRequest;
 //import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Objects;
 
@@ -40,6 +39,7 @@ import cn.techarts.dragonfly.web.token.TokenConfig;
  * @author rocwon@gmail.com
  */
 public class ServiceRouter extends HttpServlet{
+	public static boolean JSONRPC = false;
 	private static final long serialVersionUID = 1L;
 	public static final int ALLOWED = 0; //OK
 	public static final int NO_SUCH_API = -10086;
@@ -113,12 +113,6 @@ public class ServiceRouter extends HttpServlet{
 		setCharsetEncoding(request, response);
 		this.allowsCrossDomainAccess(response);
 		var api = request.getPathInfo();
-		
-		if(api == null) {//Ping Request doesn't take any data
-			ping(response, false);
-			return; //The PING request has not furthermore actions
-		}
-		
 		var method = request.getMethod(); //HTTP METHOD
 		var context = request.getServletContext();
 		var service = getService(context, api, method);
@@ -126,7 +120,7 @@ public class ServiceRouter extends HttpServlet{
 		int result = authenticate(request, response, service);
 						
 		if(result == ALLOWED) {
-			service.call(request, response);
+			service.call(request, response, JSONRPC);
 		}else if(result == NO_SUCH_API) {
 			handleUndefinedRequest(api, request, response);
 		}else{
@@ -146,15 +140,6 @@ public class ServiceRouter extends HttpServlet{
 		if(result == null || result.length() < 8) return null;
 		var bearer = result.startsWith("Bearer ");
 		return bearer ? result.substring(7) : null;
-	}
-	
-	private void ping(HttpServletResponse response, boolean async) {
-		try {
-			response.getWriter().write("OK");
-			response.getWriter().flush();
-		}catch(IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	protected void handleUndefinedRequest(String api, HttpServletRequest request, HttpServletResponse response) {

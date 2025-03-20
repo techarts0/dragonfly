@@ -119,29 +119,28 @@ public final class ServiceMeta {
 	}
 	
 	private void callAndRespond(WebContext context) throws Exception{
-		context.setRestfulArguments(this.arguments);
+		if(context.hasError()) return;
+		context.setPathParameters(this.arguments);
 		var result = method.invoke(object, context);
 		if(produce == MediaType.JSON) {
 			context.respondAsJson(result);
-		}else if(produce == MediaType.YAML){
-			context.respondAsText((String)result, consume);
 		}else if(produce == MediaType.XML) {
 			context.respondAsText((String)result, consume);
-		}else {
-			if(result instanceof byte[]) {
-				context.respondAsBinary((byte[])result, consume);
-			}else {
-				throw new RuntimeException("It's not a byte array.");
+		}else if(produce == MediaType.BIN){ //Binary
+			if(!(result instanceof byte[])) {
+				throw new RuntimeException("Data is not binary.");
 			}
+			context.respondAsBinary((byte[])result, this.consume);
+		}else {
+			throw new RuntimeException("Unsupported content type: " + consume.value());
 		}
-		
 	}
 	
-	public void call(HttpServletRequest request, HttpServletResponse response) {
+	public void call(HttpServletRequest request, HttpServletResponse response, boolean jsonrpc) {
 		if(Empty.or(method, object)) return;
 		try {
 			checkBeforeCalling(request.getContentType());
-			callAndRespond(new WebContext(request, response));
+			callAndRespond(new WebContext(request, response, jsonrpc));
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to execute the web service.",  e);
 		}
@@ -151,11 +150,12 @@ public final class ServiceMeta {
 	 * Jakarata Servlet API
 	 */
 	public void call(jakarta.servlet.http.HttpServletRequest request, 
-					 jakarta.servlet.http.HttpServletResponse response) {
+					 jakarta.servlet.http.HttpServletResponse response, 
+					 boolean jsonrpc) {
 		if(Empty.or(method, object)) return;
 		try {
 			checkBeforeCalling(request.getContentType());
-			callAndRespond(new WebContext(request, response));
+			callAndRespond(new WebContext(request, response, jsonrpc));
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to execute the web service.",  e);
 		}

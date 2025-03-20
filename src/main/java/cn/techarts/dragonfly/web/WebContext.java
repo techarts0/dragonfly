@@ -26,9 +26,11 @@ import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import cn.techarts.dragonfly.app.helper.Converter;
 import cn.techarts.dragonfly.util.Codec;
+import cn.techarts.dragonfly.web.jsonrpc.JsonRpcError;
+import cn.techarts.dragonfly.web.jsonrpc.JsonRpcRequest;
+import cn.techarts.dragonfly.web.jsonrpc.JsonRpcResult;
 import cn.techarts.dragonfly.web.token.ClientContext;
 import cn.techarts.dragonfly.web.token.TokenConfig;
 import cn.techarts.whale.Context;
@@ -37,31 +39,63 @@ import cn.techarts.whale.Context;
  * @author rocwon@gmail.com
  */
 public class WebContext {
-	private List<String> arguments; //RESTFUL
+	//Restful path parameters
+	private List<String> arguments;
 	private Result result = Result.ok();
+	private JsonRpcError  resulte = null;
+	private JsonRpcResult resultj = null;
+	
 	private HttpServletRequest request;
 	private HttpServletResponse response;
+	private JsonRpcRequest jsonRpcRequest;
 	private jakarta.servlet.http.HttpServletRequest request0;
 	private jakarta.servlet.http.HttpServletResponse response0;
 	
 	//The constant MUST be same as Context.NAME in whale project.
 	private static final String WHALE_KEY = "context.whale.techarts";
 
-	public WebContext(HttpServletRequest request, HttpServletResponse response) {
+	public WebContext(HttpServletRequest request, HttpServletResponse response, boolean jsonrpc) {
 		this.request = request;
 		this.response = response;
+		this.parseJsonRpc(jsonrpc);
 	}
 	
 	/**
 	 * For Jakarta Servlet API
 	 */
 	public WebContext(jakarta.servlet.http.HttpServletRequest request, 
-					  jakarta.servlet.http.HttpServletResponse response) {
+					  jakarta.servlet.http.HttpServletResponse response, 
+					  boolean jsonrpc) {
 		this.request0 = request;
 		this.response0 = response;
+		this.parseJsonRpc(jsonrpc);
 	}
 	
-	public void setRestfulArguments(List<String> arguments) {
+	private void parseJsonRpc(boolean jsonrpc) {
+		if(!jsonrpc) return;
+		try {
+			jsonRpcRequest = getJson(JsonRpcRequest.class);
+			if(jsonRpcRequest == null) {
+				jsonRpcRequest = new JsonRpcRequest(); //Empty
+				error(JsonRpcError.INVALID_REQUEST, "Invalid request");
+			}else if(!jsonRpcRequest.hasMethod()) {
+				error(JsonRpcError.METHOD_NOT_FOUND, "Method not found");
+			}
+		}catch(RuntimeException e) {
+			this.error(JsonRpcError.PARSE_ERROR, "Parse error");
+		}
+		//Respond directly if a known error occurred on parsing.
+		if(this.resulte != null) this.respondAsJson(null);
+	}
+	
+	/**
+	 * @return Returns true if an error has occurred in constructor.
+	 */
+	public boolean hasError() {
+		return this.resulte != null;
+	}
+	
+	public void setPathParameters(List<String> arguments) {
 		this.arguments = arguments;
 	}
 	
@@ -74,7 +108,17 @@ public class WebContext {
 		this.responds(type.value(), content);
 	}
 	
-	public void respondAsJson(Object obj){
+	public void respondAsJson(Object data) {
+		String result = null;
+		if(jsonRpcRequest == null) {
+			result = this.serializeDefault(data);
+		}else {
+			result = this.serializeJsonRpc(data);
+		}
+		responds(MediaType.JSON.value(), result);
+	}
+	
+	private String serializeDefault(Object obj){
 		if(obj == null) {
 			if(!result.mark()) {
 				result = Result.unknown();
@@ -84,8 +128,17 @@ public class WebContext {
 		}else {
 			this.result.setData(obj);
 		}		
-		var content = Codec.toJson(result);
-		this.responds(MediaType.JSON.value(), content);
+		return Codec.toJson(this.result);
+	}
+	
+	private String serializeJsonRpc(Object obj) {
+		if(resulte != null) {
+			resulte.setErrorData(obj);
+			return Codec.toJson(this.resulte);
+		}else {
+			resultj = jsonRpcRequest.toResult(obj);
+			return Codec.toJson(this.resultj);
+		}
 	}
 	
 	//Javax & Jakarta API 
@@ -189,7 +242,7 @@ public class WebContext {
 			return request0.getInputStream().readAllBytes();
 		}
 		}catch(IOException e) {
-			throw new RuntimeException("Failed to get json from request.", e);
+			throw new RuntimeException("Failed to read json from request.", e);
 		}
 	}
 	
@@ -288,54 +341,62 @@ public class WebContext {
 	}
 	
 	public int getInt(String name) {
-		var val = getParameter(name);
-		return Converter.toInt(val);
+		if(jsonRpcRequest == null) {
+			var val = getParameter(name);
+			return Converter.toInt(val);
+		}else {			
+			return jsonRpcRequest.getInt(name);
+		}
 	}
 
 	public long getlong(String name) {
-		var val = getParameter(name);
-		return Converter.toLong(val);
+		if(jsonRpcRequest == null) {
+			var val = getParameter(name);
+			return Converter.toLong(val);
+		}else {
+			return jsonRpcRequest.getLong(name);
+		}
 	}
 	
 	public String get(String name) {
-		return getParameter(name);
+		if(jsonRpcRequest == null) {
+			return getParameter(name);
+		}else {
+			return jsonRpcRequest.get(name);
+		}
 	}
 		
 	public boolean getBool(String name) {
+		if(jsonRpcRequest == null) {
 		var val = getParameter(name);
 		return Converter.toBoolean(val);
+		}else {
+			return jsonRpcRequest.getBool(name);
+		}
 	}
 	
 	public float getFloat(String name) {
-		var val = getParameter(name);
-		return Converter.toFloat(val);
+		if(jsonRpcRequest == null) {
+			var val = getParameter(name);
+			return Converter.toFloat(val);
+		}else {
+			return jsonRpcRequest.getFloat(name);
+		}
 	}
 	
 	public double getDouble(String name) {
-		var val = getParameter(name);
-		return Converter.toDouble(val);
+		if(jsonRpcRequest == null) {
+			var val = getParameter(name);
+			return Converter.toDouble(val);
+		}else {
+			return jsonRpcRequest.getDouble(name);
+		}
 	}
 	
 	public List<String> toList(String name, String separator){
 		var tmp = getParameter(name);
 		if(Objects.isNull(tmp)) return List.of();
 		return Arrays.asList(tmp.split(separator));
-	}
-	
-	public int uid() {
-		return getInt("uid");
-	}
-	
-	public int id() {
-		return getInt("id");
-	}
-	
-	public int xid() {
-		return getInt("xid");
-	}
-	
-	public String name() {
-		return get("name");
 	}
 	
 	public int page() {
@@ -369,8 +430,27 @@ public class WebContext {
 		return Converter.toDate(p);
 	}
 	
+	/**JSON RPC method property*/
+	public String getMethod() {
+		if(jsonRpcRequest == null) {
+			return null;
+		}else {
+			return jsonRpcRequest.getMethod();
+		}
+	}
+	
+	/**JSON RPC id property*/
+	public int getId() {
+		return jsonRpcRequest.getId();
+	}
+	
 	public void error(int code, String cause) {
-		this.result = new Result(code, cause);
+		if(this.jsonRpcRequest == null) {
+			this.result = new Result(code, cause);
+		}else {
+			resulte = jsonRpcRequest.toError();
+			resulte.error(code, cause);
+		}
 	}
 	
 	public static String getClientAddress(HttpServletRequest request) {
@@ -413,21 +493,16 @@ public class WebContext {
 	}
 	
 	/**
-	 * If the content-type of request is application/json, returns the whole content string. 
+	 * The content-type of request is application/json 
 	 */
-	public String getJson(){
+	public<T> T getJson(Class<T> t){
 		var ct = getContentType();
 		if(!ct.toLowerCase().contains("/json")) {
 			throw new RuntimeException("The content type is not JSON.");
 		}
-		return new String(readRequestBytes(), StandardCharsets.UTF_8);
-	}
-	
-	/**
-	 * An alias of the method {@link toBbean}
-	 */
-	public<T> T bean(T bean) {
-		return toBean(bean);
+		var bytes = this.readRequestBytes();
+		if(bytes == null || bytes.length == 0) return null;
+		return Codec.decodeJson(new String(bytes, StandardCharsets.UTF_8), t);
 	}
 	
 	/**
@@ -435,8 +510,11 @@ public class WebContext {
 	 * IMPORTANT: the property name MUST be same to the parameter name. And, <br>
 	 * only the JDK built-in types and their object wrappers (e.g. long and Long)are supported.
 	 */
-	public<T> T toBean(T bean) {
+	public<T> T getBean(T bean) {
 		if(Objects.isNull(bean)) return null;
+		if(jsonRpcRequest != null) {
+			return jsonRpcRequest.toBean(bean);
+		}
 		var clz = bean.getClass();
 		var methods = clz.getMethods();
 		if(methods.length == 0) return bean;
@@ -447,21 +525,20 @@ public class WebContext {
 			if(ps.length != 1) continue;
 			var cs = name.substring(3).toCharArray();
 			cs[0] += 32; //Convert the upper to lower
-			setProperty(bean, m, ps[0],String.valueOf(cs));
+			setProperty(bean, m, ps[0], getParameter(String.valueOf(cs)));
 		}
 		return bean; //Return the POJO to support chain-calling style.
 	}
 	
-	private void setProperty(Object pojo, Method m, Class<?> type, String name) {
+	private static void setProperty(Object pojo, Method m, Class<?> type, String val) {
 		if(Objects.isNull(type)) return;
 		var typeName = type.getSimpleName();
-		var val = request.getParameter(name);
 		try {
 			switch(typeName) {		
 				case "String":
 					m.invoke(pojo, val); break;
 				case "Date":
-					m.invoke(pojo, time(val)); break;
+					m.invoke(pojo, Converter.toDate(val)); break; //time
 				case "int":
 					m.invoke(pojo, Converter.toInt(val)); break;
 				case "Integer":

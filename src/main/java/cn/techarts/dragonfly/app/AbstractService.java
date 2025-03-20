@@ -31,8 +31,7 @@ import jakarta.persistence.EntityManager;
 /**
  * Your service will gain the following abilities:<p>
  * 1. Fully access relational database via {@link getDataHelper()},<br>
- * 2. access the memory cache redis via {@link getRedisHelper()},<br>
- * 3. interact to other applications via {@link getRpcHelper()}
+ * 2. access the memory cache redis via {@link getRedisHelper()}
  * 
  * @author rocwon@gmail.com
  */

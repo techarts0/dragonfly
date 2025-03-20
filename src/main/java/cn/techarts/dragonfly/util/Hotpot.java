@@ -31,7 +31,6 @@ import java.util.logging.Logger;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.spec.SecretKeySpec;
-
 import cn.techarts.dragonfly.app.helper.Empty;
 
 /**
@@ -294,6 +293,9 @@ public final class Hotpot {
 			throw new RuntimeException("Fail to load the ini file", e);
 		}
 	}
+	
+	//Reflection
+	
 }
 
 class ClassFilter implements FileFilter

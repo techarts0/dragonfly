@@ -25,7 +25,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Result implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
-	
 	private int code;
 	private String text;
 	private Object data;
@@ -88,5 +87,5 @@ public class Result implements Serializable{
 			return t.cast(this.data);
 		}
 		return null;
-	}
+	}	
 }
