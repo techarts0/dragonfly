@@ -90,7 +90,7 @@ public class WebLocator {
 	
 	private WebLocator setServiceMeta(ServiceMeta meta) {
 		this.meta = meta;
-		this.values = null;
+		//this.values = null;
 		return this;
 	}
 	
