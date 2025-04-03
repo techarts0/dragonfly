@@ -136,7 +136,7 @@ public class StartupListener implements ServletContextListener {
 	private void initWhale(ServletContext context, List<String> classes, Map<String, String> configs) {
 		var ctx = Context.make(configs).cache(context);
 		ctx.getBinder().register(classes);
-		ctx.getLoader().parse(getResourcePath("beans.xml", false));
+		ctx.getLoader().parse(getResourcePath("beans.xml", true));
 		registerApplicationModules(ctx, configs.get("app.modules"));
 		ctx.start();
 	}
