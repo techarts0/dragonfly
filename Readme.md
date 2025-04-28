@@ -8,7 +8,7 @@
 [![Generic badge](https://img.shields.io/badge/Lightweight-00008B.svg)](https://shields.io/)
 [![Generic badge](https://img.shields.io/badge/ORM-009ACD.svg)](https://shields.io/)
 
-## 更详细的文档和使用帮助，请访问：[DeepWiki](https://deepwiki.com/techarts0/dragonfly)
+### 请访问[DeepWiki](https://deepwiki.com/techarts0/dragonfly)获取更详细的文档和使用帮助。
 
 ## 1. 介绍
 Dragonfly是一个轻量级的Java应用开发框架，可以作为SpringBoot的替代。Dragonfly基于DI框架[Whale](https://gitee.com/techarts/whale)，包括三个部分：
